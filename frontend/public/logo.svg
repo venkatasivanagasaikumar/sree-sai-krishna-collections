@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <!-- Watercolor splash gradient -->
+    <radialGradient id="waterColor" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#EAF3FC" stop-opacity="0.85" />
+      <stop offset="60%" stop-color="#D7E8FA" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </radialGradient>
+    
+    <!-- Gold gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E5B963" />
+      <stop offset="40%" stop-color="#C89A43" />
+      <stop offset="80%" stop-color="#F2D07E" />
+      <stop offset="100%" stop-color="#A37728" />
+    </linearGradient>
+
+    <!-- Navy gradient -->
+    <linearGradient id="navyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1769AA" />
+      <stop offset="50%" stop-color="#123F7A" />
+      <stop offset="100%" stop-color="#082B55" />
+    </linearGradient>
+
+    <!-- Peacock feather eye gradient -->
+    <radialGradient id="peacockEye" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#082B55" />
+      <stop offset="35%" stop-color="#0F766E" />
+      <stop offset="65%" stop-color="#0D9488" />
+      <stop offset="85%" stop-color="#C89A43" />
+      <stop offset="100%" stop-color="#EAF3FC" />
+    </radialGradient>
+  </defs>
+
+  <!-- Watercolor wash effect in background -->
+  <circle cx="200" cy="200" r="175" fill="url(#waterColor)" />
+  <path d="M 90,150 Q 140,80 230,100 T 310,180 T 260,290 T 130,280 Z" fill="#EAF3FC" opacity="0.6" filter="blur(12px)" />
+
+  <!-- Outer ornamental gold ring -->
+  <circle cx="200" cy="200" r="160" fill="none" stroke="url(#goldGrad)" stroke-width="2.5" stroke-dasharray="4,3" />
+  <circle cx="200" cy="200" r="152" fill="none" stroke="url(#goldGrad)" stroke-width="1.2" opacity="0.7" />
+
+  <!-- Gold filigree floral top accent -->
+  <path d="M 175,75 C 185,60 195,65 200,55 C 205,65 215,60 225,75 C 215,72 205,80 200,82 C 195,80 185,72 175,75 Z" fill="url(#goldGrad)" />
+  <circle cx="200" cy="50" r="4" fill="url(#goldGrad)" />
+  <circle cx="180" cy="62" r="2.5" fill="url(#goldGrad)" />
+  <circle cx="220" cy="62" r="2.5" fill="url(#goldGrad)" />
+
+  <!-- Royal Crown -->
+  <path d="M 165,115 L 175,95 L 188,110 L 200,90 L 212,110 L 225,95 L 235,115 Q 200,125 165,115 Z" fill="url(#goldGrad)" />
+  <circle cx="175" cy="92" r="2.5" fill="#123F7A" />
+  <circle cx="200" cy="87" r="3" fill="#123F7A" />
+  <circle cx="225" cy="92" r="2.5" fill="#123F7A" />
+
+  <!-- Peacock Feather (arching elegantly above the crown & S) -->
+  <g transform="translate(205, 55) rotate(22) scale(0.65)">
+    <!-- Feather quill/stem -->
+    <path d="M 0,90 Q 25,40 50,0" fill="none" stroke="url(#goldGrad)" stroke-width="2.5" stroke-linecap="round" />
+    <!-- Feather eye / plume -->
+    <ellipse cx="50" cy="0" rx="22" ry="16" fill="url(#peacockEye)" transform="rotate(-30 50 0)" />
+    <path d="M 30,10 Q 55,-15 70,5" fill="none" stroke="#F2D07E" stroke-width="1.5" />
+    <circle cx="50" cy="0" r="7" fill="#082B55" />
+    <circle cx="51" cy="-2" r="3" fill="#38BDF8" />
+  </g>
+
+  <!-- SSK Monogram (Royal Navy Blue serif typography) -->
+  <text x="200" y="218" 
+        font-family="'Cinzel', 'Playfair Display', Georgia, serif" 
+        font-size="76" 
+        font-weight="700" 
+        letter-spacing="5"
+        fill="url(#navyGrad)" 
+        text-anchor="middle"
+        style="filter: drop-shadow(0px 2px 3px rgba(8, 43, 85, 0.15));">
+    SSK
+  </text>
+
+  <!-- Gold decorative divider with small lotus/diamond -->
+  <line x1="120" y1="240" x2="185" y2="240" stroke="url(#goldGrad)" stroke-width="1.8" />
+  <path d="M 200,236 L 204,240 L 200,244 L 196,240 Z" fill="url(#goldGrad)" />
+  <line x1="215" y1="240" x2="280" y2="240" stroke="url(#goldGrad)" stroke-width="1.8" />
+
+  <!-- Brand Subtitle: SREE SAI KRISHNA -->
+  <text x="200" y="268" 
+        font-family="'Cinzel', 'Inter', sans-serif" 
+        font-size="15" 
+        font-weight="700" 
+        letter-spacing="4"
+        fill="#123F7A" 
+        text-anchor="middle">
+    SREE SAI KRISHNA
+  </text>
+
+  <!-- COLLECTIONS -->
+  <text x="200" y="292" 
+        font-family="'Inter', sans-serif" 
+        font-size="11" 
+        font-weight="600" 
+        letter-spacing="6"
+        fill="#C89A43" 
+        text-anchor="middle">
+    COLLECTIONS
+  </text>
+
+  <!-- Bottom decorative laurel leaves -->
+  <path d="M 160,312 Q 200,325 240,312" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" />
+  <circle cx="200" cy="322" r="2.5" fill="url(#goldGrad)" />
+</svg>
