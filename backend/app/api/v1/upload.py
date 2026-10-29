@@ -1,0 +1,51 @@
+import os
+import uuid
+import shutil
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from app.core.permissions import Role
+from app.api.dependencies import require_roles
+
+router = APIRouter(prefix="/upload", tags=["Uploads"])
+
+UPLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "uploads"))
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"}
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+
+@router.post("", dependencies=[Depends(require_roles([Role.ADMIN, Role.INVENTORY_MANAGER]))])
+async def upload_file(file: UploadFile = File(...)):
+    """
+    Upload an image file from the computer and return its static URL.
+    """
+    filename = file.filename or "image.jpg"
+    _, ext = os.path.splitext(filename)
+    ext = ext.lower()
+    
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unsupported file format '{ext}'. Allowed: {', '.join(ALLOWED_EXTENSIONS)}"
+        )
+    
+    unique_name = f"{uuid.uuid4().hex}{ext}"
+    destination = os.path.join(UPLOAD_DIR, unique_name)
+    
+    try:
+        with open(destination, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to save file: {str(e)}"
+        )
+    finally:
+        await file.close()
+
+    # The file is served via FastAPI's StaticFiles mounted at /uploads
+    file_url = f"/uploads/{unique_name}"
+    return {
+        "url": file_url,
+        "filename": filename,
+        "size": os.path.getsize(destination)
+    }

@@ -185,5 +185,36 @@ export const api = {
 
   // Settings
   getPublicSettings: () => request<any>('/settings/public'),
-  updateSettingsAdmin: (data: any) => request<any>('/settings/admin', { method: 'PUT', body: JSON.stringify(data) })
+  updateSettingsAdmin: (data: any) => request<any>('/settings/admin', { method: 'PUT', body: JSON.stringify(data) }),
+
+  // File Upload
+  uploadImage: async (file: File): Promise<{ url: string; filename: string; size: number }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const token = localStorage.getItem('ssk_access_token');
+    const res = await fetch(`${API_BASE_URL}/upload`, {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: formData
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Upload failed' }));
+      throw new Error(err.detail || 'Image upload failed');
+    }
+    const data = await res.json();
+    // Prepend API_BASE_URL if it's a relative path like /uploads/...
+    const fullUrl = data.url.startsWith('http') ? data.url : `${API_BASE_URL.replace('/api/v1', '')}${data.url}`;
+    return { ...data, url: fullUrl };
+  },
+
+  // Google Sheets / Excel Live Sync
+  getSheetsConfig: () => request<any>('/sheets/config'),
+  saveSheetsConfig: (data: any) => request<any>('/sheets/config', { method: 'POST', body: JSON.stringify(data) }),
+  testSheetsConnection: (webhookUrl: string) =>
+    request<any>('/sheets/test-connection', { method: 'POST', body: JSON.stringify({ webhook_url: webhookUrl }) }),
+  pushAllToSheets: () => request<any>('/sheets/push-all', { method: 'POST' }),
+  exportAllForSheets: () => request<any>('/sheets/export-all'),
+  getAppScriptTemplate: () => request<{ script: string }>('/sheets/appscript-template')
 };

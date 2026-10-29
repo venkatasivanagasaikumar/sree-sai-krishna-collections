@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus, Search, Download, Edit2, Trash2, Layers,
-  Check, X, Eye, AlertCircle, Sparkles
+  Check, X, Eye, AlertCircle, Sparkles, Upload, Image as ImageIcon, Loader2
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { Product, Category } from '../../types';
@@ -38,6 +38,8 @@ export const AdminProductsPage: React.FC = () => {
   const [imageUrlInput, setImageUrlInput] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -132,6 +134,26 @@ export const AdminProductsPage: React.FC = () => {
     if (imageUrlInput.trim()) {
       setFormData(prev => ({ ...prev, images: [...prev.images, imageUrlInput.trim()] }));
       setImageUrlInput('');
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    setIsUploading(true);
+    setErrorMsg(null);
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const res = await api.uploadImage(file);
+        setFormData(prev => ({ ...prev, images: [...prev.images, res.url] }));
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to upload image from computer.');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -429,39 +451,87 @@ export const AdminProductsPage: React.FC = () => {
                 />
               </div>
 
-              {/* Image URLs */}
+              {/* Image Upload from Computer or URL */}
               <div>
-                <label className="block font-bold text-ssk-text mb-1">Product Images (URLs)</label>
-                <div className="flex gap-2 mb-2">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block font-bold text-ssk-text">Product Images *</label>
+                  <span className="text-[11px] text-ssk-text-secondary">Upload from computer or paste web URL</span>
+                </div>
+
+                {/* Upload from Computer Box */}
+                <div className="mb-3">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    id="product-image-file-input"
+                  />
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="border-2 border-dashed border-ssk-border hover:border-ssk-gold hover:bg-ssk-gold/5 rounded-2xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 group"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-ssk-navy/10 group-hover:bg-ssk-gold/20 flex items-center justify-center text-ssk-navy group-hover:text-ssk-gold-dark transition-colors">
+                      {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-ssk-navy group-hover:text-ssk-gold-dark">
+                        {isUploading ? 'Uploading file...' : 'Click to Upload Photos from Computer'}
+                      </p>
+                      <p className="text-[10px] text-ssk-text-secondary mt-0.5">
+                        PNG, JPG, WEBP, or SVG up to 10MB each (multiple photos supported)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Or paste Web URL */}
+                <div className="flex gap-2 mb-3">
                   <input
                     type="url"
-                    placeholder="https://images.unsplash.com/photo-..."
+                    placeholder="Or paste external image URL: https://..."
                     value={imageUrlInput}
                     onChange={(e) => setImageUrlInput(e.target.value)}
-                    className="flex-1 px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl"
+                    className="flex-1 px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl text-xs"
                   />
                   <button
                     type="button"
                     onClick={addImageUrl}
-                    className="px-4 py-2 bg-ssk-navy text-white rounded-xl font-bold"
+                    className="px-4 py-2 bg-ssk-navy hover:bg-ssk-navy-dark text-white rounded-xl text-xs font-bold transition-colors"
                   >
                     Add URL
                   </button>
                 </div>
-                <div className="flex gap-2 overflow-x-auto py-1">
-                  {formData.images.map((img, idx) => (
-                    <div key={idx} className="relative w-16 h-16 rounded-xl overflow-hidden border border-ssk-border flex-shrink-0">
-                      <img src={img} alt="preview" className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => setFormData({ ...formData, images: formData.images.filter((_, i) => i !== idx) })}
-                        className="absolute top-0 right-0 p-1 bg-red-600 text-white rounded-bl-lg"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+
+                {/* Preview Gallery */}
+                {formData.images.length > 0 ? (
+                  <div className="flex gap-2.5 overflow-x-auto py-1">
+                    {formData.images.map((img, idx) => (
+                      <div key={idx} className="relative w-20 h-20 rounded-xl overflow-hidden border border-ssk-border flex-shrink-0 group shadow-sm bg-white">
+                        <img src={img} alt="preview" className="w-full h-full object-cover" />
+                        {idx === 0 && (
+                          <span className="absolute bottom-0 inset-x-0 bg-ssk-navy/80 text-[8px] text-white font-bold text-center py-0.5">
+                            Cover
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, images: formData.images.filter((_, i) => i !== idx) })}
+                          className="absolute top-1 right-1 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-80 hover:opacity-100 transition-opacity"
+                          title="Remove image"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-amber-700 bg-amber-50 p-2 rounded-lg">
+                    ⚠️ Please add at least 1 image for this product.
+                  </p>
+                )}
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-ssk-border">

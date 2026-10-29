@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, ShoppingBag, Package, Layers, RotateCcw,
   Users, Tag, BarChart3, Settings, LogOut, ChevronRight,
-  Menu, X, Bell, Shield, ExternalLink
+  Menu, X, Bell, Shield, ExternalLink, FileSpreadsheet
 } from 'lucide-react';
 import { BrandLogo } from '../common/BrandLogo';
 import { useAuth } from '../../context/AuthContext';
@@ -28,6 +28,7 @@ export const AdminLayout: React.FC = () => {
     { label: 'Returns & Refunds', path: '/admin/returns', icon: RotateCcw },
     { label: 'Customer Directory', path: '/admin/customers', icon: Users },
     { label: 'Coupons & Promos', path: '/admin/promotions', icon: Tag },
+    { label: 'Google Sheets / Excel', path: '/admin/sheets-sync', icon: FileSpreadsheet, badge: 'Sync' },
     { label: 'Reports & Audit Logs', path: '/admin/reports', icon: BarChart3 },
     { label: 'Store Settings', path: '/admin/settings', icon: Settings },
   ];

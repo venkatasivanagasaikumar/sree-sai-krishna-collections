@@ -34,6 +34,7 @@ import { AdminCustomersPage } from './pages/admin/AdminCustomersPage';
 import { AdminPromotionsPage } from './pages/admin/AdminPromotionsPage';
 import { AdminReportsPage } from './pages/admin/AdminReportsPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
+import { AdminSheetsSyncPage } from './pages/admin/AdminSheetsSyncPage';
 
 export function App() {
   return (
@@ -72,6 +73,7 @@ export function App() {
                 <Route path="customers" element={<AdminCustomersPage />} />
                 <Route path="promotions" element={<AdminPromotionsPage />} />
                 <Route path="reports" element={<AdminReportsPage />} />
+                <Route path="sheets-sync" element={<AdminSheetsSyncPage />} />
                 <Route path="settings" element={<AdminSettingsPage />} />
               </Route>
 

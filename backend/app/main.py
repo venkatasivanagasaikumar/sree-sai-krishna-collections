@@ -8,6 +8,8 @@ from app.database import db_manager, get_db
 from app.seeds.seed_data import run_seed
 
 # Import routers
+import os
+from fastapi.staticfiles import StaticFiles
 from app.api.v1.auth import router as auth_router
 from app.api.v1.products import router as products_router
 from app.api.v1.categories import router as categories_router
@@ -20,6 +22,8 @@ from app.api.v1.coupons import router as coupons_router
 from app.api.v1.customers import router as customers_router
 from app.api.v1.analytics import router as analytics_router
 from app.api.v1.settings import router as settings_router
+from app.api.v1.upload import router as upload_router
+from app.api.v1.sheets_sync import router as sheets_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -56,6 +60,13 @@ app.include_router(coupons_router, prefix=settings.API_V1_STR)
 app.include_router(customers_router, prefix=settings.API_V1_STR)
 app.include_router(analytics_router, prefix=settings.API_V1_STR)
 app.include_router(settings_router, prefix=settings.API_V1_STR)
+app.include_router(upload_router, prefix=settings.API_V1_STR)
+app.include_router(sheets_router, prefix=settings.API_V1_STR)
+
+# Mount /uploads directory for static image serving
+UPLOADS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "uploads"))
+os.makedirs(UPLOADS_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
 @app.get("/health")
 def health_check():
