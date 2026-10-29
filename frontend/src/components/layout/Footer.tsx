@@ -57,7 +57,14 @@ export const Footer: React.FC = () => {
         
         {/* Brand Column */}
         <div className="lg:col-span-2 space-y-4">
-          <BrandLogo size="lg" light />
+          <Link
+            to="/"
+            title="Go to Home"
+            aria-label="Sree Sai Krishna Collections Home"
+            className="inline-block transition-opacity hover:opacity-90"
+          >
+            <BrandLogo size="lg" light />
+          </Link>
           <p className="text-xs text-gray-300 leading-relaxed max-w-sm">
             {BRAND_CONFIG.name} ({BRAND_CONFIG.shortName}) brings timeless South-Indian heritage,
             micro 1-gram gold tone perfection, bridal sets, and chic modern hair accessories directly to your doorstep.

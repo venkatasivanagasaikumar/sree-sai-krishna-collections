@@ -52,7 +52,14 @@ export const AdminLayout: React.FC = () => {
         <div>
           {/* Sidebar Brand Header */}
           <div className="h-20 flex items-center justify-between px-6 border-b border-white/10 bg-ssk-navy">
-            <BrandLogo size="sm" light />
+            <Link
+              to="/"
+              title="Return to Customer Storefront Home"
+              aria-label="Sree Sai Krishna Collections Home"
+              className="group transition-opacity hover:opacity-90 flex items-center"
+            >
+              <BrandLogo size="sm" light />
+            </Link>
             <button
               onClick={() => setIsSidebarOpen(false)}
               className="lg:hidden p-1 text-gray-300 hover:text-white"

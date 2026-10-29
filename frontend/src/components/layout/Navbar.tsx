@@ -90,8 +90,13 @@ export const Navbar: React.FC = () => {
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
 
-          {/* Logo */}
-          <Link to="/" className="flex-shrink-0">
+          {/* Logo as Home Button */}
+          <Link
+            to="/"
+            title="Go to Home"
+            aria-label="Sree Sai Krishna Collections Home"
+            className="flex-shrink-0 group flex items-center transition-all duration-200 hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-ssk-gold/30 rounded-xl"
+          >
             <BrandLogo size="md" />
           </Link>
 
