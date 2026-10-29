@@ -13,8 +13,9 @@
     background-size: 32px 32px;
   }
   
-  h1, h2, h3, h4, .font-serif {
-    font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
+  h1, h2, h3, h4, h5, h6, .font-serif {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-weight: 600;
   }
 }
 

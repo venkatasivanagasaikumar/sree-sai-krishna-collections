@@ -24,7 +24,7 @@
       ],
       "is_active": true,
       "created_at": "2026-10-29T18:18:31.343000",
-      "last_login_at": "2026-10-29T20:00:03.150000"
+      "last_login_at": "2026-10-29T20:10:50.784000"
     },
     {
       "email": "orders@sskcollections.com",
@@ -1572,6 +1572,18 @@
       "status": "SUCCESS",
       "created_at": "2026-10-29T20:00:03.160000",
       "_id": "6ae3a5c342c66e8193b892fd"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae38df757945b34679af1ae",
+      "user_id": "6ae38df757945b34679af1ae",
+      "user_email": "admin@sskcollections.com",
+      "ip_address": "127.0.0.1",
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-29T20:10:50.790000",
+      "_id": "6ae3a84a610d1e5e48509963"
     }
   ],
   "inventory_movements": [
@@ -1721,13 +1733,15 @@
       "key": "google_sheets_sync_config",
       "_id": "6ae3a71042c66e8193b892fe",
       "data": {
-        "webhook_url": "https://script.google.com/macros/s/AKfycbzsgtg8vtalO0jKcX2guOvIQ0a7bOC6OigUYipoLwNqRFoda2PpbrRaD5E8tDU5AxtP/exec",
+        "webhook_url": "https://script.google.com/macros/s/AKfycbyH4vr13dTunlFK8MasLb0nbnYpYI-cBOMGbPNUKV-AbQrk7j2nnrD5KJj96PaOOrGY/exec",
+        "secret_key": "ssk_sec_609fe2220ce5f94332b797ada01811e7",
+        "owner_email": "saikumaryenduri7@gmail.com",
         "auto_sync_on_order": true,
         "auto_sync_on_product": true,
-        "last_synced_at": null,
-        "status": "connected"
+        "last_synced_at": "2026-10-29T20:16:30.919727+00:00",
+        "status": "synced"
       },
-      "updated_at": "2026-10-29T20:05:43.107000"
+      "updated_at": "2026-10-29T20:16:30.919000"
     }
   ]
 }

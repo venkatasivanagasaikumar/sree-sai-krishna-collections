@@ -26,7 +26,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        serif: ['Cinzel', 'Playfair Display', 'Georgia', 'serif'],
+        serif: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       }
     },
   },
