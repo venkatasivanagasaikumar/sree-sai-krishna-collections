@@ -212,9 +212,9 @@ export const api = {
   // Google Sheets / Excel Live Sync
   getSheetsConfig: () => request<any>('/sheets/config'),
   saveSheetsConfig: (data: any) => request<any>('/sheets/config', { method: 'POST', body: JSON.stringify(data) }),
-  testSheetsConnection: (webhookUrl: string) =>
-    request<any>('/sheets/test-connection', { method: 'POST', body: JSON.stringify({ webhook_url: webhookUrl }) }),
+  testSheetsConnection: (webhookUrl: string, secretKey: string) =>
+    request<any>('/sheets/test-connection', { method: 'POST', body: JSON.stringify({ webhook_url: webhookUrl, secret_key: secretKey }) }),
   pushAllToSheets: () => request<any>('/sheets/push-all', { method: 'POST' }),
   exportAllForSheets: () => request<any>('/sheets/export-all'),
-  getAppScriptTemplate: () => request<{ script: string }>('/sheets/appscript-template')
+  getAppScriptTemplate: () => request<{ script: string; secret_key: string; owner_email: string }>('/sheets/appscript-template')
 };

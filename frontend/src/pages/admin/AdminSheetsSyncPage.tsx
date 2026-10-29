@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
   FileSpreadsheet, RefreshCw, Send, CheckCircle2, AlertCircle,
-  Copy, ExternalLink, Download, ArrowUpRight, ShieldCheck, Database
+  Copy, ExternalLink, Download, ArrowUpRight, ShieldCheck, Database,
+  Lock, KeyRound, UserCheck
 } from 'lucide-react';
 import { api } from '../../services/api';
 
 export const AdminSheetsSyncPage: React.FC = () => {
   const [config, setConfig] = useState({
     webhook_url: '',
+    secret_key: '',
+    owner_email: 'saikumaryenduri7@gmail.com',
     auto_sync_on_order: true,
     auto_sync_on_product: true,
     last_synced_at: null as string | null,
@@ -19,7 +22,8 @@ export const AdminSheetsSyncPage: React.FC = () => {
   const [pushing, setPushing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copiedScript, setCopiedScript] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -48,7 +52,10 @@ export const AdminSheetsSyncPage: React.FC = () => {
     try {
       const res = await api.saveSheetsConfig(config);
       setConfig(res.config);
-      setStatusMessage({ type: 'success', text: 'Google Sheet configuration saved successfully.' });
+      // Reload template with new secret
+      const scriptRes = await api.getAppScriptTemplate();
+      setAppScript(scriptRes.script);
+      setStatusMessage({ type: 'success', text: 'Private security credentials and Webhook URL saved successfully.' });
     } catch (err: any) {
       setStatusMessage({ type: 'error', text: err.message || 'Failed to save configuration.' });
     } finally {
@@ -58,16 +65,16 @@ export const AdminSheetsSyncPage: React.FC = () => {
 
   const handleTestConnection = async () => {
     if (!config.webhook_url) {
-      setStatusMessage({ type: 'error', text: 'Please enter a Google Apps Script Web App URL first.' });
+      setStatusMessage({ type: 'error', text: 'Please enter your Google Apps Script Web App URL first.' });
       return;
     }
     setTesting(true);
     setStatusMessage(null);
     try {
-      const res = await api.testSheetsConnection(config.webhook_url);
-      setStatusMessage({ type: 'success', text: res.message || 'Connected to Google Sheet successfully!' });
+      const res = await api.testSheetsConnection(config.webhook_url, config.secret_key);
+      setStatusMessage({ type: 'success', text: res.message || 'Private connection authenticated successfully!' });
     } catch (err: any) {
-      setStatusMessage({ type: 'error', text: err.message || 'Connection test failed. Check your Web App URL.' });
+      setStatusMessage({ type: 'error', text: err.message || 'Connection test failed. Check your Web App URL and Secret Key.' });
     } finally {
       setTesting(false);
     }
@@ -87,7 +94,7 @@ export const AdminSheetsSyncPage: React.FC = () => {
         last_synced_at: res.last_synced_at,
         status: 'synced'
       }));
-      setStatusMessage({ type: 'success', text: res.message || 'All data synchronized to Google Sheet!' });
+      setStatusMessage({ type: 'success', text: res.message || 'All database records securely synced to your Google Sheet!' });
     } catch (err: any) {
       setStatusMessage({ type: 'error', text: err.message || 'Sync failed.' });
     } finally {
@@ -112,8 +119,14 @@ export const AdminSheetsSyncPage: React.FC = () => {
 
   const copyAppScript = () => {
     navigator.clipboard.writeText(appScript);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+    setCopiedScript(true);
+    setTimeout(() => setCopiedScript(false), 2500);
+  };
+
+  const copySecretKey = () => {
+    navigator.clipboard.writeText(config.secret_key);
+    setCopiedKey(true);
+    setTimeout(() => setCopiedKey(false), 2500);
   };
 
   return (
@@ -122,13 +135,14 @@ export const AdminSheetsSyncPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-serif font-bold text-ssk-navy">Google Sheets & Excel Database Sync</h1>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-800">
-              Live Two-Way Ready
+            <h1 className="text-2xl font-serif font-bold text-ssk-navy">Owner-Only Google Sheets & Excel Database</h1>
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 flex items-center gap-1 border border-amber-300">
+              <Lock className="w-3 h-3 text-amber-700" />
+              <span>Restricted & Encrypted Access</span>
             </span>
           </div>
           <p className="text-xs text-ssk-text-secondary mt-1">
-            Connect your store to a Google Sheet so products, orders, inventory logs, and customer records update in real time like an Excel spreadsheet.
+            Maintain your store database in a private Google Sheet that <strong>only you</strong> can view or edit, secured by your personal secret token.
           </p>
         </div>
 
@@ -152,6 +166,27 @@ export const AdminSheetsSyncPage: React.FC = () => {
             <RefreshCw className={`w-4 h-4 ${pushing ? 'animate-spin' : ''}`} />
             <span>{pushing ? 'Syncing...' : 'Push All Data to Sheet Now'}</span>
           </button>
+        </div>
+      </div>
+
+      {/* Security Banner: How Privacy is Guaranteed */}
+      <div className="bg-gradient-to-r from-slate-900 to-ssk-navy text-white p-4 rounded-2xl border border-ssk-gold/30 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-ssk-gold/20 flex items-center justify-center text-ssk-gold flex-shrink-0">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+          <div>
+            <span className="font-bold text-white block">Strict Privacy Guarantee: Only You Have Access</span>
+            <span className="text-blue-100/80 text-[11px]">
+              Keep your Google Sheet sharing setting set to <strong>"Restricted"</strong> (Private to {config.owner_email}).
+              No one else on the web or in your store staff can see or open your spreadsheet.
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-[11px] font-mono bg-white/10 px-2.5 py-1 rounded-lg border border-white/20">
+            Owner: {config.owner_email}
+          </span>
         </div>
       </div>
 
@@ -180,11 +215,11 @@ export const AdminSheetsSyncPage: React.FC = () => {
             <div className="flex items-center justify-between pb-4 border-b border-ssk-border mb-5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-ssk-navy/10 flex items-center justify-center text-ssk-navy">
-                  <FileSpreadsheet className="w-5 h-5" />
+                  <KeyRound className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-ssk-navy">Google Apps Script Webhook</h3>
-                  <p className="text-[11px] text-ssk-text-secondary">Enter the deployed Web App URL from your Google Sheet</p>
+                  <h3 className="text-sm font-bold text-ssk-navy">Owner Security Configuration</h3>
+                  <p className="text-[11px] text-ssk-text-secondary">Secret key authentication for Google Apps Script</p>
                 </div>
               </div>
               <span
@@ -195,7 +230,7 @@ export const AdminSheetsSyncPage: React.FC = () => {
                 }`}
               >
                 {config.status === 'synced'
-                  ? 'Active & Synced'
+                  ? 'Private & Synced'
                   : config.status === 'connected'
                   ? 'URL Configured'
                   : 'Not Connected'}
@@ -203,6 +238,44 @@ export const AdminSheetsSyncPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleSaveConfig} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-ssk-text mb-1">
+                  Owner Email Address
+                </label>
+                <input
+                  type="email"
+                  value={config.owner_email}
+                  onChange={(e) => setConfig({ ...config, owner_email: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs font-medium text-ssk-text focus:outline-none focus:border-ssk-gold"
+                  required
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-ssk-text">
+                    Unique Secret Security Token
+                  </label>
+                  <button
+                    type="button"
+                    onClick={copySecretKey}
+                    className="text-[10px] text-ssk-navy font-bold hover:underline flex items-center gap-1"
+                  >
+                    {copiedKey ? 'Copied Token!' : 'Copy Token'}
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={config.secret_key}
+                  onChange={(e) => setConfig({ ...config, secret_key: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs font-mono text-ssk-navy font-bold focus:outline-none focus:border-ssk-gold"
+                  required
+                />
+                <p className="text-[10px] text-ssk-text-secondary mt-1">
+                  The Google Apps Script rejects any sync payload that does not match this secret key.
+                </p>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-ssk-text mb-1">
                   Google Apps Script Web App URL *
@@ -215,9 +288,6 @@ export const AdminSheetsSyncPage: React.FC = () => {
                   className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs font-mono text-ssk-text focus:outline-none focus:border-ssk-gold"
                   required
                 />
-                <p className="text-[10px] text-ssk-text-secondary mt-1">
-                  Get this by clicking <strong>Deploy &rarr; New deployment &rarr; Web app</strong> inside your Google Sheet.
-                </p>
               </div>
 
               <div className="space-y-3 pt-2">
@@ -229,7 +299,7 @@ export const AdminSheetsSyncPage: React.FC = () => {
                     className="w-4 h-4 text-ssk-navy rounded border-ssk-border focus:ring-ssk-gold"
                   />
                   <span className="text-xs font-medium text-ssk-text">
-                    Automatically push new orders and status updates to Sheet
+                    Automatically update your private sheet when new orders arrive
                   </span>
                 </label>
 
@@ -241,14 +311,14 @@ export const AdminSheetsSyncPage: React.FC = () => {
                     className="w-4 h-4 text-ssk-navy rounded border-ssk-border focus:ring-ssk-gold"
                   />
                   <span className="text-xs font-medium text-ssk-text">
-                    Automatically sync catalog modifications and inventory movements
+                    Automatically update your sheet on product and stock modifications
                   </span>
                 </label>
               </div>
 
               {config.last_synced_at && (
                 <div className="p-3 bg-ssk-blue-light/50 rounded-xl text-[11px] text-ssk-navy flex items-center justify-between">
-                  <span>Last Full Synchronization:</span>
+                  <span>Last Synchronization:</span>
                   <span className="font-mono font-bold">
                     {new Date(config.last_synced_at).toLocaleString()}
                   </span>
@@ -277,31 +347,30 @@ export const AdminSheetsSyncPage: React.FC = () => {
             </form>
           </div>
 
-          {/* Sync Architecture Card */}
-          <div className="bg-gradient-to-br from-ssk-navy to-ssk-navy-dark text-white rounded-3xl p-6 shadow-md">
-            <h4 className="text-sm font-bold flex items-center gap-2">
-              <Database className="w-4 h-4 text-ssk-gold" />
-              <span>Multi-Sheet Tab Structure</span>
+          {/* Sheet Security Checklist */}
+          <div className="bg-white rounded-3xl border border-ssk-border p-6 shadow-sm">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-ssk-navy mb-3 flex items-center gap-2">
+              <Lock className="w-4 h-4 text-ssk-gold" />
+              <span>Google Sheet Privacy Settings Checklist</span>
             </h4>
-            <p className="text-xs text-blue-100/80 mt-1">
-              When synced, the Google Apps Script automatically creates and formats 4 separate tabs inside your spreadsheet:
-            </p>
-            <div className="grid grid-cols-2 gap-3 mt-4 text-xs">
-              <div className="p-3 bg-white/10 rounded-xl border border-white/10">
-                <span className="font-bold text-ssk-gold block">1. Products Tab</span>
-                <span className="text-[11px] text-blue-100/70">SKU, Name, Category, Price, MRP, Stock, Finish</span>
+            <div className="space-y-2.5 text-xs text-ssk-text">
+              <div className="flex items-start gap-2.5 p-2.5 bg-ssk-surface rounded-xl border border-ssk-border">
+                <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-ssk-navy">Spreadsheet Sharing:</strong> Keep it set to <strong>"Restricted"</strong> in Google Sheets. Do not share the link with anyone.
+                </div>
               </div>
-              <div className="p-3 bg-white/10 rounded-xl border border-white/10">
-                <span className="font-bold text-ssk-gold block">2. Orders Tab</span>
-                <span className="text-[11px] text-blue-100/70">Order ID, Customer, Phone, Total, Status, AWB</span>
+              <div className="flex items-start gap-2.5 p-2.5 bg-ssk-surface rounded-xl border border-ssk-border">
+                <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-ssk-navy">Apps Script Execution:</strong> Set <em>"Execute as: Me"</em> during deployment so it uses your personal permissions.
+                </div>
               </div>
-              <div className="p-3 bg-white/10 rounded-xl border border-white/10">
-                <span className="font-bold text-ssk-gold block">3. Customers Tab</span>
-                <span className="text-[11px] text-blue-100/70">Customer Name, Email, Phone, Order History</span>
-              </div>
-              <div className="p-3 bg-white/10 rounded-xl border border-white/10">
-                <span className="font-bold text-ssk-gold block">4. Inventory Log</span>
-                <span className="text-[11px] text-blue-100/70">SKU, Movement, Change Qty, Reason, Auditor</span>
+              <div className="flex items-start gap-2.5 p-2.5 bg-ssk-surface rounded-xl border border-ssk-border">
+                <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-ssk-navy">Payload Token:</strong> Every data packet sent by this site carries your unique secret token. Any unauthorized ping is immediately rejected with 401.
+                </div>
               </div>
             </div>
           </div>
@@ -312,15 +381,15 @@ export const AdminSheetsSyncPage: React.FC = () => {
           <div className="bg-white rounded-3xl border border-ssk-border p-6 shadow-sm">
             <div className="flex items-center justify-between pb-4 border-b border-ssk-border mb-4">
               <div>
-                <h3 className="text-sm font-bold text-ssk-navy">Google Apps Script Code</h3>
-                <p className="text-[11px] text-ssk-text-secondary">Copy and paste this into your Google Sheet's Apps Script</p>
+                <h3 className="text-sm font-bold text-ssk-navy">Owner-Secured Google Apps Script</h3>
+                <p className="text-[11px] text-ssk-text-secondary">Pre-configured with your private security token</p>
               </div>
               <button
                 onClick={copyAppScript}
                 className="px-3.5 py-1.5 bg-ssk-navy text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm hover:bg-ssk-navy-dark transition-all"
               >
-                {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? 'Copied to Clipboard!' : 'Copy Code'}</span>
+                {copiedScript ? <CheckCircle2 className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedScript ? 'Copied to Clipboard!' : 'Copy Code'}</span>
               </button>
             </div>
 
@@ -336,12 +405,12 @@ export const AdminSheetsSyncPage: React.FC = () => {
               </li>
               <li className="flex items-center gap-2">
                 <span className="w-5 h-5 rounded-full bg-ssk-navy text-white font-bold flex items-center justify-center text-[10px]">3</span>
-                <span>Set type: <strong>Web app</strong>, Who has access: <strong>Anyone</strong>, and copy the Web App URL!</span>
+                <span>Set type: <strong>Web app</strong>, Execute as: <strong>Me</strong>, and paste the URL on the left!</span>
               </li>
             </ol>
 
             <div className="relative">
-              <pre className="p-4 bg-slate-900 text-slate-100 rounded-2xl text-[11px] font-mono overflow-x-auto max-h-[380px] leading-relaxed">
+              <pre className="p-4 bg-slate-900 text-slate-100 rounded-2xl text-[11px] font-mono overflow-x-auto max-h-[460px] leading-relaxed">
                 {appScript}
               </pre>
             </div>
