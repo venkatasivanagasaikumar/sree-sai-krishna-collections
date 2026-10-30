@@ -66,3 +66,51 @@ def test_create_and_cancel_order():
     # Verify stock restored
     prod_restored = db.products.find_one({"sku": "SSK-JWL-103"})
     assert prod_restored["stock"] == initial_stock
+
+def test_atomic_stock_decrement_rollback_on_out_of_stock():
+    """SEC-01: Verifies that if an order item fails atomic stock deduction,
+    all previously reserved items in the multi-item batch are rolled back."""
+    db = get_db()
+    
+    # Ensure two known products exist with controlled stock
+    db.products.update_one({"sku": "SSK-JWL-101"}, {"$set": {"stock": 10}})
+    db.products.update_one({"sku": "SSK-JWL-102"}, {"$set": {"stock": 1}})
+    
+    addr = Address(
+        name="Rollback Test",
+        phone="+91 98480 99999",
+        address_line1="Test St",
+        city="Hyderabad",
+        state="Telangana",
+        pincode="500081",
+        is_default=True
+    )
+    # Order requests 2 of SSK-JWL-101 (available: 10) and 2 of SSK-JWL-102 (available: only 1)
+    # Note: we temporarily bypass initial validation by updating stock right before atomic deduction
+    # or by ordering when stock is exhausted concurrently
+    # Let's test the atomic deduction directly:
+    # First item: SSK-JWL-101 (qty 2)
+    # Second item: SSK-JWL-102 (qty 2, but stock is 1)
+    dto = CreateOrderRequest(
+        shipping_address=addr,
+        payment_method="COD",
+        guest_email="rollback.test@example.com",
+        guest_name="Rollback Test",
+        guest_phone="+91 98480 99999",
+        cart_items=[
+            {"product_id": "SSK-JWL-101", "quantity": 2},
+            {"product_id": "SSK-JWL-102", "quantity": 1} # initial check passes
+        ]
+    )
+    # Concurrently reduce SSK-JWL-102 to 0 right before order creation
+    db.products.update_one({"sku": "SSK-JWL-102"}, {"$set": {"stock": 0}})
+    
+    with pytest.raises(HTTPException) as exc:
+        create_order(payload=dto, current_user=None, db=db)
+    
+    assert exc.value.status_code == 400 or exc.value.status_code == 409
+    
+    # Verify SSK-JWL-101 was NOT decremented or was rolled back to 10
+    prod_101 = db.products.find_one({"sku": "SSK-JWL-101"})
+    assert prod_101["stock"] == 10
+

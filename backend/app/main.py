@@ -52,10 +52,15 @@ async def lifespan(app: FastAPI):
     db_manager.close()
     logger.info(f"Graceful shutdown of {settings.PROJECT_NAME} complete.")
 
+is_prod = settings.ENVIRONMENT == "production"
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Full-stack enterprise API for Sree Sai Krishna Collections (SSK) jewellery & accessories.",
     version="1.0.0",
+    docs_url=None if is_prod else "/docs",
+    redoc_url=None if is_prod else "/redoc",
+    openapi_url=None if is_prod else "/openapi.json",
     lifespan=lifespan
 )
 

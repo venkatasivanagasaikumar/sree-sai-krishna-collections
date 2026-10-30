@@ -177,15 +177,32 @@ def create_order(
         "updated_at": now
     }
 
-    # Atomically deduct stock
+    # Atomically deduct stock with rollback if insufficient (prevents race-condition overselling)
+    reserved_items = []
     for item in order_items:
-        db.products.update_one(
-            {"sku": item["sku"]},
+        res = db.products.update_one(
+            {"sku": item["sku"], "stock": {"$gte": item["quantity"]}},
             {
                 "$inc": {"stock": -item["quantity"], "sales_count": item["quantity"]},
                 "$set": {"updated_at": now}
             }
         )
+        if res.matched_count == 0:
+            # Rollback any previously reserved items in this order
+            for r_item in reserved_items:
+                db.products.update_one(
+                    {"sku": r_item["sku"]},
+                    {
+                        "$inc": {"stock": r_item["quantity"], "sales_count": -r_item["quantity"]},
+                        "$set": {"updated_at": now}
+                    }
+                )
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Item '{item['name']}' just went out of stock. Please adjust your cart."
+            )
+        reserved_items.append(item)
+
         # Log inventory movement
         db.inventory_movements.insert_one({
             "product_id": item["product_id"],

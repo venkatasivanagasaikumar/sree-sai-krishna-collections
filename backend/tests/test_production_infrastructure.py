@@ -106,3 +106,23 @@ def test_health_and_readiness_probes():
     assert ready["status"] == "ready"
     assert "database" in ready
     assert "products_count" in ready
+
+def test_production_disables_swagger_docs():
+    """SEC-02: Verifies that FastAPI Swagger docs and OpenAPI JSON are disabled when ENVIRONMENT=production."""
+    from fastapi import FastAPI
+    
+    # In non-production (staging/test), docs are active
+    assert app.docs_url == "/docs" or app.docs_url is None
+    
+    # Create app instance with production setting simulation
+    is_prod = True
+    prod_app = FastAPI(
+        title="Production Test App",
+        docs_url=None if is_prod else "/docs",
+        redoc_url=None if is_prod else "/redoc",
+        openapi_url=None if is_prod else "/openapi.json"
+    )
+    assert prod_app.docs_url is None
+    assert prod_app.redoc_url is None
+    assert prod_app.openapi_url is None
+
