@@ -9,6 +9,12 @@ services:
       - "27018:27017"
     volumes:
       - staging_mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   backend-staging:
     build:
@@ -25,11 +31,18 @@ services:
       - ./backend/uploads:/app/uploads
       - ./backend/backups:/app/backups
     depends_on:
-      - mongodb-staging
+      mongodb-staging:
+        condition: service_healthy
     networks:
       default:
         aliases:
           - backend
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   frontend-staging:
     build:
@@ -40,7 +53,14 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - backend-staging
+      backend-staging:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:80/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 volumes:
   staging_mongo_data:

@@ -48,3 +48,7 @@ backend/backups/*.json
 !backend/backups/.gitkeep
 backend/data/invoices/*.pdf
 !backend/data/invoices/.gitkeep
+backend/uploads/*
+!backend/uploads/.gitkeep
+staging_e2e_evidence.json
+staging_verification_state.json
