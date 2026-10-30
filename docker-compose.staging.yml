@@ -1,0 +1,46 @@
+services:
+  mongodb-staging:
+    image: mongo:7.0
+    container_name: ssk-mongodb-staging
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: ssk_staging_db
+    ports:
+      - "27018:27017"
+    volumes:
+      - staging_mongo_data:/data/db
+
+  backend-staging:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ssk-backend-staging
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.staging
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./backend/data:/app/data
+      - ./backend/uploads:/app/uploads
+      - ./backend/backups:/app/backups
+    depends_on:
+      - mongodb-staging
+    networks:
+      default:
+        aliases:
+          - backend
+
+  frontend-staging:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ssk-frontend-staging
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend-staging
+
+volumes:
+  staging_mongo_data:
