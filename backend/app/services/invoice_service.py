@@ -117,7 +117,7 @@ class InvoiceService:
             name = (itm.get("name") or "").lower()
             sku = itm.get("sku", "")
             qty = int(itm.get("quantity", 1))
-            unit_price = float(itm.get("price", 0.0))
+            unit_price = float(itm.get("unit_price") or itm.get("price", 0.0))
             line_total = unit_price * qty
 
             # HSN and GST rate classification

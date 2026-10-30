@@ -1,0 +1,285 @@
+{
+  "started_at": "2026-10-30T20:25:03.751651+00:00",
+  "completed_at": "2026-10-30T20:25:27.552137+00:00",
+  "summary": {
+    "total": 20,
+    "passed": 20,
+    "failed": 0,
+    "warnings": 0
+  },
+  "pillar_a_security": {
+    "SEC-A1-UNAUTH-RBAC": {
+      "check_id": "SEC-A1-UNAUTH-RBAC",
+      "title": "Unauthenticated access to admin endpoints rejected with 401",
+      "status": "PASS",
+      "evidence": {
+        "analytics_status": 401,
+        "backups_status": 401,
+        "db_status": 401
+      },
+      "timestamp": "2026-10-30T20:25:03.797332+00:00"
+    },
+    "SEC-A2-ROLE-ESCALATION": {
+      "check_id": "SEC-A2-ROLE-ESCALATION",
+      "title": "Customer registration prevents privilege escalation (role sanitized to Customer)",
+      "status": "PASS",
+      "evidence": {
+        "registered_role_in_db": "Customer"
+      },
+      "timestamp": "2026-10-30T20:25:03.942759+00:00"
+    },
+    "SEC-A3-CUSTOMER-ADMIN-BLOCK": {
+      "check_id": "SEC-A3-CUSTOMER-ADMIN-BLOCK",
+      "title": "Customer JWT blocked from admin routes with 403 Forbidden",
+      "status": "PASS",
+      "evidence": {
+        "analytics_dashboard": 403,
+        "settings_backups": 403
+      },
+      "timestamp": "2026-10-30T20:25:03.954709+00:00"
+    },
+    "SEC-A4-IDOR-ORDER-ISOLATION": {
+      "check_id": "SEC-A4-IDOR-ORDER-ISOLATION",
+      "title": "Cross-customer order access blocked (IDOR protection)",
+      "status": "PASS",
+      "evidence": {
+        "order_id": "SSK-20261030-9287",
+        "customer_b_status_code": 403
+      },
+      "timestamp": "2026-10-30T20:25:04.615372+00:00"
+    },
+    "SEC-A5-ARGON2ID-HASHING": {
+      "check_id": "SEC-A5-ARGON2ID-HASHING",
+      "title": "Password hashed with OWASP-compliant Argon2id parameters (m=65536, t=3, p=4)",
+      "status": "PASS",
+      "evidence": {
+        "hash_prefix": "$argon2id$v=19$m=65536,t=3,p=4$++T5"
+      },
+      "timestamp": "2026-10-30T20:25:04.615408+00:00"
+    },
+    "SEC-A6-JWT-SIGNATURE-TAMPERING": {
+      "check_id": "SEC-A6-JWT-SIGNATURE-TAMPERING",
+      "title": "Tampered JWT tokens rejected with 401 Unauthorized",
+      "status": "PASS",
+      "evidence": {
+        "tampered_token_status": 401
+      },
+      "timestamp": "2026-10-30T20:25:04.622769+00:00"
+    },
+    "SEC-A7-BRUTE-FORCE-LOCKOUT": {
+      "check_id": "SEC-A7-BRUTE-FORCE-LOCKOUT",
+      "title": "Brute force defense enforces account lockout after consecutive failures",
+      "status": "PASS",
+      "evidence": {
+        "locked_attempt_status": 429,
+        "response_sample": "{\"detail\":\"Too many failed login attempts. Please try again after 15 minutes or reset your password."
+      },
+      "timestamp": "2026-10-30T20:25:05.377369+00:00"
+    },
+    "SEC-A8-UPLOAD-AND-PATH-TRAVERSAL": {
+      "check_id": "SEC-A8-UPLOAD-AND-PATH-TRAVERSAL",
+      "title": "Upload route requires admin auth and path traversal requests are blocked",
+      "status": "PASS",
+      "evidence": {
+        "unauth_upload_status": 401,
+        "path_traversal_status": 400
+      },
+      "timestamp": "2026-10-30T20:25:05.433190+00:00"
+    },
+    "SEC-A9-RAZORPAY-WEBHOOK-HMAC-IDEMPOTENCY": {
+      "check_id": "SEC-A9-RAZORPAY-WEBHOOK-HMAC-IDEMPOTENCY",
+      "title": "Razorpay webhook HMAC signature verified and duplicate replays handled idempotently",
+      "status": "PASS",
+      "evidence": {
+        "invalid_sig_status": 400,
+        "valid_sig_status": 200,
+        "replay_status": "already_processed"
+      },
+      "timestamp": "2026-10-30T20:25:05.558298+00:00"
+    },
+    "SEC-A10-NGINX-SECURITY-HEADERS": {
+      "check_id": "SEC-A10-NGINX-SECURITY-HEADERS",
+      "title": "Nginx reverse proxy emits X-Frame-Options and X-Content-Type-Options: nosniff",
+      "status": "PASS",
+      "evidence": {
+        "X-Frame-Options": "SAMEORIGIN",
+        "X-Content-Type-Options": "nosniff"
+      },
+      "timestamp": "2026-10-30T20:25:05.562402+00:00"
+    }
+  },
+  "pillar_b_commerce": {
+    "COMM-B1-CONCURRENT-STOCK-RACE": {
+      "check_id": "COMM-B1-CONCURRENT-STOCK-RACE",
+      "title": "Atomic stock decrement guarantees zero overselling under race condition (3 sold, 7 rejected, 0 stock)",
+      "status": "PASS",
+      "evidence": {
+        "initial_stock": 3,
+        "concurrent_requests": 10,
+        "successful_purchases": 3,
+        "rejected_out_of_stock": 7,
+        "final_db_stock": 0
+      },
+      "timestamp": "2026-10-30T20:25:05.839195+00:00"
+    },
+    "COMM-B2-MULTI-ITEM-ROLLBACK": {
+      "check_id": "COMM-B2-MULTI-ITEM-ROLLBACK",
+      "title": "Multi-item order failure rolls back previously reserved items (Item A stock remains 5)",
+      "status": "PASS",
+      "evidence": {
+        "status_code": 400,
+        "stock_a_after_rollback": 5
+      },
+      "timestamp": "2026-10-30T20:25:05.898577+00:00"
+    },
+    "COMM-B3-CANCELLATION-RESTOCK": {
+      "check_id": "COMM-B3-CANCELLATION-RESTOCK",
+      "title": "Order cancellation automatically restocks inventory (+2) and records audit movement",
+      "status": "PASS",
+      "evidence": {
+        "stock_before_cancel": 3,
+        "stock_after_cancel": 5,
+        "movement_recorded": "Cancellation for order #SSK-20261030-4644: Customer requested cancellation before shipment"
+      },
+      "timestamp": "2026-10-30T20:25:06.132337+00:00"
+    },
+    "COMM-B4-IDEMPOTENT-INVOICE-NUMBERING": {
+      "check_id": "COMM-B4-IDEMPOTENT-INVOICE-NUMBERING",
+      "title": "Concurrent invoice generation requests return idempotent invoice number with zero collisions",
+      "status": "PASS",
+      "evidence": {
+        "invoice_numbers_returned": [
+          "SSK-INV-2026-0208",
+          "SSK-INV-2026-0208",
+          "SSK-INV-2026-0208",
+          "SSK-INV-2026-0208",
+          "SSK-INV-2026-0208"
+        ],
+        "unique_count": 1
+      },
+      "timestamp": "2026-10-30T20:25:06.167036+00:00"
+    },
+    "COMM-B5-GST-TAX-ENGINE": {
+      "check_id": "COMM-B5-GST-TAX-ENGINE",
+      "title": "GST tax engine computes intrastate breakdown (CGST: Rs 27.66, SGST: Rs 27.65, Total: Rs 55.31)",
+      "status": "PASS",
+      "evidence": {
+        "invoice_number": "SSK-INV-2026-0208",
+        "cgst": 27.66,
+        "sgst": 27.65,
+        "total_tax": 55.31
+      },
+      "timestamp": "2026-10-30T20:25:06.169820+00:00"
+    }
+  },
+  "pillar_c_backup": {
+    "BK-C1-BACKUP-INTEGRITY-CHECKSUM": {
+      "check_id": "BK-C1-BACKUP-INTEGRITY-CHECKSUM",
+      "title": "Backup creation generates full JSON snapshot with valid SHA256 integrity checksum",
+      "status": "PASS",
+      "evidence": {
+        "filename": "ssk_backup_20261030_202506.json",
+        "sha256": "ec35465529734802a4839a3309e1280a126e7835e3ae06cce354ecfcbffde708",
+        "collection_count": 22
+      },
+      "timestamp": "2026-10-30T20:25:06.515343+00:00"
+    },
+    "BK-C2-UNAUTHORIZED-BACKUP-BLOCK": {
+      "check_id": "BK-C2-UNAUTHORIZED-BACKUP-BLOCK",
+      "title": "Backup management endpoints blocked for unauthenticated users (401) and customers (403)",
+      "status": "PASS",
+      "evidence": {
+        "unauth_status": 401,
+        "customer_status": 403
+      },
+      "timestamp": "2026-10-30T20:25:06.529813+00:00"
+    },
+    "BK-C3-DATABASE-RESTORE-SERVICE": {
+      "check_id": "BK-C3-DATABASE-RESTORE-SERVICE",
+      "title": "Database restore endpoint successfully restores full state from 'ssk_backup_20261030_202506.json'",
+      "status": "PASS",
+      "evidence": {
+        "status_code": 200,
+        "restore_details": {
+          "restored_from": "ssk_backup_20261030_202506.json",
+          "restored_at": "2026-10-30T20:25:27.128793+00:00",
+          "collections_restored": 22,
+          "stats": {
+            "store_settings": 1,
+            "audit_logs": 663,
+            "inventory_movements": 153,
+            "communication_preferences": 15,
+            "password_reset_tokens": 15,
+            "users": 35,
+            "payments": 28,
+            "webhook_events": 29,
+            "products": 30,
+            "categories": 9,
+            "reviews": 2,
+            "coupons": 3,
+            "carts": 47,
+            "notification_outbox": 290,
+            "notification_logs": 637,
+            "notification_events": 249,
+            "email_logs": 318,
+            "invoices": 161,
+            "refunds": 28,
+            "communication_consents": 12,
+            "invoice_sequences": 2,
+            "orders": 134
+          }
+        }
+      },
+      "timestamp": "2026-10-30T20:25:27.131485+00:00"
+    }
+  },
+  "pillar_d_performance": {
+    "PERF-D1-GATEWAY-LOAD-TEST": {
+      "check_id": "PERF-D1-GATEWAY-LOAD-TEST",
+      "title": "Controlled load test (100 reqs, 10 workers): 0% errors, throughput 240.5 req/s",
+      "status": "PASS",
+      "evidence": {
+        "total_requests": 100,
+        "throughput_rps": 240.5,
+        "error_rate_pct": 0.0,
+        "latency_p50_ms": 39.99,
+        "latency_p95_ms": 58.42,
+        "latency_p99_ms": 71.08,
+        "latency_avg_ms": 39.52
+      },
+      "timestamp": "2026-10-30T20:25:27.547348+00:00"
+    },
+    "PERF-D2-DATABASE-INDEX-AUDIT": {
+      "check_id": "PERF-D2-DATABASE-INDEX-AUDIT",
+      "title": "Compound and unique indexes active on key collections (products, orders, users)",
+      "status": "PASS",
+      "evidence": {
+        "product_indexes": [
+          "_id_",
+          "sku_1",
+          "category_1",
+          "status_1",
+          "category_1_price_1",
+          "is_featured_1",
+          "is_bestseller_1"
+        ],
+        "order_indexes": [
+          "_id_",
+          "order_id_1",
+          "user_id_1",
+          "customer_email_1",
+          "order_status_1",
+          "payment_status_1",
+          "created_at_-1"
+        ],
+        "user_indexes": [
+          "_id_",
+          "email_1",
+          "role_1"
+        ]
+      },
+      "timestamp": "2026-10-30T20:25:27.552102+00:00"
+    }
+  },
+  "evidence_log": []
+}
