@@ -29,23 +29,60 @@
 
 ---
 
-## 2. TOTAL ESTIMATED MONTHLY OPERATING EXPENSE (INDIAN RUPEES)
+## 2. GRANULAR COST CLASSIFICATION & FINANCIAL BREAKDOWN (INDIAN RUPEES)
 
-The table below breaks down the complete commercial infrastructure budget for Sree Sai Krishna Collections on Day 1:
+### A. Fixed Monthly Costs (Baseline Infrastructure)
+These costs are incurred regardless of sales volume to keep the storefront, admin portal, and database operational:
+- **Application Server (AWS Lightsail Mumbai):** $10.00 / month = **₹840.00 / month**
+  - Includes 2 vCPU, 2 GB RAM, 60 GB NVMe SSD, and 3,000 GB (3 TB) data transfer.
+- **Dedicated Database (MongoDB Atlas M10 Replica Set):** ~$57.00 / month = **₹4,788.00 / month**
+  - Includes 2 GB RAM, 10 GB storage, high-availability multi-AZ failover.
+  - *(Optional Pilot Alternative: Shared M2/M5 tier costs ₹750–₹2,100 / month during initial launch).*
+- **Domain Registration & Managed DNS:** ~$1.00 / month = **₹84.00 / month** (Annual `.com` renewal ~$12/yr).
+- **Subtotal Fixed Infrastructure:** **₹5,712.00 / month**
 
-| Line Item | Provider / Service | Tier / Plan | Monthly Cost (USD) | Monthly Cost (INR) |
-| :--- | :--- | :--- | :--- | :--- |
-| **1. Application Server (Frontend + Backend + Nginx)** | **AWS Lightsail** (Mumbai Region) | 2 vCPU, 2 GB RAM, 60 GB SSD, 3 TB Bandwidth | $10.00 | **₹840.00** |
-| **2. Primary Database** | **MongoDB Atlas** (AWS Mumbai `ap-south-1`) | M10 Dedicated Replica Set (2 GB RAM, 10 GB NVMe) | ~$57.00 | **₹4,788.00** |
-| **3. Transactional Email** | **Amazon SES** (Mumbai `ap-south-1`) | First 62,000 emails free/month (from EC2/Lightsail) | $0.00 – $1.00 | **₹0.00 – ₹84.00** |
-| **4. WhatsApp Order Alerts** | **Meta WhatsApp Business Cloud API** | 1,000 free service conversations/mo; ₹0.78 per utility msg | ~$5.00 – $15.00 | **₹420.00 – ₹1,260.00** |
-| **5. SSL / TLS Certificate** | **Let's Encrypt / Certbot** | Domain-Validated Wildcard TLS 1.3 | $0.00 | **₹0.00 (FREE)** |
-| **6. Domain Registration & DNS** | **Cloudflare Registrar / Namecheap** | `.com` Top-Level Domain (annualized per month) | ~$1.00 | **₹84.00** |
-| **7. Server Snapshot Backups** | **AWS Lightsail Automated Snapshots** | 60 GB disk snapshot retention | ~$1.50 | **₹126.00** |
-| **ESTIMATED TOTAL MONTHLY BUDGET** | | | **~$74.50 – $85.50** | **₹6,258 – ₹7,182 / month** |
+### B. Usage-Dependent Variable Costs (Per-Order & Traffic Scaling)
+These costs scale dynamically with order volume and customer engagement:
+- **WhatsApp Utility Messaging (Meta Cloud API):**
+  - First 1,000 service conversations per month are **FREE**.
+  - Subsequent business-initiated utility conversations in India: **~₹0.78 per conversation** (24-hour customer window).
+  - *Example at 500 orders/month (1,000 notifications):* ~500 conversations = **₹0.00 (within free tier)**.
+  - *Example at 2,000 orders/month (4,000 notifications):* ~2,000 conversations = **~₹780.00 / month**.
+- **Transactional Email (Amazon SES):**
+  - First 62,000 emails per month sent from AWS compute are **FREE**.
+  - Thereafter: $0.10 per 1,000 emails (~₹8.40 per 1,000 emails).
+  - *Expected cost for under 50,000 monthly customer emails:* **₹0.00 / month**.
+- **Payment Gateway Processing Fees (Razorpay):**
+  - Standard India Domestic Rates: **2.0% + GST per successful transaction** for Cards/Net Banking; **0% fee for UPI** under Indian NPCI guidelines. (Deducted at settlement, not an upfront server cost).
 
-> **Cost Optimization Note (Initial Pilot Option):**  
-> If the business owner wants to minimize costs during the first 30–60 days of private beta or soft launch before scaling to thousands of daily orders, the merchant can start with **MongoDB Atlas Shared (M2 / M5 tier at ~$9–$25/mo ≈ ₹750–₹2,100/mo)** or self-hosted MongoDB inside the Docker container with automated nightly S3 backups, bringing total monthly hosting costs down to **under ₹2,000 / month**. Once sales exceed 100 orders/month, the database can be scaled up to M10 with zero downtime.
+### C. Backup & Storage Costs
+- **Server Instance Automated Snapshots (AWS Lightsail):** ~$1.50 / month = **₹126.00 / month** (Retains 7 daily rolling system images).
+- **Continuous Atlas Backup Oplogs:** Included in M10 cluster tier base price.
+
+### D. Taxes & Surcharges (Indian GST)
+- **Applicable Tax:** Under Indian GST legislation, cloud computing and SaaS services imported from foreign entities or billed by AWS Cloud India are subject to **18% Integrated Goods and Services Tax (IGST)**.
+- **Estimated 18% GST on Cloud Infrastructure:**
+  - 18% on ₹5,838 base = **₹1,050.84 / month**.
+  - *(Note: If the business has an active GSTIN registered, this 18% GST can be claimed back as Input Tax Credit (ITC) against output GST collected on jewellery sales).*
+
+### E. Comprehensive Monthly Cost Summary Table
+```
++------------------------------------+------------------+-------------------+
+| Expense Category                   | USD Equivalent   | Cost in INR (₹)   |
++------------------------------------+------------------+-------------------+
+| Fixed Server & Database            | $68.00           | ₹5,712.00         |
+| Backups & Snapshots                | $1.50            | ₹126.00           |
+| Variable Email (under 50k sends)   | $0.00            | ₹0.00             |
+| Variable WhatsApp (up to 1,000)    | $0.00            | ₹0.00             |
+| Estimated 18% GST (Tax)            | $12.51           | ₹1,050.84         |
++------------------------------------+------------------+-------------------+
+| TOTAL MONTHLY CASH OUTFLOW         | ~$82.01 / month  | ≈ ₹6,888.84 / mo  |
+| (With Input Tax Credit on GST)     | ~$69.50 / month  | ≈ ₹5,838.00 / mo  |
++------------------------------------+------------------+-------------------+
+```
+
+> **IMPORTANT PRICING & QUOTATION DISCLAIMER:**  
+> The figures presented above are engineering budgetary estimates calculated using published cloud provider pricing schedules as of October 2026 (assuming an exchange rate of 1 USD = 84.00 INR). They **do not constitute binding commercial price quotations** from Amazon Web Services Inc., MongoDB Inc., or Meta Platforms Inc. Actual monthly bills will vary based on real traffic volumes, currency exchange fluctuations, bandwidth overage, and specific merchant discount agreements.
 
 ---
 

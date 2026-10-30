@@ -37,10 +37,29 @@ def test_customer_registration_and_login():
 
 def test_login_invalid_password():
     db = get_db()
+    db.audit_logs.delete_many({"user_email": "admin@sskcollections.com", "action": "LOGIN_FAILED"})
     login_dto = UserLogin(email="admin@sskcollections.com", password="IncorrectPassword!")
     with pytest.raises(HTTPException) as exc:
         login(payload=login_dto, request=None, db=db)
     assert exc.value.status_code == 401
+
+def test_login_brute_force_lockout():
+    db = get_db()
+    test_email = "brute.force.test@example.com"
+    db.audit_logs.delete_many({"user_email": test_email})
+    login_dto = UserLogin(email=test_email, password="WrongPassword123!")
+    
+    # 5 failed attempts trigger audit logging
+    for _ in range(5):
+        with pytest.raises(HTTPException) as exc:
+            login(payload=login_dto, request=None, db=db)
+        assert exc.value.status_code == 401
+    
+    # 6th attempt triggers 429 rate limit
+    with pytest.raises(HTTPException) as exc_blocked:
+        login(payload=login_dto, request=None, db=db)
+    assert exc_blocked.value.status_code == 429
+    assert "Too many failed login attempts" in exc_blocked.value.detail
 
 def test_address_management():
     db = get_db()

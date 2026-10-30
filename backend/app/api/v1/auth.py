@@ -69,6 +69,20 @@ def register_customer(payload: UserCreate, request: Request, db = Depends(get_db
 
 @router.post("/login", response_model=TokenResponse)
 def login(payload: UserLogin, request: Request, db = Depends(get_db)):
+    # Brute-force rate limiting: check recent failed logins in audit_logs
+    fifteen_mins_ago = datetime.now(timezone.utc) - timedelta(minutes=15)
+    fail_query = {
+        "action": "LOGIN_FAILED",
+        "created_at": {"$gte": fifteen_mins_ago},
+        "user_email": payload.email.lower()
+    }
+    recent_fails = db.audit_logs.count_documents(fail_query)
+    if recent_fails >= 5:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many failed login attempts. Please try again after 15 minutes or reset your password."
+        )
+
     user = db.users.find_one({"email": payload.email.lower()})
     if not user or not verify_password(payload.password, user.get("hashed_password", "")):
         AuditLogger.log_event(
