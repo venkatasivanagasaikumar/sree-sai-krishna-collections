@@ -24,7 +24,7 @@
       ],
       "is_active": true,
       "created_at": "2026-10-29T18:18:31.343000",
-      "last_login_at": "2026-10-29T20:24:00.328000"
+      "last_login_at": "2026-10-30T06:45:05.552000"
     },
     {
       "email": "orders@sskcollections.com",
@@ -133,25 +133,90 @@
           "pincode": "500081",
           "is_default": false,
           "type": "Work"
+        },
+        {
+          "id": "0c0cf971-d260-4a32-be0c-4c8d897b865d",
+          "name": "Priya Office",
+          "phone": "+91 98765 43210",
+          "address_line1": "HITEC City, Cyber Towers",
+          "address_line2": null,
+          "landmark": null,
+          "city": "Hyderabad",
+          "state": "Telangana",
+          "pincode": "500081",
+          "is_default": false,
+          "type": "Work"
+        },
+        {
+          "id": "433c9e5e-c058-4331-a7be-0a5d5c33427b",
+          "name": "Priya Office",
+          "phone": "+91 98765 43210",
+          "address_line1": "HITEC City, Cyber Towers",
+          "address_line2": null,
+          "landmark": null,
+          "city": "Hyderabad",
+          "state": "Telangana",
+          "pincode": "500081",
+          "is_default": false,
+          "type": "Work"
+        },
+        {
+          "id": "74359a67-4d9d-4c0f-978e-357fd4abab1d",
+          "name": "Priya Office",
+          "phone": "+91 98765 43210",
+          "address_line1": "HITEC City, Cyber Towers",
+          "address_line2": null,
+          "landmark": null,
+          "city": "Hyderabad",
+          "state": "Telangana",
+          "pincode": "500081",
+          "is_default": false,
+          "type": "Work"
+        },
+        {
+          "id": "08d55914-152a-448e-b7cd-ce6af90fb604",
+          "name": "Priya Office",
+          "phone": "+91 98765 43210",
+          "address_line1": "HITEC City, Cyber Towers",
+          "address_line2": null,
+          "landmark": null,
+          "city": "Hyderabad",
+          "state": "Telangana",
+          "pincode": "500081",
+          "is_default": false,
+          "type": "Work"
+        },
+        {
+          "id": "1caa1f1d-0232-4839-8d33-046a91bd5188",
+          "name": "Priya Office",
+          "phone": "+91 98765 43210",
+          "address_line1": "HITEC City, Cyber Towers",
+          "address_line2": null,
+          "landmark": null,
+          "city": "Hyderabad",
+          "state": "Telangana",
+          "pincode": "500081",
+          "is_default": false,
+          "type": "Work"
         }
       ],
       "is_active": true,
       "created_at": "2026-10-09T18:18:31.648000",
-      "updated_at": "2026-10-30T05:58:25.100000",
-      "last_login_at": "2026-10-29T19:44:39.390000"
+      "updated_at": "2026-10-30T06:45:05.391000",
+      "last_login_at": "2026-10-30T06:45:06.096000"
     },
     {
       "email": "test.shopper.direct@example.com",
       "full_name": "Direct Test Shopper",
       "phone": "+91 99887 76655",
       "role": "Customer",
-      "hashed_password": "$argon2id$v=19$m=65536,t=3,p=4$f/VoiXGhV81si9Ll03KHZA$crToyeLjOXzTNGMsBATQNeLY9Q0cCvCaQEsCgpygveY",
+      "hashed_password": "$argon2id$v=19$m=65536,t=3,p=4$Sncs1LuzDknhCE/GgsXt1w$6sFICtdArtxHKwkAI+VUk5ugDfqv9WQJCk2+pWp42kg",
       "addresses": [],
       "is_active": true,
-      "created_at": "2026-10-30T05:58:24.820000",
-      "updated_at": "2026-10-30T05:58:24.820000",
-      "_id": "6ae43200ef39ac9ce50ec615",
-      "last_login_at": "2026-10-30T05:58:24.950000"
+      "created_at": "2026-10-30T06:45:05.032000",
+      "updated_at": "2026-10-30T06:45:05.032000",
+      "_id": "6ae43cf1be7b11ab64a83961",
+      "last_login_at": "2026-10-30T06:45:05.211000"
     }
   ],
   "products": [
@@ -165,7 +230,7 @@
       "short_description": "Traditional Lakshmi motif choker with earrings in high-grade 1-gram gold finish.",
       "mrp": 3499.0,
       "price": 1899.0,
-      "stock": 28,
+      "stock": 22,
       "low_stock_threshold": 5,
       "images": [
         "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80",
@@ -221,12 +286,12 @@
       "is_trending": true,
       "rating": 4.9,
       "rating_count": 34,
-      "sales_count": 89,
+      "sales_count": 95,
       "weight_grams": 75.0,
       "created_at": "2026-10-04T18:18:31.651000",
       "discount_percent": 46,
       "discount_amount": 1600.0,
-      "updated_at": "2026-10-29T18:18:31.651000"
+      "updated_at": "2026-10-30T06:45:07.149000"
     },
     {
       "sku": "SSK-JWL-102",
@@ -238,7 +303,7 @@
       "short_description": "Antique gold finish lightweight heritage peacock dome jhumkas.",
       "mrp": 1599.0,
       "price": 799.0,
-      "stock": 45,
+      "stock": 43,
       "low_stock_threshold": 8,
       "images": [
         "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80",
@@ -272,12 +337,12 @@
       "is_trending": false,
       "rating": 4.8,
       "rating_count": 52,
-      "sales_count": 142,
+      "sales_count": 144,
       "weight_grams": 28.0,
       "created_at": "2026-10-11T18:18:31.651000",
       "discount_percent": 50,
       "discount_amount": 800.0,
-      "updated_at": "2026-10-29T18:18:31.651000"
+      "updated_at": "2026-10-30T06:45:06.472000"
     },
     {
       "sku": "SSK-JWL-103",
@@ -355,7 +420,7 @@
       "created_at": "2026-10-17T18:18:31.651000",
       "discount_percent": 45,
       "discount_amount": 1000.0,
-      "updated_at": "2026-10-30T05:58:25.132000"
+      "updated_at": "2026-10-30T06:45:07.458000"
     },
     {
       "sku": "SSK-JWL-104",
@@ -416,7 +481,7 @@
       "short_description": "Pack of 3 aesthetic matte finish sturdy claw clips.",
       "mrp": 699.0,
       "price": 349.0,
-      "stock": 115,
+      "stock": 165,
       "low_stock_threshold": 10,
       "images": [
         "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80"
@@ -452,7 +517,7 @@
       "created_at": "2026-09-29T18:18:31.651000",
       "discount_percent": 50,
       "discount_amount": 350.0,
-      "updated_at": "2026-10-30T05:58:24.683000"
+      "updated_at": "2026-10-30T06:45:04.871000"
     },
     {
       "sku": "SSK-HAIR-202",
@@ -1166,10 +1231,10 @@
       },
       "payment_method": "COD",
       "payment_status": "PENDING_COD",
-      "order_status": "CANCELLED",
-      "fulfilment_status": "UNFULFILLED",
-      "carrier_name": null,
-      "tracking_number": null,
+      "order_status": "SHIPPED",
+      "fulfilment_status": "SHIPPED",
+      "carrier_name": "Delhivery Express",
+      "tracking_number": "DEL-TEST-998811",
       "notes": null,
       "timeline": [
         {
@@ -1183,11 +1248,425 @@
           "message": "Order cancelled: Test order cleanup",
           "timestamp": "2026-10-30T05:58:25.132000",
           "performed_by": "Sree Sai Krishna Admin"
+        },
+        {
+          "status": "SHIPPED",
+          "message": "Order status updated to SHIPPED (Carrier: Delhivery Express, AWB/Tracking: DEL-TEST-998811) - Note: Package dispatched via air cargo",
+          "timestamp": "2026-10-30T06:40:09.690000",
+          "performed_by": "Sree Sai Krishna Admin (Super Admin)"
         }
       ],
       "created_at": "2026-10-30T05:58:25.117000",
-      "updated_at": "2026-10-30T05:58:25.132000",
+      "updated_at": "2026-10-30T06:40:09.690000",
       "_id": "6ae43201ef39ac9ce50ec61a"
+    },
+    {
+      "order_id": "SSK-20261030-9084",
+      "user_id": null,
+      "guest_token": "db9373e11fcf4cfeb0ccb7ff3bb86233",
+      "customer_name": "Sunita Rao",
+      "customer_email": "sunita.test@example.com",
+      "customer_phone": "+91 98480 11223",
+      "items": [
+        {
+          "product_id": "6ae38df757945b34679af1bd",
+          "variant_id": null,
+          "name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+          "sku": "SSK-JWL-103",
+          "image": "https://images.unsplash.com/photo-1611591475878-be7c427db9fb?auto=format&fit=crop&w=800&q=80",
+          "unit_price": 1199.0,
+          "mrp": 2199.0,
+          "quantity": 1,
+          "total_price": 1199.0
+        }
+      ],
+      "subtotal": 1199.0,
+      "discount_amount": 0.0,
+      "coupon_code": null,
+      "shipping_fee": 0.0,
+      "final_amount": 1199.0,
+      "currency": "INR",
+      "shipping_address": {
+        "id": null,
+        "name": "Sunita Rao",
+        "phone": "+91 98480 11223",
+        "address_line1": "12 Jubilee Enclave",
+        "address_line2": null,
+        "landmark": null,
+        "city": "Hyderabad",
+        "state": "Telangana",
+        "pincode": "500081",
+        "is_default": true,
+        "type": "Home"
+      },
+      "payment_method": "COD",
+      "payment_status": "PENDING_COD",
+      "order_status": "SHIPPED",
+      "fulfilment_status": "SHIPPED",
+      "carrier_name": "Delhivery Express",
+      "tracking_number": "DEL-TEST-998811",
+      "notes": null,
+      "timeline": [
+        {
+          "status": "ORDER_PLACED",
+          "message": "Order SSK-20261030-9084 created with payment method COD",
+          "timestamp": "2026-10-30T06:40:10.172000",
+          "performed_by": "Sunita Rao"
+        },
+        {
+          "status": "CANCELLED",
+          "message": "Order cancelled: Test order cleanup",
+          "timestamp": "2026-10-30T06:40:10.189000",
+          "performed_by": "Sree Sai Krishna Admin"
+        },
+        {
+          "status": "SHIPPED",
+          "message": "Order status updated to SHIPPED (Carrier: Delhivery Express, AWB/Tracking: DEL-TEST-998811) - Note: Package dispatched via air cargo",
+          "timestamp": "2026-10-30T06:41:35.959000",
+          "performed_by": "Sree Sai Krishna Admin (Super Admin)"
+        }
+      ],
+      "created_at": "2026-10-30T06:40:10.172000",
+      "updated_at": "2026-10-30T06:41:35.959000",
+      "_id": "6ae43bca41967e55bd2200c5"
+    },
+    {
+      "order_id": "SSK-20261030-9613",
+      "user_id": null,
+      "guest_token": "0817f128527e498faa5b025eb66e623a",
+      "customer_name": "Sunita Rao",
+      "customer_email": "sunita.test@example.com",
+      "customer_phone": "+91 98480 11223",
+      "items": [
+        {
+          "product_id": "6ae38df757945b34679af1bd",
+          "variant_id": null,
+          "name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+          "sku": "SSK-JWL-103",
+          "image": "https://images.unsplash.com/photo-1611591475878-be7c427db9fb?auto=format&fit=crop&w=800&q=80",
+          "unit_price": 1199.0,
+          "mrp": 2199.0,
+          "quantity": 1,
+          "total_price": 1199.0
+        }
+      ],
+      "subtotal": 1199.0,
+      "discount_amount": 0.0,
+      "coupon_code": null,
+      "shipping_fee": 0.0,
+      "final_amount": 1199.0,
+      "currency": "INR",
+      "shipping_address": {
+        "id": null,
+        "name": "Sunita Rao",
+        "phone": "+91 98480 11223",
+        "address_line1": "12 Jubilee Enclave",
+        "address_line2": null,
+        "landmark": null,
+        "city": "Hyderabad",
+        "state": "Telangana",
+        "pincode": "500081",
+        "is_default": true,
+        "type": "Home"
+      },
+      "payment_method": "COD",
+      "payment_status": "PENDING_COD",
+      "order_status": "SHIPPED",
+      "fulfilment_status": "SHIPPED",
+      "carrier_name": "Delhivery Express",
+      "tracking_number": "DEL-TEST-998811",
+      "notes": null,
+      "timeline": [
+        {
+          "status": "ORDER_PLACED",
+          "message": "Order SSK-20261030-9613 created with payment method COD",
+          "timestamp": "2026-10-30T06:41:39.479000",
+          "performed_by": "Sunita Rao"
+        },
+        {
+          "status": "CANCELLED",
+          "message": "Order cancelled: Test order cleanup",
+          "timestamp": "2026-10-30T06:41:39.499000",
+          "performed_by": "Sree Sai Krishna Admin"
+        },
+        {
+          "status": "SHIPPED",
+          "message": "Order status updated to SHIPPED (Carrier: Delhivery Express, AWB/Tracking: DEL-TEST-998811) - Note: Package dispatched via air cargo",
+          "timestamp": "2026-10-30T06:43:53.261000",
+          "performed_by": "Sree Sai Krishna Admin (Super Admin)"
+        }
+      ],
+      "created_at": "2026-10-30T06:41:39.479000",
+      "updated_at": "2026-10-30T06:43:53.261000",
+      "_id": "6ae43c23779d0a11a47d599a"
+    },
+    {
+      "order_id": "SSK-20261030-9720",
+      "user_id": null,
+      "guest_token": "1b6a4a2a7df949c88300640f23a25fb7",
+      "customer_name": "Sunita Rao",
+      "customer_email": "sunita.test@example.com",
+      "customer_phone": "+91 98480 11223",
+      "items": [
+        {
+          "product_id": "6ae38df757945b34679af1bd",
+          "variant_id": null,
+          "name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+          "sku": "SSK-JWL-103",
+          "image": "https://images.unsplash.com/photo-1611591475878-be7c427db9fb?auto=format&fit=crop&w=800&q=80",
+          "unit_price": 1199.0,
+          "mrp": 2199.0,
+          "quantity": 1,
+          "total_price": 1199.0
+        }
+      ],
+      "subtotal": 1199.0,
+      "discount_amount": 0.0,
+      "coupon_code": null,
+      "shipping_fee": 0.0,
+      "final_amount": 1199.0,
+      "currency": "INR",
+      "shipping_address": {
+        "id": null,
+        "name": "Sunita Rao",
+        "phone": "+91 98480 11223",
+        "address_line1": "12 Jubilee Enclave",
+        "address_line2": null,
+        "landmark": null,
+        "city": "Hyderabad",
+        "state": "Telangana",
+        "pincode": "500081",
+        "is_default": true,
+        "type": "Home"
+      },
+      "payment_method": "COD",
+      "payment_status": "PENDING_COD",
+      "order_status": "SHIPPED",
+      "fulfilment_status": "SHIPPED",
+      "carrier_name": "Delhivery Express",
+      "tracking_number": "DEL-TEST-998811",
+      "notes": null,
+      "timeline": [
+        {
+          "status": "ORDER_PLACED",
+          "message": "Order SSK-20261030-9720 created with payment method COD",
+          "timestamp": "2026-10-30T06:43:55.658000",
+          "performed_by": "Sunita Rao"
+        },
+        {
+          "status": "CANCELLED",
+          "message": "Order cancelled: Test order cleanup",
+          "timestamp": "2026-10-30T06:43:55.676000",
+          "performed_by": "Sree Sai Krishna Admin"
+        },
+        {
+          "status": "SHIPPED",
+          "message": "Order status updated to SHIPPED (Carrier: Delhivery Express, AWB/Tracking: DEL-TEST-998811) - Note: Package dispatched via air cargo",
+          "timestamp": "2026-10-30T06:44:36.909000",
+          "performed_by": "Sree Sai Krishna Admin (Super Admin)"
+        }
+      ],
+      "created_at": "2026-10-30T06:43:55.658000",
+      "updated_at": "2026-10-30T06:44:36.909000",
+      "_id": "6ae43caba4bb0a1041a852a0"
+    },
+    {
+      "order_id": "SSK-20261030-9522",
+      "user_id": null,
+      "guest_token": "183173043a224f1f8e773a6b84737180",
+      "customer_name": "Ramesh Babu",
+      "customer_email": "ramesh.babu@example.com",
+      "customer_phone": "+91 98480 33445",
+      "items": [
+        {
+          "product_id": "6ae43cd5e4045fecbabc3753",
+          "variant_id": null,
+          "name": "1-Gram Gold Emerald Floral Bridal Choker",
+          "sku": "SSK-TEST-JWL-999",
+          "image": "/uploads/sample-emerald.jpg",
+          "unit_price": 2499.0,
+          "mrp": 3499.0,
+          "quantity": 2,
+          "total_price": 4998.0
+        }
+      ],
+      "subtotal": 4998.0,
+      "discount_amount": 0.0,
+      "coupon_code": null,
+      "shipping_fee": 0.0,
+      "final_amount": 4998.0,
+      "currency": "INR",
+      "shipping_address": {
+        "id": null,
+        "name": "Ramesh Babu",
+        "phone": "+91 98480 33445",
+        "address_line1": "4-56 Temple Street",
+        "address_line2": null,
+        "landmark": null,
+        "city": "Secunderabad",
+        "state": "Telangana",
+        "pincode": "500003",
+        "is_default": true,
+        "type": "Home"
+      },
+      "payment_method": "COD",
+      "payment_status": "PENDING_COD",
+      "order_status": "SHIPPED",
+      "fulfilment_status": "SHIPPED",
+      "carrier_name": "Delhivery Express",
+      "tracking_number": "DEL9848022338IN",
+      "notes": null,
+      "timeline": [
+        {
+          "status": "ORDER_PLACED",
+          "message": "Order SSK-20261030-9522 created with payment method COD",
+          "timestamp": "2026-10-30T06:44:37.649000",
+          "performed_by": "Ramesh Babu"
+        },
+        {
+          "status": "SHIPPED",
+          "message": "Order status updated to SHIPPED (Carrier: Delhivery Express, AWB/Tracking: DEL9848022338IN) - Note: Double bubbled protective packaging with SSK warranty tag",
+          "timestamp": "2026-10-30T06:44:37.675000",
+          "performed_by": "Sree Sai Krishna Admin (Super Admin)"
+        }
+      ],
+      "created_at": "2026-10-30T06:44:37.649000",
+      "updated_at": "2026-10-30T06:44:37.675000",
+      "_id": "6ae43cd5e4045fecbabc3758"
+    },
+    {
+      "order_id": "SSK-20261030-9198",
+      "user_id": null,
+      "guest_token": "6aa9de6f39d44ffc876f48a872f527a9",
+      "customer_name": "Sunita Rao",
+      "customer_email": "sunita.test@example.com",
+      "customer_phone": "+91 98480 11223",
+      "items": [
+        {
+          "product_id": "6ae38df757945b34679af1bd",
+          "variant_id": null,
+          "name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+          "sku": "SSK-JWL-103",
+          "image": "https://images.unsplash.com/photo-1611591475878-be7c427db9fb?auto=format&fit=crop&w=800&q=80",
+          "unit_price": 1199.0,
+          "mrp": 2199.0,
+          "quantity": 1,
+          "total_price": 1199.0
+        }
+      ],
+      "subtotal": 1199.0,
+      "discount_amount": 0.0,
+      "coupon_code": null,
+      "shipping_fee": 0.0,
+      "final_amount": 1199.0,
+      "currency": "INR",
+      "shipping_address": {
+        "id": null,
+        "name": "Sunita Rao",
+        "phone": "+91 98480 11223",
+        "address_line1": "12 Jubilee Enclave",
+        "address_line2": null,
+        "landmark": null,
+        "city": "Hyderabad",
+        "state": "Telangana",
+        "pincode": "500081",
+        "is_default": true,
+        "type": "Home"
+      },
+      "payment_method": "COD",
+      "payment_status": "PENDING_COD",
+      "order_status": "SHIPPED",
+      "fulfilment_status": "SHIPPED",
+      "carrier_name": "Delhivery Express",
+      "tracking_number": "DEL-TEST-998811",
+      "notes": null,
+      "timeline": [
+        {
+          "status": "ORDER_PLACED",
+          "message": "Order SSK-20261030-9198 created with payment method COD",
+          "timestamp": "2026-10-30T06:44:39.663000",
+          "performed_by": "Sunita Rao"
+        },
+        {
+          "status": "CANCELLED",
+          "message": "Order cancelled: Test order cleanup",
+          "timestamp": "2026-10-30T06:44:39.681000",
+          "performed_by": "Sree Sai Krishna Admin"
+        },
+        {
+          "status": "SHIPPED",
+          "message": "Order status updated to SHIPPED (Carrier: Delhivery Express, AWB/Tracking: DEL-TEST-998811) - Note: Package dispatched via air cargo",
+          "timestamp": "2026-10-30T06:45:04.850000",
+          "performed_by": "Sree Sai Krishna Admin (Super Admin)"
+        }
+      ],
+      "created_at": "2026-10-30T06:44:39.663000",
+      "updated_at": "2026-10-30T06:45:04.850000",
+      "_id": "6ae43cd7e4045fecbabc376d"
+    },
+    {
+      "order_id": "SSK-20261030-5233",
+      "user_id": null,
+      "guest_token": "ccffee9263e04b109bf0692f43a3e857",
+      "customer_name": "Sunita Rao",
+      "customer_email": "sunita.test@example.com",
+      "customer_phone": "+91 98480 11223",
+      "items": [
+        {
+          "product_id": "6ae38df757945b34679af1bd",
+          "variant_id": null,
+          "name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+          "sku": "SSK-JWL-103",
+          "image": "https://images.unsplash.com/photo-1611591475878-be7c427db9fb?auto=format&fit=crop&w=800&q=80",
+          "unit_price": 1199.0,
+          "mrp": 2199.0,
+          "quantity": 1,
+          "total_price": 1199.0
+        }
+      ],
+      "subtotal": 1199.0,
+      "discount_amount": 0.0,
+      "coupon_code": null,
+      "shipping_fee": 0.0,
+      "final_amount": 1199.0,
+      "currency": "INR",
+      "shipping_address": {
+        "id": null,
+        "name": "Sunita Rao",
+        "phone": "+91 98480 11223",
+        "address_line1": "12 Jubilee Enclave",
+        "address_line2": null,
+        "landmark": null,
+        "city": "Hyderabad",
+        "state": "Telangana",
+        "pincode": "500081",
+        "is_default": true,
+        "type": "Home"
+      },
+      "payment_method": "COD",
+      "payment_status": "PENDING_COD",
+      "order_status": "CANCELLED",
+      "fulfilment_status": "UNFULFILLED",
+      "carrier_name": null,
+      "tracking_number": null,
+      "notes": null,
+      "timeline": [
+        {
+          "status": "ORDER_PLACED",
+          "message": "Order SSK-20261030-5233 created with payment method COD",
+          "timestamp": "2026-10-30T06:45:07.357000",
+          "performed_by": "Sunita Rao"
+        },
+        {
+          "status": "CANCELLED",
+          "message": "Order cancelled: Test order cleanup",
+          "timestamp": "2026-10-30T06:45:07.458000",
+          "performed_by": "Sree Sai Krishna Admin"
+        }
+      ],
+      "created_at": "2026-10-30T06:45:07.357000",
+      "updated_at": "2026-10-30T06:45:07.458000",
+      "_id": "6ae43cf3be7b11ab64a83980"
     }
   ],
   "coupons": [
@@ -1782,6 +2261,956 @@
       "status": "SUCCESS",
       "created_at": "2026-10-30T05:58:25.131000",
       "_id": "6ae43201ef39ac9ce50ec61b"
+    },
+    {
+      "action": "ORDER_STATUS_UPDATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-5716",
+      "user_id": "6ae38df757945b34679af1ae",
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {
+        "new_status": "SHIPPED"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:40:09.703000",
+      "_id": "6ae43bc941967e55bd2200bd"
+    },
+    {
+      "action": "INVENTORY_ADJUSTMENT",
+      "resource_type": "INVENTORY",
+      "resource_id": "SSK-HAIR-201",
+      "user_id": "6ae38df757945b34679af1b0",
+      "user_email": "inventory@sskcollections.com",
+      "ip_address": null,
+      "details": {
+        "sku": "SSK-HAIR-201",
+        "change": 10,
+        "new_stock": 125,
+        "type": "RESTOCK",
+        "reason": "Supplier shipment batch #440 received"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:40:09.720000",
+      "_id": "6ae43bc941967e55bd2200bf"
+    },
+    {
+      "action": "CUSTOMER_REGISTRATION",
+      "resource_type": "USER",
+      "resource_id": "6ae43bc941967e55bd2200c0",
+      "user_id": "6ae43bc941967e55bd2200c0",
+      "user_email": "test.shopper.direct@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:40:09.862000",
+      "_id": "6ae43bc941967e55bd2200c1"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae43bc941967e55bd2200c0",
+      "user_id": "6ae43bc941967e55bd2200c0",
+      "user_email": "test.shopper.direct@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:40:10.005000",
+      "_id": "6ae43bca41967e55bd2200c2"
+    },
+    {
+      "action": "LOGIN_FAILED",
+      "resource_type": "USER",
+      "resource_id": null,
+      "user_id": null,
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {},
+      "status": "FAILURE",
+      "created_at": "2026-10-30T06:40:10.131000",
+      "_id": "6ae43bca41967e55bd2200c3"
+    },
+    {
+      "action": "ORDER_CREATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-9084",
+      "user_id": null,
+      "user_email": "sunita.test@example.com",
+      "ip_address": null,
+      "details": {
+        "final_amount": 1199.0,
+        "items_count": 1
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:40:10.188000",
+      "_id": "6ae43bca41967e55bd2200c6"
+    },
+    {
+      "action": "ORDER_STATUS_UPDATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-9084",
+      "user_id": "6ae38df757945b34679af1ae",
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {
+        "new_status": "SHIPPED"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:41:35.974000",
+      "_id": "6ae43c1f779d0a11a47d5989"
+    },
+    {
+      "action": "INVENTORY_ADJUSTMENT",
+      "resource_type": "INVENTORY",
+      "resource_id": "SSK-HAIR-201",
+      "user_id": "6ae38df757945b34679af1b0",
+      "user_email": "inventory@sskcollections.com",
+      "ip_address": null,
+      "details": {
+        "sku": "SSK-HAIR-201",
+        "change": 10,
+        "new_stock": 135,
+        "type": "RESTOCK",
+        "reason": "Supplier shipment batch #440 received"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:41:36",
+      "_id": "6ae43c20779d0a11a47d598b"
+    },
+    {
+      "action": "CUSTOMER_REGISTRATION",
+      "resource_type": "USER",
+      "resource_id": "6ae43c20779d0a11a47d598c",
+      "user_id": "6ae43c20779d0a11a47d598c",
+      "user_email": "test.shopper.direct@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:41:36.473000",
+      "_id": "6ae43c20779d0a11a47d598d"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae43c20779d0a11a47d598c",
+      "user_id": "6ae43c20779d0a11a47d598c",
+      "user_email": "test.shopper.direct@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:41:36.994000",
+      "_id": "6ae43c20779d0a11a47d598e"
+    },
+    {
+      "action": "LOGIN_FAILED",
+      "resource_type": "USER",
+      "resource_id": null,
+      "user_id": null,
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {},
+      "status": "FAILURE",
+      "created_at": "2026-10-30T06:41:37.144000",
+      "_id": "6ae43c21779d0a11a47d598f"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae38df757945b34679af1ae",
+      "user_id": "6ae38df757945b34679af1ae",
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:41:37.797000",
+      "_id": "6ae43c21779d0a11a47d5990"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae38df757945b34679af1b1",
+      "user_id": "6ae38df757945b34679af1b1",
+      "user_email": "priya.sharma@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:41:38.783000",
+      "_id": "6ae43c22779d0a11a47d5991"
+    },
+    {
+      "action": "CUSTOMER_REGISTRATION",
+      "resource_type": "USER",
+      "resource_id": "6ae43c22779d0a11a47d5993",
+      "user_id": "6ae43c22779d0a11a47d5993",
+      "user_email": "ananya.newcustomer@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:41:38.983000",
+      "_id": "6ae43c22779d0a11a47d5994"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae43c22779d0a11a47d5993",
+      "user_id": "6ae43c22779d0a11a47d5993",
+      "user_email": "ananya.newcustomer@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:41:39.134000",
+      "_id": "6ae43c23779d0a11a47d5995"
+    },
+    {
+      "action": "CUSTOMER_REGISTRATION",
+      "resource_type": "USER",
+      "resource_id": "6ae43c23779d0a11a47d5997",
+      "user_id": "6ae43c23779d0a11a47d5997",
+      "user_email": "malicious.attacker@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:41:39.421000",
+      "_id": "6ae43c23779d0a11a47d5998"
+    },
+    {
+      "action": "ORDER_CREATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-9613",
+      "user_id": null,
+      "user_email": "sunita.test@example.com",
+      "ip_address": null,
+      "details": {
+        "final_amount": 1199.0,
+        "items_count": 1
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:41:39.498000",
+      "_id": "6ae43c23779d0a11a47d599b"
+    },
+    {
+      "action": "CUSTOMER_REGISTRATION",
+      "resource_type": "USER",
+      "resource_id": "6ae43c57fce31945ec3d9457",
+      "user_id": "6ae43c57fce31945ec3d9457",
+      "user_email": "ananya.newcustomer@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:42:31.083000",
+      "_id": "6ae43c57fce31945ec3d9458"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae43c57fce31945ec3d9457",
+      "user_id": "6ae43c57fce31945ec3d9457",
+      "user_email": "ananya.newcustomer@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:42:31.631000",
+      "_id": "6ae43c57fce31945ec3d9459"
+    },
+    {
+      "action": "ORDER_STATUS_UPDATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-9613",
+      "user_id": "6ae38df757945b34679af1ae",
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {
+        "new_status": "SHIPPED"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:43:53.275000",
+      "_id": "6ae43ca9a4bb0a1041a8528b"
+    },
+    {
+      "action": "INVENTORY_ADJUSTMENT",
+      "resource_type": "INVENTORY",
+      "resource_id": "SSK-HAIR-201",
+      "user_id": "6ae38df757945b34679af1b0",
+      "user_email": "inventory@sskcollections.com",
+      "ip_address": null,
+      "details": {
+        "sku": "SSK-HAIR-201",
+        "change": 10,
+        "new_stock": 145,
+        "type": "RESTOCK",
+        "reason": "Supplier shipment batch #440 received"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:43:53.299000",
+      "_id": "6ae43ca9a4bb0a1041a8528d"
+    },
+    {
+      "action": "CUSTOMER_REGISTRATION",
+      "resource_type": "USER",
+      "resource_id": "6ae43ca9a4bb0a1041a8528e",
+      "user_id": "6ae43ca9a4bb0a1041a8528e",
+      "user_email": "test.shopper.direct@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:43:53.487000",
+      "_id": "6ae43ca9a4bb0a1041a8528f"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae43ca9a4bb0a1041a8528e",
+      "user_id": "6ae43ca9a4bb0a1041a8528e",
+      "user_email": "test.shopper.direct@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:43:53.754000",
+      "_id": "6ae43ca9a4bb0a1041a85290"
+    },
+    {
+      "action": "LOGIN_FAILED",
+      "resource_type": "USER",
+      "resource_id": null,
+      "user_id": null,
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {},
+      "status": "FAILURE",
+      "created_at": "2026-10-30T06:43:53.868000",
+      "_id": "6ae43ca9a4bb0a1041a85291"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae38df757945b34679af1ae",
+      "user_id": "6ae38df757945b34679af1ae",
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:43:54.018000",
+      "_id": "6ae43caaa4bb0a1041a85292"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae38df757945b34679af1b1",
+      "user_id": "6ae38df757945b34679af1b1",
+      "user_email": "priya.sharma@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:43:54.910000",
+      "_id": "6ae43caaa4bb0a1041a85293"
+    },
+    {
+      "action": "CUSTOMER_REGISTRATION",
+      "resource_type": "USER",
+      "resource_id": "6ae43caba4bb0a1041a85295",
+      "user_id": "6ae43caba4bb0a1041a85295",
+      "user_email": "ananya.newcustomer@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:43:55.144000",
+      "_id": "6ae43caba4bb0a1041a85296"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae43caba4bb0a1041a85295",
+      "user_id": "6ae43caba4bb0a1041a85295",
+      "user_email": "ananya.newcustomer@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:43:55.344000",
+      "_id": "6ae43caba4bb0a1041a85297"
+    },
+    {
+      "action": "ORDER_CREATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-4782",
+      "user_id": "6ae43caba4bb0a1041a85295",
+      "user_email": "ananya.newcustomer@example.com",
+      "ip_address": null,
+      "details": {
+        "final_amount": 3498.0,
+        "items_count": 1
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:43:55.439000",
+      "_id": "6ae43caba4bb0a1041a8529b"
+    },
+    {
+      "action": "CUSTOMER_REGISTRATION",
+      "resource_type": "USER",
+      "resource_id": "6ae43caba4bb0a1041a8529c",
+      "user_id": "6ae43caba4bb0a1041a8529c",
+      "user_email": "malicious.attacker@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:43:55.628000",
+      "_id": "6ae43caba4bb0a1041a8529d"
+    },
+    {
+      "action": "PAYMENT_VERIFICATION_FAILED",
+      "resource_type": "PAYMENT",
+      "resource_id": "SSK-20261028-4412",
+      "user_id": null,
+      "user_email": null,
+      "ip_address": null,
+      "details": {
+        "payment_id": "pay_fake123"
+      },
+      "status": "FAILURE",
+      "created_at": "2026-10-30T06:43:55.639000",
+      "_id": "6ae43caba4bb0a1041a8529e"
+    },
+    {
+      "action": "ORDER_CREATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-9720",
+      "user_id": null,
+      "user_email": "sunita.test@example.com",
+      "ip_address": null,
+      "details": {
+        "final_amount": 1199.0,
+        "items_count": 1
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:43:55.675000",
+      "_id": "6ae43caba4bb0a1041a852a1"
+    },
+    {
+      "action": "ORDER_STATUS_UPDATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-9720",
+      "user_id": "6ae38df757945b34679af1ae",
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {
+        "new_status": "SHIPPED"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:36.920000",
+      "_id": "6ae43cd4e4045fecbabc374b"
+    },
+    {
+      "action": "INVENTORY_ADJUSTMENT",
+      "resource_type": "INVENTORY",
+      "resource_id": "SSK-HAIR-201",
+      "user_id": "6ae38df757945b34679af1b0",
+      "user_email": "inventory@sskcollections.com",
+      "ip_address": null,
+      "details": {
+        "sku": "SSK-HAIR-201",
+        "change": 10,
+        "new_stock": 155,
+        "type": "RESTOCK",
+        "reason": "Supplier shipment batch #440 received"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:36.942000",
+      "_id": "6ae43cd4e4045fecbabc374d"
+    },
+    {
+      "action": "CUSTOMER_REGISTRATION",
+      "resource_type": "USER",
+      "resource_id": "6ae43cd5e4045fecbabc374e",
+      "user_id": "6ae43cd5e4045fecbabc374e",
+      "user_email": "test.shopper.direct@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:37.135000",
+      "_id": "6ae43cd5e4045fecbabc374f"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae43cd5e4045fecbabc374e",
+      "user_id": "6ae43cd5e4045fecbabc374e",
+      "user_email": "test.shopper.direct@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:37.285000",
+      "_id": "6ae43cd5e4045fecbabc3750"
+    },
+    {
+      "action": "LOGIN_FAILED",
+      "resource_type": "USER",
+      "resource_id": null,
+      "user_id": null,
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {},
+      "status": "FAILURE",
+      "created_at": "2026-10-30T06:44:37.415000",
+      "_id": "6ae43cd5e4045fecbabc3751"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae38df757945b34679af1ae",
+      "user_id": "6ae38df757945b34679af1ae",
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:37.589000",
+      "_id": "6ae43cd5e4045fecbabc3752"
+    },
+    {
+      "action": "PRODUCT_CREATED",
+      "resource_type": "PRODUCT",
+      "resource_id": "6ae43cd5e4045fecbabc3753",
+      "user_id": null,
+      "user_email": null,
+      "ip_address": null,
+      "details": {
+        "sku": "SSK-TEST-JWL-999",
+        "name": "1-Gram Gold Emerald Floral Bridal Choker"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:37.616000",
+      "_id": "6ae43cd5e4045fecbabc3754"
+    },
+    {
+      "action": "INVENTORY_ADJUSTMENT",
+      "resource_type": "INVENTORY",
+      "resource_id": "SSK-TEST-JWL-999",
+      "user_id": "6ae38df757945b34679af1ae",
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {
+        "sku": "SSK-TEST-JWL-999",
+        "change": 5,
+        "new_stock": 20,
+        "type": "RESTOCK",
+        "reason": "Fresh artisan workshop consignment"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:37.648000",
+      "_id": "6ae43cd5e4045fecbabc3756"
+    },
+    {
+      "action": "ORDER_CREATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-9522",
+      "user_id": null,
+      "user_email": "ramesh.babu@example.com",
+      "ip_address": null,
+      "details": {
+        "final_amount": 4998.0,
+        "items_count": 1
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:37.674000",
+      "_id": "6ae43cd5e4045fecbabc3759"
+    },
+    {
+      "action": "ORDER_STATUS_UPDATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-9522",
+      "user_id": "6ae38df757945b34679af1ae",
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {
+        "new_status": "SHIPPED"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:37.695000",
+      "_id": "6ae43cd5e4045fecbabc375a"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae38df757945b34679af1b1",
+      "user_id": "6ae38df757945b34679af1b1",
+      "user_email": "priya.sharma@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:39.126000",
+      "_id": "6ae43cd7e4045fecbabc375b"
+    },
+    {
+      "action": "ORDER_CREATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-5184",
+      "user_id": "6ae38df757945b34679af1b1",
+      "user_email": "priya.sharma@example.com",
+      "ip_address": null,
+      "details": {
+        "final_amount": 878.0,
+        "items_count": 1
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:39.185000",
+      "_id": "6ae43cd7e4045fecbabc375f"
+    },
+    {
+      "action": "PAYMENT_CONFIRMED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-5184",
+      "user_id": "6ae38df757945b34679af1b1",
+      "user_email": "priya.sharma@example.com",
+      "ip_address": null,
+      "details": {
+        "payment_id": "pay_test_existing_cust_123",
+        "amount": 878.0
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:39.215000",
+      "_id": "6ae43cd7e4045fecbabc3761"
+    },
+    {
+      "action": "CUSTOMER_REGISTRATION",
+      "resource_type": "USER",
+      "resource_id": "6ae43cd7e4045fecbabc3762",
+      "user_id": "6ae43cd7e4045fecbabc3762",
+      "user_email": "ananya.newcustomer@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:39.322000",
+      "_id": "6ae43cd7e4045fecbabc3763"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae43cd7e4045fecbabc3762",
+      "user_id": "6ae43cd7e4045fecbabc3762",
+      "user_email": "ananya.newcustomer@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:39.434000",
+      "_id": "6ae43cd7e4045fecbabc3764"
+    },
+    {
+      "action": "ORDER_CREATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-6059",
+      "user_id": "6ae43cd7e4045fecbabc3762",
+      "user_email": "ananya.newcustomer@example.com",
+      "ip_address": null,
+      "details": {
+        "final_amount": 3498.0,
+        "items_count": 1
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:39.507000",
+      "_id": "6ae43cd7e4045fecbabc3768"
+    },
+    {
+      "action": "CUSTOMER_REGISTRATION",
+      "resource_type": "USER",
+      "resource_id": "6ae43cd7e4045fecbabc3769",
+      "user_id": "6ae43cd7e4045fecbabc3769",
+      "user_email": "malicious.attacker@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:39.649000",
+      "_id": "6ae43cd7e4045fecbabc376a"
+    },
+    {
+      "action": "PAYMENT_VERIFICATION_FAILED",
+      "resource_type": "PAYMENT",
+      "resource_id": "SSK-20261028-4412",
+      "user_id": null,
+      "user_email": null,
+      "ip_address": null,
+      "details": {
+        "payment_id": "pay_fake123"
+      },
+      "status": "FAILURE",
+      "created_at": "2026-10-30T06:44:39.658000",
+      "_id": "6ae43cd7e4045fecbabc376b"
+    },
+    {
+      "action": "ORDER_CREATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-9198",
+      "user_id": null,
+      "user_email": "sunita.test@example.com",
+      "ip_address": null,
+      "details": {
+        "final_amount": 1199.0,
+        "items_count": 1
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:44:39.680000",
+      "_id": "6ae43cd7e4045fecbabc376e"
+    },
+    {
+      "action": "ORDER_STATUS_UPDATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-9198",
+      "user_id": "6ae38df757945b34679af1ae",
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {
+        "new_status": "SHIPPED"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:04.866000",
+      "_id": "6ae43cf0be7b11ab64a8395e"
+    },
+    {
+      "action": "INVENTORY_ADJUSTMENT",
+      "resource_type": "INVENTORY",
+      "resource_id": "SSK-HAIR-201",
+      "user_id": "6ae38df757945b34679af1b0",
+      "user_email": "inventory@sskcollections.com",
+      "ip_address": null,
+      "details": {
+        "sku": "SSK-HAIR-201",
+        "change": 10,
+        "new_stock": 165,
+        "type": "RESTOCK",
+        "reason": "Supplier shipment batch #440 received"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:04.884000",
+      "_id": "6ae43cf0be7b11ab64a83960"
+    },
+    {
+      "action": "CUSTOMER_REGISTRATION",
+      "resource_type": "USER",
+      "resource_id": "6ae43cf1be7b11ab64a83961",
+      "user_id": "6ae43cf1be7b11ab64a83961",
+      "user_email": "test.shopper.direct@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:05.052000",
+      "_id": "6ae43cf1be7b11ab64a83962"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae43cf1be7b11ab64a83961",
+      "user_id": "6ae43cf1be7b11ab64a83961",
+      "user_email": "test.shopper.direct@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:05.229000",
+      "_id": "6ae43cf1be7b11ab64a83963"
+    },
+    {
+      "action": "LOGIN_FAILED",
+      "resource_type": "USER",
+      "resource_id": null,
+      "user_id": null,
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {},
+      "status": "FAILURE",
+      "created_at": "2026-10-30T06:45:05.379000",
+      "_id": "6ae43cf1be7b11ab64a83964"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae38df757945b34679af1ae",
+      "user_id": "6ae38df757945b34679af1ae",
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:05.572000",
+      "_id": "6ae43cf1be7b11ab64a83965"
+    },
+    {
+      "action": "PRODUCT_CREATED",
+      "resource_type": "PRODUCT",
+      "resource_id": "6ae43cf1be7b11ab64a83966",
+      "user_id": null,
+      "user_email": null,
+      "ip_address": null,
+      "details": {
+        "sku": "SSK-TEST-JWL-999",
+        "name": "1-Gram Gold Emerald Floral Bridal Choker"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:05.597000",
+      "_id": "6ae43cf1be7b11ab64a83967"
+    },
+    {
+      "action": "INVENTORY_ADJUSTMENT",
+      "resource_type": "INVENTORY",
+      "resource_id": "SSK-TEST-JWL-999",
+      "user_id": "6ae38df757945b34679af1ae",
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {
+        "sku": "SSK-TEST-JWL-999",
+        "change": 5,
+        "new_stock": 20,
+        "type": "RESTOCK",
+        "reason": "Fresh artisan workshop consignment"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:05.614000",
+      "_id": "6ae43cf1be7b11ab64a83969"
+    },
+    {
+      "action": "ORDER_CREATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-1669",
+      "user_id": null,
+      "user_email": "ramesh.babu@example.com",
+      "ip_address": null,
+      "details": {
+        "final_amount": 4998.0,
+        "items_count": 1
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:05.639000",
+      "_id": "6ae43cf1be7b11ab64a8396c"
+    },
+    {
+      "action": "ORDER_STATUS_UPDATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-1669",
+      "user_id": "6ae38df757945b34679af1ae",
+      "user_email": "admin@sskcollections.com",
+      "ip_address": null,
+      "details": {
+        "new_status": "SHIPPED"
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:05.940000",
+      "_id": "6ae43cf1be7b11ab64a8396d"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae38df757945b34679af1b1",
+      "user_id": "6ae38df757945b34679af1b1",
+      "user_email": "priya.sharma@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:06.216000",
+      "_id": "6ae43cf2be7b11ab64a8396e"
+    },
+    {
+      "action": "ORDER_CREATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-4307",
+      "user_id": "6ae38df757945b34679af1b1",
+      "user_email": "priya.sharma@example.com",
+      "ip_address": null,
+      "details": {
+        "final_amount": 878.0,
+        "items_count": 1
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:06.492000",
+      "_id": "6ae43cf2be7b11ab64a83972"
+    },
+    {
+      "action": "PAYMENT_CONFIRMED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-4307",
+      "user_id": "6ae38df757945b34679af1b1",
+      "user_email": "priya.sharma@example.com",
+      "ip_address": null,
+      "details": {
+        "payment_id": "pay_test_existing_cust_123",
+        "amount": 878.0
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:06.650000",
+      "_id": "6ae43cf2be7b11ab64a83974"
+    },
+    {
+      "action": "CUSTOMER_REGISTRATION",
+      "resource_type": "USER",
+      "resource_id": "6ae43cf2be7b11ab64a83975",
+      "user_id": "6ae43cf2be7b11ab64a83975",
+      "user_email": "ananya.newcustomer@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:06.820000",
+      "_id": "6ae43cf2be7b11ab64a83976"
+    },
+    {
+      "action": "USER_LOGIN",
+      "resource_type": "USER",
+      "resource_id": "6ae43cf2be7b11ab64a83975",
+      "user_id": "6ae43cf2be7b11ab64a83975",
+      "user_email": "ananya.newcustomer@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:07.014000",
+      "_id": "6ae43cf3be7b11ab64a83977"
+    },
+    {
+      "action": "ORDER_CREATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-4859",
+      "user_id": "6ae43cf2be7b11ab64a83975",
+      "user_email": "ananya.newcustomer@example.com",
+      "ip_address": null,
+      "details": {
+        "final_amount": 3498.0,
+        "items_count": 1
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:07.177000",
+      "_id": "6ae43cf3be7b11ab64a8397b"
+    },
+    {
+      "action": "CUSTOMER_REGISTRATION",
+      "resource_type": "USER",
+      "resource_id": "6ae43cf3be7b11ab64a8397c",
+      "user_id": "6ae43cf3be7b11ab64a8397c",
+      "user_email": "malicious.attacker@example.com",
+      "ip_address": null,
+      "details": {},
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:07.335000",
+      "_id": "6ae43cf3be7b11ab64a8397d"
+    },
+    {
+      "action": "PAYMENT_VERIFICATION_FAILED",
+      "resource_type": "PAYMENT",
+      "resource_id": "SSK-20261028-4412",
+      "user_id": null,
+      "user_email": null,
+      "ip_address": null,
+      "details": {
+        "payment_id": "pay_fake123"
+      },
+      "status": "FAILURE",
+      "created_at": "2026-10-30T06:45:07.346000",
+      "_id": "6ae43cf3be7b11ab64a8397e"
+    },
+    {
+      "action": "ORDER_CREATED",
+      "resource_type": "ORDER",
+      "resource_id": "SSK-20261030-5233",
+      "user_id": null,
+      "user_email": "sunita.test@example.com",
+      "ip_address": null,
+      "details": {
+        "final_amount": 1199.0,
+        "items_count": 1
+      },
+      "status": "SUCCESS",
+      "created_at": "2026-10-30T06:45:07.456000",
+      "_id": "6ae43cf3be7b11ab64a83981"
     }
   ],
   "inventory_movements": [
@@ -1959,6 +3388,236 @@
       "performed_by": "admin@sskcollections.com",
       "created_at": "2026-10-30T05:58:25.132000",
       "_id": "6ae43201ef39ac9ce50ec61c"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bf",
+      "sku": "SSK-HAIR-201",
+      "product_name": "Luxury French Matte Pastel Hair Claw Clip (Pack of 3)",
+      "previous_stock": 115,
+      "quantity_change": 10,
+      "new_stock": 125,
+      "adjustment_type": "RESTOCK",
+      "reason": "Supplier shipment batch #440 received",
+      "performed_by": "Sunita Rao (Inventory Manager) (Inventory Manager)",
+      "created_at": "2026-10-30T06:40:09.707000",
+      "_id": "6ae43bc941967e55bd2200be"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bd",
+      "sku": "SSK-JWL-103",
+      "product_name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+      "quantity_change": -1,
+      "adjustment_type": "SALE",
+      "reason": "Order #SSK-20261030-9084",
+      "performed_by": "sunita.test@example.com",
+      "created_at": "2026-10-30T06:40:10.172000",
+      "_id": "6ae43bca41967e55bd2200c4"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bd",
+      "sku": "SSK-JWL-103",
+      "product_name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+      "quantity_change": 1,
+      "adjustment_type": "RESTOCK",
+      "reason": "Cancellation for order #SSK-20261030-9084: Test order cleanup",
+      "performed_by": "admin@sskcollections.com",
+      "created_at": "2026-10-30T06:40:10.189000",
+      "_id": "6ae43bca41967e55bd2200c7"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bf",
+      "sku": "SSK-HAIR-201",
+      "product_name": "Luxury French Matte Pastel Hair Claw Clip (Pack of 3)",
+      "previous_stock": 125,
+      "quantity_change": 10,
+      "new_stock": 135,
+      "adjustment_type": "RESTOCK",
+      "reason": "Supplier shipment batch #440 received",
+      "performed_by": "Sunita Rao (Inventory Manager) (Inventory Manager)",
+      "created_at": "2026-10-30T06:41:35.980000",
+      "_id": "6ae43c1f779d0a11a47d598a"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bd",
+      "sku": "SSK-JWL-103",
+      "product_name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+      "quantity_change": -1,
+      "adjustment_type": "SALE",
+      "reason": "Order #SSK-20261030-9613",
+      "performed_by": "sunita.test@example.com",
+      "created_at": "2026-10-30T06:41:39.479000",
+      "_id": "6ae43c23779d0a11a47d5999"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bd",
+      "sku": "SSK-JWL-103",
+      "product_name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+      "quantity_change": 1,
+      "adjustment_type": "RESTOCK",
+      "reason": "Cancellation for order #SSK-20261030-9613: Test order cleanup",
+      "performed_by": "admin@sskcollections.com",
+      "created_at": "2026-10-30T06:41:39.499000",
+      "_id": "6ae43c23779d0a11a47d599c"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bf",
+      "sku": "SSK-HAIR-201",
+      "product_name": "Luxury French Matte Pastel Hair Claw Clip (Pack of 3)",
+      "previous_stock": 135,
+      "quantity_change": 10,
+      "new_stock": 145,
+      "adjustment_type": "RESTOCK",
+      "reason": "Supplier shipment batch #440 received",
+      "performed_by": "Sunita Rao (Inventory Manager) (Inventory Manager)",
+      "created_at": "2026-10-30T06:43:53.283000",
+      "_id": "6ae43ca9a4bb0a1041a8528c"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bb",
+      "sku": "SSK-JWL-101",
+      "product_name": "Royal Lakshmi Matte Finish 1-Gram Gold Choker Set",
+      "quantity_change": -2,
+      "adjustment_type": "SALE",
+      "reason": "Order #SSK-20261030-4782",
+      "performed_by": "ananya.newcustomer@example.com",
+      "created_at": "2026-10-30T06:43:55.422000",
+      "_id": "6ae43caba4bb0a1041a85299"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bd",
+      "sku": "SSK-JWL-103",
+      "product_name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+      "quantity_change": -1,
+      "adjustment_type": "SALE",
+      "reason": "Order #SSK-20261030-9720",
+      "performed_by": "sunita.test@example.com",
+      "created_at": "2026-10-30T06:43:55.658000",
+      "_id": "6ae43caba4bb0a1041a8529f"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bd",
+      "sku": "SSK-JWL-103",
+      "product_name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+      "quantity_change": 1,
+      "adjustment_type": "RESTOCK",
+      "reason": "Cancellation for order #SSK-20261030-9720: Test order cleanup",
+      "performed_by": "admin@sskcollections.com",
+      "created_at": "2026-10-30T06:43:55.676000",
+      "_id": "6ae43caba4bb0a1041a852a2"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bf",
+      "sku": "SSK-HAIR-201",
+      "product_name": "Luxury French Matte Pastel Hair Claw Clip (Pack of 3)",
+      "previous_stock": 145,
+      "quantity_change": 10,
+      "new_stock": 155,
+      "adjustment_type": "RESTOCK",
+      "reason": "Supplier shipment batch #440 received",
+      "performed_by": "Sunita Rao (Inventory Manager) (Inventory Manager)",
+      "created_at": "2026-10-30T06:44:36.925000",
+      "_id": "6ae43cd4e4045fecbabc374c"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bc",
+      "sku": "SSK-JWL-102",
+      "product_name": "Heritage Peacock Filigree Antique Jhumkas",
+      "quantity_change": -1,
+      "adjustment_type": "SALE",
+      "reason": "Order #SSK-20261030-5184",
+      "performed_by": "priya.sharma@example.com",
+      "created_at": "2026-10-30T06:44:39.169000",
+      "_id": "6ae43cd7e4045fecbabc375d"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bb",
+      "sku": "SSK-JWL-101",
+      "product_name": "Royal Lakshmi Matte Finish 1-Gram Gold Choker Set",
+      "quantity_change": -2,
+      "adjustment_type": "SALE",
+      "reason": "Order #SSK-20261030-6059",
+      "performed_by": "ananya.newcustomer@example.com",
+      "created_at": "2026-10-30T06:44:39.493000",
+      "_id": "6ae43cd7e4045fecbabc3766"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bd",
+      "sku": "SSK-JWL-103",
+      "product_name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+      "quantity_change": -1,
+      "adjustment_type": "SALE",
+      "reason": "Order #SSK-20261030-9198",
+      "performed_by": "sunita.test@example.com",
+      "created_at": "2026-10-30T06:44:39.663000",
+      "_id": "6ae43cd7e4045fecbabc376c"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bd",
+      "sku": "SSK-JWL-103",
+      "product_name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+      "quantity_change": 1,
+      "adjustment_type": "RESTOCK",
+      "reason": "Cancellation for order #SSK-20261030-9198: Test order cleanup",
+      "performed_by": "admin@sskcollections.com",
+      "created_at": "2026-10-30T06:44:39.681000",
+      "_id": "6ae43cd7e4045fecbabc376f"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bf",
+      "sku": "SSK-HAIR-201",
+      "product_name": "Luxury French Matte Pastel Hair Claw Clip (Pack of 3)",
+      "previous_stock": 155,
+      "quantity_change": 10,
+      "new_stock": 165,
+      "adjustment_type": "RESTOCK",
+      "reason": "Supplier shipment batch #440 received",
+      "performed_by": "Sunita Rao (Inventory Manager) (Inventory Manager)",
+      "created_at": "2026-10-30T06:45:04.871000",
+      "_id": "6ae43cf0be7b11ab64a8395f"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bc",
+      "sku": "SSK-JWL-102",
+      "product_name": "Heritage Peacock Filigree Antique Jhumkas",
+      "quantity_change": -1,
+      "adjustment_type": "SALE",
+      "reason": "Order #SSK-20261030-4307",
+      "performed_by": "priya.sharma@example.com",
+      "created_at": "2026-10-30T06:45:06.472000",
+      "_id": "6ae43cf2be7b11ab64a83970"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bb",
+      "sku": "SSK-JWL-101",
+      "product_name": "Royal Lakshmi Matte Finish 1-Gram Gold Choker Set",
+      "quantity_change": -2,
+      "adjustment_type": "SALE",
+      "reason": "Order #SSK-20261030-4859",
+      "performed_by": "ananya.newcustomer@example.com",
+      "created_at": "2026-10-30T06:45:07.149000",
+      "_id": "6ae43cf3be7b11ab64a83979"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bd",
+      "sku": "SSK-JWL-103",
+      "product_name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+      "quantity_change": -1,
+      "adjustment_type": "SALE",
+      "reason": "Order #SSK-20261030-5233",
+      "performed_by": "sunita.test@example.com",
+      "created_at": "2026-10-30T06:45:07.357000",
+      "_id": "6ae43cf3be7b11ab64a8397f"
+    },
+    {
+      "product_id": "6ae38df757945b34679af1bd",
+      "sku": "SSK-JWL-103",
+      "product_name": "Classic Micro-Plated Gold Kada Bangles (Set of 2)",
+      "quantity_change": 1,
+      "adjustment_type": "RESTOCK",
+      "reason": "Cancellation for order #SSK-20261030-5233: Test order cleanup",
+      "performed_by": "admin@sskcollections.com",
+      "created_at": "2026-10-30T06:45:07.458000",
+      "_id": "6ae43cf3be7b11ab64a83982"
     }
   ],
   "store_settings": [
@@ -1975,6 +3634,62 @@
         "status": "synced"
       },
       "updated_at": "2026-10-29T20:19:42.130000"
+    }
+  ],
+  "carts": [
+    {
+      "user_id": "6ae43c22779d0a11a47d5993",
+      "_id": "6ae43c23779d0a11a47d5996",
+      "items": [
+        {
+          "product_id": "SSK-JWL-101",
+          "variant_id": null,
+          "quantity": 2
+        }
+      ],
+      "updated_at": "2026-10-30T06:41:39.175000",
+      "coupon_code": "SSKFIRST10"
+    },
+    {
+      "user_id": "6ae43c57fce31945ec3d9457",
+      "_id": "6ae43c57fce31945ec3d945a",
+      "items": [
+        {
+          "product_id": "SSK-JWL-101",
+          "variant_id": null,
+          "quantity": 2
+        }
+      ],
+      "updated_at": "2026-10-30T06:42:31.684000",
+      "coupon_code": "SSKFIRST10"
+    },
+    {
+      "user_id": "6ae43caba4bb0a1041a85295",
+      "_id": "6ae43caba4bb0a1041a85298",
+      "items": [],
+      "updated_at": "2026-10-30T06:43:55.422000",
+      "coupon_code": null
+    },
+    {
+      "user_id": "6ae43cd7e4045fecbabc3762",
+      "_id": "6ae43cd7e4045fecbabc3765",
+      "items": [],
+      "updated_at": "2026-10-30T06:44:39.493000",
+      "coupon_code": null
+    },
+    {
+      "user_id": "6ae38df757945b34679af1b1",
+      "_id": "6ae43cf2be7b11ab64a8396f",
+      "items": [],
+      "updated_at": "2026-10-30T06:45:06.472000",
+      "coupon_code": null
+    },
+    {
+      "user_id": "6ae43cf2be7b11ab64a83975",
+      "_id": "6ae43cf3be7b11ab64a83978",
+      "items": [],
+      "updated_at": "2026-10-30T06:45:07.149000",
+      "coupon_code": null
     }
   ]
 }

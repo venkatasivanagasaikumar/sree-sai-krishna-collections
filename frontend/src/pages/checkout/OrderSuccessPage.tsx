@@ -14,7 +14,8 @@ export const OrderSuccessPage: React.FC = () => {
 
   useEffect(() => {
     if (orderId) {
-      api.getOrderById(orderId)
+      const guestToken = sessionStorage.getItem(`guest_token_${orderId}`) || undefined;
+      api.getOrderById(orderId, guestToken)
         .then(setOrder)
         .catch(console.error)
         .finally(() => setLoading(false));

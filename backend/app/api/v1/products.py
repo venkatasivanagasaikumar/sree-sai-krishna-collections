@@ -239,12 +239,14 @@ def delete_or_archive_product(product_id: str, hard_delete: bool = False, db = D
 
     if hard_delete:
         res = db.products.delete_one(query)
+        if res.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Product not found")
     else:
         # Soft delete / Archive
         res = db.products.update_one(query, {"$set": {"status": "archived", "updated_at": datetime.now(timezone.utc)}})
+        if res.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Product not found")
 
-    if res.matched_count == 0 and res.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Product not found")
     db_manager.persist_to_disk()
     return {"message": "Product archived/deleted successfully"}
 

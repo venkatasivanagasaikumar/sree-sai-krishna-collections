@@ -12,6 +12,8 @@ import { AdminLayout } from './components/admin/AdminLayout';
 import { HomePage } from './pages/storefront/HomePage';
 import { ShopPage } from './pages/storefront/ShopPage';
 import { ProductDetailPage } from './pages/storefront/ProductDetailPage';
+import { PoliciesPage } from './pages/storefront/PoliciesPage';
+import { ContactPage } from './pages/storefront/ContactPage';
 import { CartPage } from './pages/checkout/CartPage';
 import { CheckoutPage } from './pages/checkout/CheckoutPage';
 import { OrderSuccessPage } from './pages/checkout/OrderSuccessPage';
@@ -55,6 +57,11 @@ export function App() {
                 <Route path="/account" element={<AccountPage />} />
                 <Route path="/account/orders" element={<AccountPage />} />
                 <Route path="/account/orders/:orderId" element={<OrderTrackingPage />} />
+                <Route path="/policies" element={<PoliciesPage />} />
+                <Route path="/terms" element={<PoliciesPage />} />
+                <Route path="/privacy" element={<PoliciesPage />} />
+                <Route path="/returns-policy" element={<PoliciesPage />} />
+                <Route path="/contact" element={<ContactPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
               </Route>

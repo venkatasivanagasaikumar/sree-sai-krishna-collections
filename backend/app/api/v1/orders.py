@@ -134,6 +134,7 @@ def create_order(
 
     order_id = generate_order_id()
     now = datetime.now(timezone.utc)
+    guest_token = uuid.uuid4().hex if not current_user else None
 
     # Status determination
     initial_order_status = "ORDER_PLACED" if payload.payment_method == "COD" else "PAYMENT_PENDING"
@@ -151,6 +152,7 @@ def create_order(
     order_doc = {
         "order_id": order_id,
         "user_id": user_id,
+        "guest_token": guest_token,
         "customer_name": customer_name,
         "customer_email": customer_email,
         "customer_phone": customer_phone,
@@ -220,6 +222,7 @@ def create_order(
     return {
         "order_id": order_id,
         "id": doc_id,
+        "guest_token": guest_token,
         "final_amount": final_amount,
         "payment_method": payload.payment_method,
         "order_status": initial_order_status,
@@ -240,6 +243,7 @@ def get_my_orders(current_user: dict = Depends(get_current_user), db = Depends(g
 @router.get("/{order_id}")
 def get_order_by_id(
     order_id: str,
+    verification: Optional[str] = Query(None),
     current_user: Optional[dict] = Depends(get_optional_current_user),
     db = Depends(get_db)
 ):
@@ -252,11 +256,27 @@ def get_order_by_id(
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
-    # Security check: if not admin, ensure order belongs to current user
+    # Security check against IDOR / unauthorized access
     if current_user:
         is_admin = current_user.get("role") in [Role.SUPER_ADMIN, Role.ADMIN, Role.ORDER_MANAGER, Role.CUSTOMER_SUPPORT]
         if not is_admin and order.get("user_id") != current_user["id"] and order.get("customer_email") != current_user.get("email"):
             raise HTTPException(status_code=403, detail="Access denied to this order")
+    else:
+        # Unauthenticated / guest access check: must provide verification (email, phone, or guest_token)
+        if not verification:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication or customer verification (email/phone/token) is required to view order details"
+            )
+        v_clean = verification.strip().lower()
+        cust_email = (order.get("customer_email") or "").lower()
+        cust_phone = (order.get("customer_phone") or "").replace(" ", "").replace("+91", "")
+        clean_v_phone = v_clean.replace(" ", "").replace("+91", "")
+        guest_token = (order.get("guest_token") or "").lower()
+
+        matches = (v_clean == cust_email) or (clean_v_phone and clean_v_phone == cust_phone) or (guest_token and v_clean == guest_token)
+        if not matches:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Customer verification mismatch for this order")
 
     order["id"] = str(order["_id"])
     order.pop("_id", None)

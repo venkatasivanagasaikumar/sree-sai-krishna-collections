@@ -28,6 +28,13 @@ from app.api.v1.sheets_sync import router as sheets_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info(f"Starting {settings.PROJECT_NAME}...")
+    db = get_db()
+    try:
+        if db.users.count_documents({}) == 0 or db.categories.count_documents({}) == 0:
+            logger.info("Empty database detected. Executing initial system seeds...")
+            run_seed()
+    except Exception as e:
+        logger.warning(f"Seed initialization check note: {e}")
     yield
     db_manager.persist_to_disk()
 

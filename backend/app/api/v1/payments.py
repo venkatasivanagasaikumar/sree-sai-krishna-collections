@@ -60,7 +60,7 @@ def verify_razorpay_payment(
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
-    # Verify signature
+    # Verify signature using constant-time comparison to prevent timing attacks
     msg = f"{payload.razorpay_order_id}|{payload.razorpay_payment_id}"
     generated_signature = hmac.new(
         settings.RAZORPAY_KEY_SECRET.encode("utf-8"),
@@ -68,10 +68,12 @@ def verify_razorpay_payment(
         hashlib.sha256
     ).hexdigest()
 
-    # In sandbox/demo mode, accept generated signature or mock signature
-    is_valid = (generated_signature == payload.razorpay_signature) or (
-        payload.razorpay_signature.startswith("mock_sig_") or payload.razorpay_signature == "sandbox_success"
-    )
+    # In production, require strict cryptographic HMAC match.
+    # Allow test mock signature only when explicitly enabled in non-production environments.
+    is_valid = hmac.compare_digest(generated_signature, payload.razorpay_signature)
+    if not is_valid and settings.ENVIRONMENT != "production" and settings.ALLOW_MOCK_PAYMENTS:
+        if payload.razorpay_signature.startswith("mock_sig_") or payload.razorpay_signature == "sandbox_success":
+            is_valid = True
 
     if not is_valid:
         AuditLogger.log_event(

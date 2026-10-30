@@ -120,7 +120,8 @@ export const api = {
   // Orders
   createOrder: (data: any) => request<any>('/orders', { method: 'POST', body: JSON.stringify(data) }),
   getMyOrders: () => request<Order[]>('/orders/my-orders'),
-  getOrderById: (orderId: string) => request<Order>(`/orders/${orderId}`),
+  getOrderById: (orderId: string, verification?: string) =>
+    request<Order>(`/orders/${orderId}${verification ? `?verification=${encodeURIComponent(verification)}` : ''}`),
   cancelOrder: (orderId: string, reason: string) =>
     request<any>(`/orders/${orderId}/cancel?reason=${encodeURIComponent(reason)}`, { method: 'POST' }),
   requestReturn: (orderId: string, data: any) =>

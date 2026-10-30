@@ -90,6 +90,9 @@ export const CheckoutPage: React.FC = () => {
 
       const orderResult = await api.createOrder(orderPayload);
       const createdOrderId = orderResult.order_id;
+      if (orderResult.guest_token) {
+        sessionStorage.setItem(`guest_token_${createdOrderId}`, orderResult.guest_token);
+      }
 
       if (paymentMethod === 'COD') {
         clearCart();
@@ -97,8 +100,48 @@ export const CheckoutPage: React.FC = () => {
       } else {
         // Trigger Razorpay Order Creation on server
         const rzpOrder = await api.createRazorpayOrder(createdOrderId);
-        setRazorpayOrderData(rzpOrder);
-        setShowRazorpayModal(true);
+        const rzpWindow = (window as any).Razorpay;
+
+        if (rzpWindow && rzpOrder.key_id && !rzpOrder.key_id.includes('Demo') && !rzpOrder.key_id.includes('mock')) {
+          const rzp = new rzpWindow({
+            key: rzpOrder.key_id,
+            amount: rzpOrder.amount_in_paise,
+            currency: rzpOrder.currency || 'INR',
+            name: rzpOrder.business_name || 'Sree Sai Krishna Collections',
+            description: `Jewellery Order ${rzpOrder.order_id}`,
+            order_id: rzpOrder.razorpay_order_id,
+            prefill: rzpOrder.prefill,
+            theme: { color: '#123F7A' },
+            handler: async (response: any) => {
+              try {
+                const verifyRes = await api.verifyRazorpayPayment({
+                  order_id: rzpOrder.order_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature
+                });
+                if (verifyRes.success) {
+                  clearCart();
+                  navigate(`/order-success/${rzpOrder.order_id}`);
+                } else {
+                  setErrorMessage('Payment verification rejected by backend.');
+                }
+              } catch (err: any) {
+                setErrorMessage(err.message || 'Payment signature verification failed.');
+              }
+            },
+            modal: {
+              ondismiss: () => {
+                setErrorMessage('Payment cancelled. You can retry payment or select Cash on Delivery.');
+              }
+            }
+          });
+          rzp.open();
+        } else {
+          // Open interactive sandbox payment simulator modal for local/test mode
+          setRazorpayOrderData(rzpOrder);
+          setShowRazorpayModal(true);
+        }
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to place order. Please review your details.');

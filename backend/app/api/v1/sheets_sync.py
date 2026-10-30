@@ -215,7 +215,7 @@ def test_sheets_connection(payload: Dict[str, Any], db = Depends(get_db)):
 
     return {"message": "Private Google Sheet authenticated and verified successfully!", "response": res}
 
-@router.get("/appscript-template")
+@router.get("/appscript-template", dependencies=[Depends(require_roles([Role.SUPER_ADMIN, Role.ADMIN]))])
 def get_appscript_template(db = Depends(get_db)):
     """
     Returns the ready-to-paste Google Apps Script code with OWNER-ONLY lockdown:

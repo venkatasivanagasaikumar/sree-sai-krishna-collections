@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Lock, Mail, ArrowRight, AlertCircle, KeyRound, Sparkles, Loader2 } from 'lucide-react';
+import { Shield, Lock, Mail, ArrowRight, AlertCircle, KeyRound, Loader2 } from 'lucide-react';
 import { BrandLogo } from '../../components/common/BrandLogo';
 import { useAuth } from '../../context/AuthContext';
 import { PageTransition } from '../../components/animations/PageTransition';
@@ -11,8 +11,8 @@ export const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [email, setEmail] = useState('admin@sskcollections.com');
-  const [password, setPassword] = useState('Admin@SSK2026!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,7 +21,7 @@ export const AdminLoginPage: React.FC = () => {
     setError(null);
     setIsSubmitting(true);
     try {
-      const res = await login({ email, password });
+      const res = await login({ email: email.trim(), password });
       const role = res.user.role;
       if (!['Super Admin', 'Admin', 'Order Manager', 'Inventory Manager', 'Customer Support'].includes(role)) {
         setError('Access denied. This account does not possess seller or staff permissions.');
@@ -33,12 +33,6 @@ export const AdminLoginPage: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const setDemoCredentials = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setError(null);
   };
 
   return (
@@ -58,10 +52,10 @@ export const AdminLoginPage: React.FC = () => {
           <BrandLogo size="lg" className="justify-center mx-auto" />
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-ssk-blue-light text-ssk-navy rounded-full text-xs font-bold mt-2">
             <Shield className="w-3.5 h-3.5 text-ssk-gold-dark" />
-            <span>Meesho-Inspired Seller Panel</span>
+            <span>Store Operations & Seller Panel</span>
           </div>
           <h2 className="text-xl font-serif font-bold text-ssk-navy">Staff & Seller Portal</h2>
-          <p className="text-xs text-ssk-text-secondary">Manage products, orders, AWB logistics, returns, and inventory</p>
+          <p className="text-xs text-ssk-text-secondary">Authorized personnel portal for product catalog, logistics, and inventory management</p>
         </div>
 
         <AnimatePresence>
@@ -79,39 +73,6 @@ export const AdminLoginPage: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Quick Demo Access Buttons */}
-        <div className="p-3 bg-ssk-surface rounded-2xl border border-ssk-border space-y-2">
-          <span className="text-[10px] font-bold text-ssk-text-secondary uppercase tracking-wider flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-ssk-gold" /> Quick Demo Role Switcher:
-          </span>
-          <div className="grid grid-cols-2 gap-2 text-[11px]">
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              type="button"
-              onClick={() => setDemoCredentials('admin@sskcollections.com', 'Admin@SSK2026!')}
-              className="px-2.5 py-1.5 bg-white border border-ssk-border rounded-lg font-semibold text-ssk-navy hover:border-ssk-gold text-left truncate transition-colors"
-            >
-              👑 Super Admin
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              type="button"
-              onClick={() => setDemoCredentials('orders@sskcollections.com', 'Staff@SSK2026!')}
-              className="px-2.5 py-1.5 bg-white border border-ssk-border rounded-lg font-semibold text-ssk-navy hover:border-ssk-gold text-left truncate transition-colors"
-            >
-              📦 Order Manager
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              type="button"
-              onClick={() => setDemoCredentials('inventory@sskcollections.com', 'Staff@SSK2026!')}
-              className="px-2.5 py-1.5 bg-white border border-ssk-border rounded-lg font-semibold text-ssk-navy hover:border-ssk-gold text-left truncate col-span-2 transition-colors"
-            >
-              🏷️ Inventory Manager
-            </motion.button>
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-ssk-text mb-1.5">Staff Email Address</label>
@@ -121,42 +82,44 @@ export const AdminLoginPage: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                placeholder="staff@sreesaikrishnacollections.com"
                 className="w-full pl-9 pr-4 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold transition-colors"
               />
-              <Mail className="w-4 h-4 text-ssk-text-secondary absolute left-3 top-3" />
+              <Mail className="w-4 h-4 text-ssk-text-muted absolute left-3 top-3" />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-ssk-text mb-1.5">Secure Password</label>
+            <label className="block text-xs font-semibold text-ssk-text mb-1.5">Staff Password</label>
             <div className="relative">
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
                 className="w-full pl-9 pr-4 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold transition-colors"
               />
-              <Lock className="w-4 h-4 text-ssk-text-secondary absolute left-3 top-3" />
+              <Lock className="w-4 h-4 text-ssk-text-muted absolute left-3 top-3" />
             </div>
           </div>
 
           <motion.button
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3.5 bg-ssk-navy hover:bg-ssk-navy-dark text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
+            className="w-full py-3 bg-ssk-navy hover:bg-ssk-navy-dark text-white rounded-xl text-xs font-bold shadow-lg shadow-ssk-navy/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
           >
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Authenticating...</span>
+                <span>Authenticating Staff...</span>
               </>
             ) : (
               <>
                 <KeyRound className="w-4 h-4 text-ssk-gold" />
-                <span>Enter Seller Dashboard</span>
+                <span>Log In to Seller Portal</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -164,13 +127,10 @@ export const AdminLoginPage: React.FC = () => {
         </form>
 
         <div className="text-center pt-2 border-t border-ssk-border">
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            className="text-xs text-ssk-navy hover:underline font-semibold"
-          >
-            &larr; Return to Customer Storefront
-          </button>
+          <p className="text-[11px] text-ssk-text-muted flex items-center justify-center gap-1.5">
+            <Shield className="w-3.5 h-3.5 text-ssk-gold" />
+            <span>Encrypted Session • Super Admin & Staff Access Only</span>
+          </p>
         </div>
       </motion.div>
     </PageTransition>

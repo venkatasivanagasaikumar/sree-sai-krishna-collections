@@ -1,0 +1,17 @@
+# Robots.txt for Sree Sai Krishna Collections (SSK)
+# https://sreesaikrishnacollections.com
+
+User-agent: *
+Allow: /
+Allow: /shop
+Allow: /product/
+Allow: /policies
+Allow: /contact
+
+# Protect private account and administrative portals
+Disallow: /admin/
+Disallow: /account/
+Disallow: /checkout
+Disallow: /order-success/
+
+Sitemap: https://sreesaikrishnacollections.com/sitemap.xml

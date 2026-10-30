@@ -12,6 +12,9 @@ class Settings(BaseModel):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 # 24 hours
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
+    ALLOW_MOCK_PAYMENTS: bool = os.getenv("ALLOW_MOCK_PAYMENTS", "true").lower() == "true"
+
     # MongoDB Config
     MONGODB_URI: str = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
     DATABASE_NAME: str = os.getenv("DATABASE_NAME", "ssk_collections_db")
@@ -25,7 +28,8 @@ class Settings(BaseModel):
         "http://127.0.0.1:3000",
         "http://localhost:8000",
         "http://127.0.0.1:8000",
-        "*"
+        "https://sreesaikrishnacollections.com",
+        "https://www.sreesaikrishnacollections.com"
     ]
     
     # Payments (Razorpay Sandbox/Config)

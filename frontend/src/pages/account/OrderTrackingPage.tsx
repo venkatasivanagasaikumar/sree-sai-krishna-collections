@@ -29,12 +29,18 @@ export const OrderTrackingPage: React.FC = () => {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [packingSlipData, setPackingSlipData] = useState<any>(null);
 
-  const loadOrder = async () => {
+  const [guestVerificationInput, setGuestVerificationInput] = useState('');
+
+  const loadOrder = async (verificationCode?: string) => {
     if (!orderId) return;
     setLoading(true);
     try {
-      const data = await api.getOrderById(orderId);
+      const storedToken = sessionStorage.getItem(`guest_token_${orderId}`) || undefined;
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlVerification = urlParams.get('verify') || urlParams.get('email') || urlParams.get('phone') || undefined;
+      const data = await api.getOrderById(orderId, verificationCode || urlVerification || storedToken);
       setOrder(data);
+      setError(null);
     } catch (err: any) {
       setError(err.message || 'Could not find order details');
     } finally {
@@ -100,13 +106,43 @@ export const OrderTrackingPage: React.FC = () => {
 
   if (error || !order) {
     return (
-      <div className="max-w-md mx-auto text-center py-20 px-4">
-        <AlertTriangle className="w-12 h-12 text-ssk-gold mx-auto mb-3" />
-        <h2 className="text-xl font-serif font-bold text-ssk-navy">Order Tracking Unavailable</h2>
-        <p className="text-xs text-ssk-text-secondary mt-1">{error || 'Order record not found.'}</p>
-        <Link to="/shop" className="mt-4 inline-block px-6 py-2.5 bg-ssk-navy text-white text-xs font-semibold rounded-xl">
-          Back to Shop
-        </Link>
+      <div className="max-w-md mx-auto text-center py-20 px-4 space-y-4">
+        <AlertTriangle className="w-12 h-12 text-ssk-gold mx-auto" />
+        <h2 className="text-xl font-serif font-bold text-ssk-navy">Order Verification Required</h2>
+        <p className="text-xs text-ssk-text-secondary">
+          {error || 'To protect customer privacy, please verify your email or phone number associated with this order.'}
+        </p>
+        
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (guestVerificationInput.trim()) {
+              loadOrder(guestVerificationInput.trim());
+            }
+          }}
+          className="space-y-3 pt-2"
+        >
+          <input
+            type="text"
+            required
+            placeholder="Enter Order Email or Phone (+91...)"
+            value={guestVerificationInput}
+            onChange={(e) => setGuestVerificationInput(e.target.value)}
+            className="w-full px-4 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold"
+          />
+          <button
+            type="submit"
+            className="w-full py-2.5 bg-ssk-navy hover:bg-ssk-navy-dark text-white text-xs font-bold rounded-xl transition-all shadow-sm"
+          >
+            Verify & Track Order
+          </button>
+        </form>
+
+        <div className="pt-2">
+          <Link to="/shop" className="text-xs text-ssk-royal hover:underline font-medium">
+            &larr; Back to Shop
+          </Link>
+        </div>
       </div>
     );
   }
