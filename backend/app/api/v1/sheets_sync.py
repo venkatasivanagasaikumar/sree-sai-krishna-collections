@@ -72,7 +72,9 @@ def save_sheets_config(payload: Dict[str, Any], db = Depends(get_db)):
     db_manager.persist_to_disk()
     return {"message": "Private Google Sheets configuration saved securely", "config": data}
 
-def post_to_google_sheet(webhook_url: str, secret_key: str, payload_data: dict) -> dict:
+import time
+
+def post_to_google_sheet(webhook_url: str, secret_key: str, payload_data: dict, max_retries: int = 3) -> dict:
     if not webhook_url:
         return {"success": False, "message": "No Google Apps Script Webhook URL configured."}
     
@@ -81,25 +83,35 @@ def post_to_google_sheet(webhook_url: str, secret_key: str, payload_data: dict) 
     
     headers = {"Content-Type": "application/json"}
     body_bytes = json.dumps(payload_data, default=str).encode("utf-8")
-    req = urllib.request.Request(webhook_url, data=body_bytes, headers=headers, method="POST")
-    try:
-        with urllib.request.urlopen(req, timeout=15) as response:
-            res_body = response.read().decode("utf-8")
-            try:
-                parsed = json.loads(res_body)
-                return {"success": True, "response": parsed}
-            except Exception:
-                return {"success": True, "raw": res_body}
-    except urllib.error.HTTPError as e:
-        return {"success": False, "status_code": e.code, "error": str(e.read().decode('utf-8', errors='ignore'))}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
+    
+    last_error = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            req = urllib.request.Request(webhook_url, data=body_bytes, headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=15) as response:
+                res_body = response.read().decode("utf-8")
+                try:
+                    parsed = json.loads(res_body)
+                    return {"success": True, "response": parsed}
+                except Exception:
+                    return {"success": True, "raw": res_body}
+        except urllib.error.HTTPError as e:
+            last_error = f"HTTP {e.code}: {e.read().decode('utf-8', errors='ignore')}"
+            if e.code in [400, 401, 403]: # Do not retry client auth rejections
+                return {"success": False, "status_code": e.code, "error": last_error}
+        except Exception as e:
+            last_error = str(e)
+
+        if attempt < max_retries:
+            time.sleep(attempt * 1.5)
+
+    return {"success": False, "error": last_error}
 
 @router.get("/export-all", dependencies=[Depends(require_roles([Role.SUPER_ADMIN, Role.ADMIN]))])
 def export_all_for_sheets(db = Depends(get_db)):
     """
     Returns unified JSON structured specifically for importing into Excel or Google Sheets.
-    Contains Products, Orders, Customers, and Inventory movements.
+    Sanitizes customer privacy by strictly stripping passwords and tokens.
     """
     products = list(db.products.find({}))
     orders = list(db.orders.find({}))
@@ -114,6 +126,9 @@ def export_all_for_sheets(db = Depends(get_db)):
                 copy["_id"] = str(copy["_id"])
             if "id" not in copy and "_id" in copy:
                 copy["id"] = copy["_id"]
+            # Strict customer privacy sanitization: never expose passwords or authentication tokens
+            for sensitive_key in ["hashed_password", "password", "reset_token", "verification_token", "secret_key"]:
+                copy.pop(sensitive_key, None)
             clean.append(copy)
         return clean
 
@@ -214,6 +229,108 @@ def test_sheets_connection(payload: Dict[str, Any], db = Depends(get_db)):
         )
 
     return {"message": "Private Google Sheet authenticated and verified successfully!", "response": res}
+
+@router.post("/sync-incremental", dependencies=[Depends(require_roles([Role.SUPER_ADMIN, Role.ADMIN]))])
+def sync_incremental(payload: Optional[Dict[str, Any]] = None, db = Depends(get_db)):
+    """
+    Pushes only records created or updated since the last sync time.
+    Reduces bandwidth, avoids rate limits, and optimizes Google Apps Script execution.
+    """
+    config = get_current_sync_config(db)
+    webhook_url = config.get("webhook_url")
+    secret_key = config.get("secret_key", "")
+
+    if not webhook_url:
+        raise HTTPException(status_code=400, detail="Google Sheets webhook is not configured.")
+
+    last_synced_str = (payload or {}).get("since") or config.get("last_synced_at")
+    since_dt = None
+    if last_synced_str:
+        try:
+            since_dt = datetime.fromisoformat(last_synced_str)
+        except Exception:
+            pass
+
+    query = {}
+    if since_dt:
+        query = {"$or": [{"updated_at": {"$gte": since_dt}}, {"created_at": {"$gte": since_dt}}]}
+
+    products = list(db.products.find(query))
+    orders = list(db.orders.find(query))
+    customers = list(db.customers.find(query))
+    movements = list(db.inventory_movements.find(query if since_dt else {}))
+
+    def clean_docs(docs):
+        clean = []
+        for d in docs:
+            c = dict(d)
+            if "_id" in c:
+                c["_id"] = str(c["_id"])
+            for sensitive in ["hashed_password", "password", "reset_token", "verification_token"]:
+                c.pop(sensitive, None)
+            clean.append(c)
+        return clean
+
+    incremental_data = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "since": last_synced_str,
+        "is_incremental": True,
+        "products": clean_docs(products),
+        "orders": clean_docs(orders),
+        "customers": clean_docs(customers),
+        "inventory": clean_docs(movements)
+    }
+
+    push_payload = {
+        "event": "INCREMENTAL_SYNC",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "data": incremental_data
+    }
+
+    res = post_to_google_sheet(webhook_url, secret_key, push_payload)
+    if not res.get("success"):
+        raise HTTPException(status_code=502, detail=f"Incremental sync failed: {res.get('error')}")
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    config["last_synced_at"] = now_iso
+    config["status"] = "synced"
+    db.store_settings.update_one(
+        {"key": CONFIG_KEY},
+        {"$set": {"data": config, "updated_at": datetime.now(timezone.utc)}}
+    )
+    db_manager.persist_to_disk()
+
+    return {
+        "message": "Incremental sync completed successfully",
+        "synced_counts": {
+            "products": len(products),
+            "orders": len(orders),
+            "customers": len(customers),
+            "inventory": len(movements)
+        },
+        "last_synced_at": now_iso
+    }
+
+@router.get("/reconcile", dependencies=[Depends(require_roles([Role.SUPER_ADMIN, Role.ADMIN]))])
+def reconcile_sheets_sync(db = Depends(get_db)):
+    """Verifies consistency between database records and sync state."""
+    config = get_current_sync_config(db)
+    
+    db_counts = {
+        "products": db.products.count_documents({}),
+        "orders": db.orders.count_documents({}),
+        "customers": db.customers.count_documents({}),
+        "inventory_movements": db.inventory_movements.count_documents({})
+    }
+
+    return {
+        "configured": bool(config.get("webhook_url")),
+        "status": config.get("status", "unknown"),
+        "last_synced_at": config.get("last_synced_at"),
+        "database_counts": db_counts,
+        "auto_sync_enabled": config.get("auto_sync_on_order", True) and config.get("auto_sync_on_product", True),
+        "reconciled_at": datetime.now(timezone.utc).isoformat()
+    }
 
 @router.get("/appscript-template", dependencies=[Depends(require_roles([Role.SUPER_ADMIN, Role.ADMIN]))])
 def get_appscript_template(db = Depends(get_db)):

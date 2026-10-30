@@ -24,6 +24,8 @@ import { AccountPage } from './pages/account/AccountPage';
 // Auth Pages
 import { LoginPage } from './pages/authentication/LoginPage';
 import { RegisterPage } from './pages/authentication/RegisterPage';
+import { ForgotPasswordPage } from './pages/authentication/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/authentication/ResetPasswordPage';
 import { AdminLoginPage } from './pages/authentication/AdminLoginPage';
 
 // Admin Pages
@@ -64,6 +66,8 @@ export function App() {
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
               </Route>
 
               {/* Dedicated Admin / Seller Login */}

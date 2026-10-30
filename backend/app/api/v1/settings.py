@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from datetime import datetime, timezone
 from app.database import get_db, db_manager
 from app.core.config import settings
 from app.core.permissions import Role
 from app.api.dependencies import require_roles
+from app.services.backup_service import BackupService
 
 router = APIRouter(prefix="/settings", tags=["Business Settings"])
 
@@ -46,3 +47,46 @@ def update_store_settings(payload: Dict[str, Any], db = Depends(get_db)):
     )
     db_manager.persist_to_disk()
     return {"message": "Store settings updated successfully"}
+
+@router.get("/database/status", dependencies=[Depends(require_roles([Role.ADMIN, Role.SUPER_ADMIN]))])
+def get_database_status(db = Depends(get_db)):
+    """Returns database operational mode, collection statistics, and health."""
+    col_counts = {}
+    for col in db.list_collection_names():
+        col_counts[col] = db[col].count_documents({})
+    
+    return {
+        "status": "healthy",
+        "engine": "mongomock (file-persisted)" if db_manager.is_mock else "mongodb-cluster",
+        "is_mock": db_manager.is_mock,
+        "database_name": settings.DATABASE_NAME,
+        "collections_count": len(col_counts),
+        "collections": col_counts,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+@router.get("/backups", dependencies=[Depends(require_roles([Role.ADMIN, Role.SUPER_ADMIN]))])
+def list_database_backups():
+    """Lists all stored database snapshots."""
+    return {"backups": BackupService.list_backups()}
+
+@router.post("/backups/create", dependencies=[Depends(require_roles([Role.ADMIN, Role.SUPER_ADMIN]))])
+def create_database_backup(tag: Optional[str] = None):
+    """Creates an immediate snapshot backup with sha256 checksum."""
+    res = BackupService.create_backup(tag=tag)
+    return {"message": "Database backup created successfully", "backup": res}
+
+@router.post("/backups/restore", dependencies=[Depends(require_roles([Role.SUPER_ADMIN]))])
+def restore_database_backup(payload: Dict[str, str]):
+    """Restores database from a specific snapshot filename."""
+    filename = payload.get("filename")
+    if not filename:
+        raise HTTPException(status_code=400, detail="Backup filename is required.")
+    try:
+        res = BackupService.restore_backup(filename)
+        return {"message": "Database restored successfully", "details": res}
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Backup file not found.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Restore failed: {str(e)}")
+

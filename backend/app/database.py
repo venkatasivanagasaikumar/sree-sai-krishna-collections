@@ -9,7 +9,9 @@ from app.core.config import settings
 from app.core.logging import logger
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
+BACKUP_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "backups")
 os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(BACKUP_DIR, exist_ok=True)
 DUMP_FILE = os.path.join(DATA_DIR, "db_dump.json")
 
 class MongoJSONEncoder(json.JSONEncoder):
@@ -30,20 +32,29 @@ class Database:
             try:
                 real_client = pymongo.MongoClient(
                     settings.MONGODB_URI,
-                    serverSelectionTimeoutMS=1000,
-                    connectTimeoutMS=1000
+                    serverSelectionTimeoutMS=2000,
+                    connectTimeoutMS=2000
                 )
                 real_client.server_info()
                 self.client = real_client
                 self.db = real_client[settings.DATABASE_NAME]
                 self.is_mock = False
-                logger.info(f"Connected to live MongoDB at {settings.MONGODB_URI}/{settings.DATABASE_NAME}")
+                logger.info(f"Connected to live MongoDB cluster at {settings.MONGODB_URI}/{settings.DATABASE_NAME}")
+                
+                # Check for seamless live migration from dump file if live database is unpopulated
+                try:
+                    if self.db.products.count_documents({}) == 0 and os.path.exists(DUMP_FILE):
+                        logger.info("Empty live MongoDB detected. Migrating historical data from dump file...")
+                        self._load_from_disk()
+                except Exception as mig_err:
+                    logger.warning(f"Live database initial migration check note: {mig_err}")
+                
                 self._create_indexes()
                 return self.db
             except Exception as e:
                 logger.warning(f"Live MongoDB connection failed ({e}). Falling back to MongoMock.")
 
-        # Fallback to mongomock
+        # Fallback to MongoMock for local offline operation
         self.client = mongomock.MongoClient()
         self.db = self.client[settings.DATABASE_NAME]
         self.is_mock = True
@@ -53,24 +64,94 @@ class Database:
         return self.db
 
     def _create_indexes(self):
+        """Creates unique constraints and optimized query compound indexes across collections."""
         try:
+            # Users
             self.db.users.create_index("email", unique=True)
+            self.db.users.create_index("role")
+            
+            # Products
             self.db.products.create_index("sku", unique=True)
+            self.db.products.create_index("category")
+            self.db.products.create_index("status")
+            self.db.products.create_index([("category", 1), ("price", 1)])
+            self.db.products.create_index("is_featured")
+            self.db.products.create_index("is_bestseller")
+            
+            # Categories
             self.db.categories.create_index("slug", unique=True)
+            self.db.categories.create_index("is_active")
+            
+            # Orders
             self.db.orders.create_index("order_id", unique=True)
+            self.db.orders.create_index("user_id")
+            self.db.orders.create_index("customer_email")
+            self.db.orders.create_index("order_status")
+            self.db.orders.create_index("payment_status")
+            self.db.orders.create_index([("created_at", -1)])
+            
+            # Inventory & Movements
+            self.db.inventory_movements.create_index("sku")
+            self.db.inventory_movements.create_index("created_at")
+            
+            # Coupons
             self.db.coupons.create_index("code", unique=True)
+            self.db.coupons.create_index("is_active")
+            
+            # Webhook Events
+            self.db.webhook_events.create_index("event_id", unique=True)
+            
+            # Carts
+            self.db.carts.create_index("user_id", unique=True)
+            
+            # Password reset tokens
+            self.db.password_reset_tokens.create_index("token", unique=True)
+            self.db.password_reset_tokens.create_index("expires_at")
+            
+            # Audit Logs
+            self.db.audit_logs.create_index("created_at")
+            self.db.audit_logs.create_index("action")
+            
+            logger.debug("Production database indexes successfully verified and applied.")
         except Exception as e:
             logger.debug(f"Index creation note: {e}")
+
+    def export_state(self) -> dict:
+        """Exports all collections and documents into a dictionary."""
+        if self.db is None:
+            self.connect()
+        state = {}
+        for col_name in self.db.list_collection_names():
+            docs = list(self.db[col_name].find({}))
+            state[col_name] = docs
+        return state
+
+    def import_state(self, state: dict) -> dict:
+        """Imports collections and documents from dictionary into the database."""
+        if self.db is None:
+            self.connect()
+        stats = {}
+        for col_name, docs in state.items():
+            if docs:
+                self.db[col_name].drop()
+                for d in docs:
+                    if "_id" in d and isinstance(d["_id"], str) and len(d["_id"]) == 24:
+                        try:
+                            d["_id"] = ObjectId(d["_id"])
+                        except Exception:
+                            pass
+                    self.db[col_name].insert_one(d)
+                stats[col_name] = len(docs)
+        self._create_indexes()
+        self.persist_to_disk()
+        return stats
 
     def persist_to_disk(self):
         """Persists current state to JSON file so data survives restarts in mock mode."""
         if not self.is_mock:
             return
         try:
-            state = {}
-            for col_name in self.db.list_collection_names():
-                docs = list(self.db[col_name].find({}))
-                state[col_name] = docs
+            state = self.export_state()
             with open(DUMP_FILE, "w", encoding="utf-8") as f:
                 json.dump(state, f, cls=MongoJSONEncoder, indent=2)
             logger.debug("MongoMock state persisted to disk.")
@@ -84,17 +165,8 @@ class Database:
         try:
             with open(DUMP_FILE, "r", encoding="utf-8") as f:
                 state = json.load(f)
-            for col_name, docs in state.items():
-                if docs:
-                    self.db[col_name].drop()
-                    for d in docs:
-                        if "_id" in d and isinstance(d["_id"], str) and len(d["_id"]) == 24:
-                            try:
-                                d["_id"] = ObjectId(d["_id"])
-                            except Exception:
-                                pass
-                        self.db[col_name].insert_one(d)
-            logger.info("Loaded previous MongoMock state from disk.")
+            self.import_state(state)
+            logger.info("Loaded previous database state from disk.")
         except Exception as e:
             logger.warning(f"Could not load state from disk: {e}")
 

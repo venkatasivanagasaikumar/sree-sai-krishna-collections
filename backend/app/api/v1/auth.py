@@ -1,14 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import uuid
+import secrets
 from bson import ObjectId
 from app.database import get_db, db_manager
 from app.core.security import get_password_hash, verify_password, create_access_token, create_refresh_token, decode_token
 from app.core.permissions import Role, is_admin_role
 from app.core.logging import AuditLogger
+from app.services.email_service import EmailService
 from app.schemas.auth import (
     UserCreate, AdminUserCreate, UserLogin, TokenResponse, RefreshTokenRequest,
-    Address, ProfileUpdate, PasswordChange
+    Address, ProfileUpdate, PasswordChange, ForgotPasswordRequest, ResetPasswordRequest, VerifyEmailRequest
 )
 from app.api.dependencies import get_current_user, require_roles
 
@@ -267,3 +269,133 @@ def create_staff_user(payload: AdminUserCreate, db = Depends(get_db)):
     res = db.users.insert_one(doc)
     db_manager.persist_to_disk()
     return {"message": f"Staff user {payload.full_name} created with role {payload.role}", "id": str(res.inserted_id)}
+
+@router.post("/forgot-password")
+def forgot_password(payload: ForgotPasswordRequest, request: Request, db = Depends(get_db)):
+    """Initiates a secure password reset flow with an expiring single-use token."""
+    email = payload.email.lower().strip()
+    user = db.users.find_one({"email": email})
+    
+    # Generic message returned to prevent email enumeration
+    standard_response = {
+        "message": "If an account with that email exists, password reset instructions have been sent."
+    }
+
+    if not user:
+        return standard_response
+
+    # Generate cryptographically secure URL-safe token
+    reset_token = secrets.token_urlsafe(32)
+    now = datetime.now(timezone.utc)
+    expires_at = now + timedelta(minutes=15)
+
+    # Invalidate any prior active tokens for this user
+    db.password_reset_tokens.delete_many({"user_id": str(user["_id"])})
+
+    token_doc = {
+        "token": reset_token,
+        "user_id": str(user["_id"]),
+        "email": email,
+        "created_at": now,
+        "expires_at": expires_at,
+        "used": False
+    }
+    db.password_reset_tokens.insert_one(token_doc)
+    db_manager.persist_to_disk()
+
+    AuditLogger.log_event(
+        db,
+        action="PASSWORD_RESET_REQUESTED",
+        resource_type="USER",
+        resource_id=str(user["_id"]),
+        user_email=email,
+        ip_address=request.client.host if (request and getattr(request, "client", None)) else None
+    )
+
+    EmailService.send_password_reset(
+        to_email=email,
+        token=reset_token,
+        customer_name=user.get("full_name", "Valued Customer")
+    )
+
+    return standard_response
+
+@router.get("/verify-reset-token")
+def verify_reset_token(token: str, db = Depends(get_db)):
+    """Checks whether a password reset token is valid and unexpired."""
+    record = db.password_reset_tokens.find_one({"token": token, "used": False})
+    if not record:
+        raise HTTPException(status_code=400, detail="Invalid or already used password reset link.")
+
+    expires_at = record.get("expires_at")
+    if isinstance(expires_at, str):
+        expires_at = datetime.fromisoformat(expires_at)
+    if expires_at and expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+    if datetime.now(timezone.utc) > expires_at:
+        raise HTTPException(status_code=400, detail="Password reset link has expired. Please request a new one.")
+
+    return {"valid": True, "email": record["email"]}
+
+@router.post("/reset-password")
+def reset_password(payload: ResetPasswordRequest, request: Request, db = Depends(get_db)):
+    """Verifies token and sets a new password."""
+    token_record = db.password_reset_tokens.find_one({"token": payload.token, "used": False})
+    if not token_record:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token.")
+
+    expires_at = token_record.get("expires_at")
+    if isinstance(expires_at, str):
+        expires_at = datetime.fromisoformat(expires_at)
+    if expires_at and expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+    if datetime.now(timezone.utc) > expires_at:
+        raise HTTPException(status_code=400, detail="Reset token has expired.")
+
+    user_id = token_record["user_id"]
+    hashed_password = get_password_hash(payload.new_password)
+
+    db.users.update_one(
+        {"_id": ObjectId(user_id) if len(user_id) == 24 else user_id},
+        {"$set": {"hashed_password": hashed_password, "updated_at": datetime.now(timezone.utc)}}
+    )
+
+    # Invalidate token immediately
+    db.password_reset_tokens.update_one(
+        {"_id": token_record["_id"]},
+        {"$set": {"used": True, "used_at": datetime.now(timezone.utc)}}
+    )
+    db_manager.persist_to_disk()
+
+    AuditLogger.log_event(
+        db,
+        action="PASSWORD_RESET_COMPLETED",
+        resource_type="USER",
+        resource_id=user_id,
+        user_email=token_record.get("email"),
+        ip_address=request.client.host if (request and getattr(request, "client", None)) else None
+    )
+
+    return {"message": "Password has been successfully updated. You may now log in."}
+
+@router.post("/verify-email")
+def verify_email(payload: VerifyEmailRequest, db = Depends(get_db)):
+    """Verifies customer email from verification link token."""
+    token_record = db.verification_tokens.find_one({"token": payload.token, "used": False})
+    if not token_record:
+        raise HTTPException(status_code=400, detail="Invalid or expired verification token.")
+
+    user_id = token_record["user_id"]
+    db.users.update_one(
+        {"_id": ObjectId(user_id) if len(user_id) == 24 else user_id},
+        {"$set": {"is_email_verified": True, "updated_at": datetime.now(timezone.utc)}}
+    )
+    db.verification_tokens.update_one(
+        {"_id": token_record["_id"]},
+        {"$set": {"used": True, "used_at": datetime.now(timezone.utc)}}
+    )
+    db_manager.persist_to_disk()
+    return {"message": "Email verified successfully."}
+

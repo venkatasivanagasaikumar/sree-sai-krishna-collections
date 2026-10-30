@@ -44,3 +44,5 @@ pnpm-debug.log*
 *.sqlite3
 data/*.json
 !data/.gitkeep
+backend/backups/*.json
+!backend/backups/.gitkeep

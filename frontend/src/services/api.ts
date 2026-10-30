@@ -65,6 +65,8 @@ export const api = {
   // Auth
   login: (data: any) => request<any>('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
   register: (data: any) => request<any>('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
+  forgotPassword: (email: string) => request<any>('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+  resetPassword: (token: string, new_password: string) => request<any>('/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, new_password }) }),
   getProfile: () => request<User>('/auth/me'),
   updateProfile: (data: any) => request<any>('/auth/me', { method: 'PUT', body: JSON.stringify(data) }),
   addAddress: (data: any) => request<any>('/auth/addresses', { method: 'POST', body: JSON.stringify(data) }),
