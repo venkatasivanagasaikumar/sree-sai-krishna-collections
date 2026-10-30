@@ -22,7 +22,8 @@
 | **WSL Installation Status** | `wsl --status` | `The Windows Subsystem for Linux is not installed. You can install by running 'wsl.exe --install'.` | **`BLOCKED`** | WSL binary exists at `C:\Windows\System32\wsl.exe` but optional feature packages are not installed. |
 | **VirtualMachinePlatform Status** | `dism.exe /online /get-featureinfo /featurename:VirtualMachinePlatform` | `Elevated permissions are required to run DISM.` | **`BLOCKED`** | Feature requires administrative PowerShell elevation to enable. |
 | **Docker Desktop Installation** | `where.exe docker; docker --version` | `C:\Users\saiku\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe`<br>`Docker version 29.8.0, build 88096ef` | **`PASS`** | Docker CLI 29.8.0 and Compose v5.5.1 installed. |
-| **Docker Daemon Engine State** | `docker info` | `failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.` | **`BLOCKED`** | Docker Desktop Linux VM daemon cannot start because WSL2 engine is missing. |
+| **Docker Daemon Engine State** | `docker info` / `docker version` | `Error response from daemon: Docker Desktop is unable to start`<br>`npipe:////./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.` | **`BLOCKED`** | Docker Desktop attempted startup but terminated with `virtualization-not-detected-screen` (`supportsVirtualization: false`). |
+| **System Uptime & Reboot Check** | `Get-CimInstance Win32_OperatingSystem \| Select-Object LastBootUpTime` | `LastBootUpTime: 30-10-2026 13:18:28` | **`BLOCKED`** | System has been up for 10+ hours without reboot. Windows hypervisor requires a restart to initialize. |
 | **Docker Staging Compose Config** | `docker compose -f docker-compose.staging.yml config --quiet` | Exit code `0` (0 warnings, 0 syntax errors) | **`PASS`** | Staging compose file with network alias `backend` and ports `8001`, `8080`, `27018` is 100% syntactically valid. |
 
 ---
@@ -35,11 +36,14 @@
 3. While the CPU has hardware virtualization enabled in BIOS (`VirtualizationFirmwareEnabled: True`), the Windows operating system does not have the `VirtualMachinePlatform` feature or the WSL2 Linux kernel installed.
 4. When Docker Desktop launches, its internal backend supervisor logs:
    ```text
-   [main.engines][W] starting engine: engine linux/wsl failed to start: 
+   [engines][W] starting engine: engine linux/wsl failed to start: 
    checking preconditions: Virtual Machine Platform not enabled
    No virtualization available
+   ...
+   {"action":"virtualization-not-detected-message-shown","context":"virtualization-not-detected-screen","supportsVirtualization":false}
+   [apiproxy] returning engine error: Docker Desktop is unable to start
    ```
-5. **System Restart Requirement:** Enabling `VirtualMachinePlatform` and installing the WSL2 Linux kernel modifies the Windows NT hypervisor architecture and **strictly requires a computer restart** to activate the hypervisor.
+5. **System Restart Requirement:** Enabling `VirtualMachinePlatform` and installing the WSL2 Linux kernel modifies the Windows NT hypervisor architecture and **strictly requires a computer restart** to activate the hypervisor. System boot query confirms `LastBootUpTime: 30-10-2026 13:18:28`, proving no reboot has occurred yet.
 
 ---
 
