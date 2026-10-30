@@ -12,6 +12,7 @@ from app.core.permissions import Role
 from app.schemas.payment import RazorpayOrderResponse, VerifyPaymentRequest, PaymentStatusResponse
 from app.api.dependencies import get_current_user, get_optional_current_user, require_roles
 from app.services.email_service import EmailService
+from app.services.notification_service import NotificationService
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
 
@@ -162,19 +163,15 @@ def verify_razorpay_payment(
         details={"payment_id": payload.razorpay_payment_id, "amount": order["final_amount"]}
     )
 
-    # Send Order Confirmation Email
-    if order.get("customer_email"):
-        try:
-            EmailService.send_order_confirmation(
-                to_email=order["customer_email"],
-                order={
-                    "order_id": order["order_id"],
-                    "final_total": order["final_amount"],
-                    "items": order.get("items", [])
-                }
-            )
-        except Exception as mail_err:
-            logger.warning(f"Order confirmation email dispatch notice: {mail_err}")
+    # Dispatch Order Confirmation & Automatic Invoice via Notification Service
+    try:
+        NotificationService.dispatch_order_event(
+            order_id=payload.order_id,
+            event_name="PAYMENT_CONFIRMED",
+            actor="razorpay"
+        )
+    except Exception as notif_err:
+        logger.error(f"Notification dispatch notice for #{payload.order_id}: {notif_err}")
 
     return {
         "success": True,
@@ -328,17 +325,16 @@ def initiate_refund(
     })
     db_manager.persist_to_disk()
 
-    # Send Refund Email Notification
-    if order.get("customer_email"):
-        try:
-            EmailService.send_refund_notification(
-                to_email=order["customer_email"],
-                order_id=order_id,
-                amount=refund_amount,
-                reason=reason
-            )
-        except Exception as mail_err:
-            logger.warning(f"Refund email dispatch notice: {mail_err}")
+    # Dispatch Refund Notification & Automatic Credit Note via Notification Service
+    try:
+        NotificationService.dispatch_order_event(
+            order_id=order_id,
+            event_name="REFUND_INITIATED",
+            extra_data={"amount": refund_amount, "refund_id": refund_id, "reason": reason},
+            actor="admin"
+        )
+    except Exception as notif_err:
+        logger.error(f"Refund notification dispatch notice for #{order_id}: {notif_err}")
 
     return {
         "success": True,

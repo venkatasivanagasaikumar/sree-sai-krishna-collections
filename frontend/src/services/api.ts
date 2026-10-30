@@ -219,5 +219,64 @@ export const api = {
     request<any>('/sheets/test-connection', { method: 'POST', body: JSON.stringify({ webhook_url: webhookUrl, secret_key: secretKey }) }),
   pushAllToSheets: () => request<any>('/sheets/push-all', { method: 'POST' }),
   exportAllForSheets: () => request<any>('/sheets/export-all'),
-  getAppScriptTemplate: () => request<{ script: string; secret_key: string; owner_email: string }>('/sheets/appscript-template')
+  getAppScriptTemplate: () => request<{ script: string; secret_key: string; owner_email: string }>('/sheets/appscript-template'),
+
+  // Invoices & Credit Notes
+  getMyInvoices: () => request<any[]>('/invoices/my-invoices'),
+  getInvoice: (invoiceId: string) => request<any>(`/invoices/${invoiceId}`),
+  downloadInvoice: async (invoiceId: string, filename?: string) => {
+    const token = localStorage.getItem('ssk_access_token');
+    const res = await fetch(`${API_BASE_URL}/invoices/${invoiceId}/download`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    });
+    if (!res.ok) {
+      let errDetail = 'Failed to download invoice PDF';
+      try {
+        const j = await res.json();
+        errDetail = j.detail || errDetail;
+      } catch {}
+      throw new Error(errDetail);
+    }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename || `${invoiceId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
+  getAdminInvoices: (params: Record<string, any> = {}) => {
+    const q = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '') q.append(k, String(v));
+    });
+    return request<any>(`/invoices/admin/all?${q.toString()}`);
+  },
+  resendInvoice: (invoiceId: string, channel = 'all') =>
+    request<any>(`/invoices/admin/${invoiceId}/resend?channel=${channel}`, { method: 'POST' }),
+  generateInvoiceForOrder: (orderId: string, force = false) =>
+    request<any>(`/invoices/admin/generate-from-order/${orderId}?force=${force}`, { method: 'POST' }),
+  generateCreditNote: (invoiceId: string) =>
+    request<any>(`/invoices/admin/${invoiceId}/credit-note`, { method: 'POST' }),
+
+  // Communications & Notifications
+  getCommunicationsStatus: () => request<any>('/communications/admin/status'),
+  getNotificationLogs: (params: Record<string, any> = {}) => {
+    const q = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '') q.append(k, String(v));
+    });
+    return request<any>(`/communications/admin/logs?${q.toString()}`);
+  },
+  testEmail: (recipient: string, subject?: string) =>
+    request<any>('/communications/admin/test-email', { method: 'POST', body: JSON.stringify({ recipient, subject }) }),
+  testWhatsApp: (phone: string, template = 'order_placed') =>
+    request<any>('/communications/admin/test-whatsapp', { method: 'POST', body: JSON.stringify({ phone, template }) }),
+  retryNotification: (notificationId: string) =>
+    request<any>(`/communications/admin/${notificationId}/retry`, { method: 'POST' }),
+  getCustomerPreferences: () => request<any>('/communications/customer/preferences'),
+  updateCustomerPreferences: (data: { whatsapp_enabled: boolean; email_enabled: boolean; whatsapp_phone?: string }) =>
+    request<any>('/communications/customer/preferences', { method: 'PUT', body: JSON.stringify(data) })
 };

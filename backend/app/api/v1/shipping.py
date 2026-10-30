@@ -9,6 +9,7 @@ from app.core.permissions import Role
 from app.api.dependencies import get_current_user, require_roles
 from app.services.shipping_service import ShippingService
 from app.services.email_service import EmailService
+from app.services.notification_service import NotificationService
 
 router = APIRouter(prefix="/shipping", tags=["Shipping & Logistics"])
 
@@ -63,16 +64,16 @@ def create_shipment(
     )
     db_manager.persist_to_disk()
 
-    # Dispatch email notification to customer
-    if order.get("customer_email"):
-        try:
-            EmailService.send_shipment_notification(
-                to_email=order["customer_email"],
-                order=order,
-                tracking_data=tracking_info
-            )
-        except Exception as mail_err:
-            logger.warning(f"Shipment email notification notice: {mail_err}")
+    # Dispatch shipment notification via Notification Service
+    try:
+        NotificationService.dispatch_order_event(
+            order_id=order_id,
+            event_name="ORDER_SHIPPED",
+            extra_data={"tracking": tracking_info},
+            actor="logistics"
+        )
+    except Exception as mail_err:
+        logger.warning(f"Shipment notification notice: {mail_err}")
 
     return {
         "message": "Shipment created successfully",
@@ -143,6 +144,24 @@ def shipping_carrier_webhook(payload: Dict[str, Any], db = Depends(get_db)):
         }
     )
     db_manager.persist_to_disk()
+
+    # Dispatch delivery or out-for-delivery notification
+    try:
+        if milestone in ["DELIVERED", "COMPLETED"]:
+            NotificationService.dispatch_order_event(
+                order_id=order["order_id"],
+                event_name="ORDER_DELIVERED",
+                actor="courier_webhook"
+            )
+        elif milestone == "OUT_FOR_DELIVERY":
+            NotificationService.dispatch_order_event(
+                order_id=order["order_id"],
+                event_name="OUT_FOR_DELIVERY",
+                extra_data={"tracking": tracking},
+                actor="courier_webhook"
+            )
+    except Exception as notif_err:
+        logger.warning(f"Carrier webhook notification notice: {notif_err}")
 
     return {"status": "success", "order_id": order["order_id"], "new_status": new_status}
 

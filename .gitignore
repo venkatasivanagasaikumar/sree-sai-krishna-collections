@@ -46,3 +46,5 @@ data/*.json
 !data/.gitkeep
 backend/backups/*.json
 !backend/backups/.gitkeep
+backend/data/invoices/*.pdf
+!backend/data/invoices/.gitkeep

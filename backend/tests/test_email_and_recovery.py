@@ -80,6 +80,7 @@ def test_forgot_password_and_reset_flow():
 def test_expired_token_rejected():
     db = get_db()
     expired_token = "expired_token_test_999"
+    db.password_reset_tokens.delete_many({"token": expired_token})
     # Insert an already expired token
     db.password_reset_tokens.insert_one({
         "token": expired_token,

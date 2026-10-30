@@ -39,6 +39,7 @@ import { AdminPromotionsPage } from './pages/admin/AdminPromotionsPage';
 import { AdminReportsPage } from './pages/admin/AdminReportsPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 import { AdminSheetsSyncPage } from './pages/admin/AdminSheetsSyncPage';
+import { AdminCommunicationsPage } from './pages/admin/AdminCommunicationsPage';
 
 export function App() {
   return (
@@ -85,6 +86,7 @@ export function App() {
                 <Route path="promotions" element={<AdminPromotionsPage />} />
                 <Route path="reports" element={<AdminReportsPage />} />
                 <Route path="sheets-sync" element={<AdminSheetsSyncPage />} />
+                <Route path="communications" element={<AdminCommunicationsPage />} />
                 <Route path="settings" element={<AdminSettingsPage />} />
               </Route>
 

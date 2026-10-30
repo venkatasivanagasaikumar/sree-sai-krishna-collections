@@ -54,7 +54,28 @@ class Settings(BaseModel):
     SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
     SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", "orders@sreesaikrishnacollections.com")
     SMTP_FROM_NAME: str = "Sree Sai Krishna Collections"
+    EMAILS_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", "orders@sreesaikrishnacollections.com")
+    EMAILS_FROM_NAME: str = "Sree Sai Krishna Collections"
     SMTP_TLS: bool = os.getenv("SMTP_TLS", "true").lower() == "true"
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    
+    # GST & Invoicing Configuration
+    SELLER_GSTIN: str = os.getenv("SELLER_GSTIN", "") # Configurable pending accountant verification
+    SELLER_STATE: str = "Telangana"
+    SELLER_STATE_CODE: str = "36"
+    SELLER_PAN: str = os.getenv("SELLER_PAN", "AAECS1234F")
+    DEFAULT_JEWELLERY_GST_RATE: float = 0.03 # 3% for gold & imitation jewellery (HSN 7113/7117)
+    DEFAULT_ACCESSORIES_GST_RATE: float = 0.18 # 18% for hair clips, claws, bands (HSN 9615)
+    INVOICE_PREFIX: str = "SSK-INV"
+    CREDIT_NOTE_PREFIX: str = "SSK-CN"
+    
+    # WhatsApp Meta Cloud API Configuration
+    WHATSAPP_ENABLED: bool = os.getenv("WHATSAPP_ENABLED", "false").lower() == "true"
+    WHATSAPP_PHONE_NUMBER_ID: str = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "")
+    WHATSAPP_BUSINESS_ACCOUNT_ID: str = os.getenv("WHATSAPP_BUSINESS_ACCOUNT_ID", "")
+    WHATSAPP_ACCESS_TOKEN: str = os.getenv("WHATSAPP_ACCESS_TOKEN", "")
+    WHATSAPP_API_VERSION: str = os.getenv("WHATSAPP_API_VERSION", "v19.0")
+    WHATSAPP_WEBHOOK_VERIFY_TOKEN: str = os.getenv("WHATSAPP_WEBHOOK_VERIFY_TOKEN", "ssk_wa_verify_token_2026")
+    WHATSAPP_APP_SECRET: str = os.getenv("WHATSAPP_APP_SECRET", "")
     
 settings = Settings()

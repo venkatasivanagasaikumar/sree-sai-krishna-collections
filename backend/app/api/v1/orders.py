@@ -11,6 +11,7 @@ from app.core.logging import AuditLogger
 from app.schemas.order import CreateOrderRequest, OrderStatusUpdate, ReturnRequestCreate
 from app.schemas.inventory import StockAdjustment
 from app.api.dependencies import get_current_user, get_optional_current_user, require_roles
+from app.services.notification_service import NotificationService
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
@@ -209,6 +210,13 @@ def create_order(
 
     db_manager.persist_to_disk()
 
+    # Dispatch notification event & automatic invoice if eligible
+    try:
+        event_name = "COD_CONFIRMED" if payload.payment_method == "COD" else "ORDER_PLACED"
+        NotificationService.dispatch_order_event(order_id, event_name, actor=customer_email or "checkout")
+    except Exception as notif_err:
+        pass
+
     AuditLogger.log_event(
         db,
         action="ORDER_CREATED",
@@ -336,6 +344,18 @@ def cancel_customer_order(
         {"$set": {"order_status": "CANCELLED", "timeline": timeline, "updated_at": now}}
     )
     db_manager.persist_to_disk()
+
+    # Dispatch cancellation notification
+    try:
+        NotificationService.dispatch_order_event(
+            order_id=order_id,
+            event_name="ORDER_CANCELLED",
+            extra_data={"reason": reason},
+            actor=current_user.get("email", "customer")
+        )
+    except Exception as notif_err:
+        pass
+
     return {"message": "Order cancelled successfully and inventory restored"}
 
 @router.post("/{order_id}/return")
@@ -477,6 +497,30 @@ def update_order_status_admin(
 
     db.orders.update_one({"order_id": order_id}, {"$set": update_data})
     db_manager.persist_to_disk()
+
+    # Dispatch notification event on status update
+    try:
+        status_to_event = {
+            "CONFIRMED": "ORDER_CONFIRMED",
+            "PACKED": "ORDER_PACKED",
+            "SHIPPED": "ORDER_SHIPPED",
+            "OUT_FOR_DELIVERY": "OUT_FOR_DELIVERY",
+            "DELIVERED": "ORDER_DELIVERED",
+            "CANCELLED": "ORDER_CANCELLED"
+        }
+        evt = status_to_event.get(payload.status)
+        if evt:
+            NotificationService.dispatch_order_event(
+                order_id=order_id,
+                event_name=evt,
+                extra_data={
+                    "tracking": {"carrier": payload.carrier_name, "awb": payload.tracking_number},
+                    "reason": payload.internal_notes or "Status update"
+                },
+                actor=current_user.get("email", "staff")
+            )
+    except Exception as notif_err:
+        pass
 
     AuditLogger.log_event(
         db,

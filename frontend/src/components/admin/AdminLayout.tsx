@@ -31,6 +31,7 @@ export const AdminLayout: React.FC = () => {
     { label: 'Customer Directory', path: '/admin/customers', icon: Users },
     { label: 'Coupons & Promos', path: '/admin/promotions', icon: Tag },
     { label: 'Google Sheets / Excel', path: '/admin/sheets-sync', icon: FileSpreadsheet, badge: 'Sync' },
+    { label: 'WhatsApp & Invoices', path: '/admin/communications', icon: Bell, badge: 'Hub' },
     { label: 'Reports & Audit Logs', path: '/admin/reports', icon: BarChart3 },
     { label: 'Store Settings', path: '/admin/settings', icon: Settings },
   ];

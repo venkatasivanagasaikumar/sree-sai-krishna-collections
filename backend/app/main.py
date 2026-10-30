@@ -25,6 +25,9 @@ from app.api.v1.settings import router as settings_router
 from app.api.v1.upload import router as upload_router
 from app.api.v1.sheets_sync import router as sheets_router
 from app.api.v1.shipping import router as shipping_router
+from app.api.v1.invoices import router as invoices_router
+from app.api.v1.communications import router as communications_router
+from app.api.v1.webhooks import router as webhooks_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -71,6 +74,9 @@ app.include_router(settings_router, prefix=settings.API_V1_STR)
 app.include_router(upload_router, prefix=settings.API_V1_STR)
 app.include_router(sheets_router, prefix=settings.API_V1_STR)
 app.include_router(shipping_router, prefix=settings.API_V1_STR)
+app.include_router(invoices_router, prefix=settings.API_V1_STR)
+app.include_router(communications_router, prefix=settings.API_V1_STR)
+app.include_router(webhooks_router, prefix=settings.API_V1_STR)
 
 # Mount /uploads directory for static image serving
 UPLOADS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "uploads"))

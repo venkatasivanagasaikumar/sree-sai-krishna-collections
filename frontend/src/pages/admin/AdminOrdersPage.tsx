@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Package, Search, Printer, Truck, CheckCircle2, Clock,
-  AlertCircle, ChevronRight, X, ExternalLink, ArrowRight, Loader2
+  AlertCircle, ChevronRight, X, ExternalLink, ArrowRight, Loader2,
+  FileText, Send
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { Order } from '../../types';
@@ -74,6 +75,24 @@ export const AdminOrdersPage: React.FC = () => {
       setShowSlipModal(true);
     } catch (e) {
       alert('Could not fetch slip');
+    }
+  };
+
+  const handleDownloadInvoicePdf = async (orderId: string) => {
+    try {
+      await api.downloadInvoice(orderId, `SSK-INVOICE-${orderId}.pdf`);
+    } catch (e: any) {
+      alert(e.message || 'Could not download invoice PDF');
+    }
+  };
+
+  const handleResendInvoice = async (orderId: string) => {
+    if (!confirm(`Resend invoice & WhatsApp notification for order #${orderId}?`)) return;
+    try {
+      await api.resendInvoice(orderId, 'all');
+      alert(`Invoice notification resent for order #${orderId}`);
+    } catch (e: any) {
+      alert(e.message || 'Could not resend invoice');
     }
   };
 
@@ -185,12 +204,29 @@ export const AdminOrdersPage: React.FC = () => {
                         </span>
                       )}
                     </td>
-                    <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
+                    <td className="py-4 px-6 text-right space-x-1.5 whitespace-nowrap">
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleDownloadInvoicePdf(order.order_id)}
+                        className="px-2 py-1 border border-ssk-navy/30 bg-ssk-blue-light/50 hover:bg-ssk-blue-light rounded-lg text-ssk-navy text-[11px] font-semibold transition-colors inline-flex items-center gap-1"
+                        title="Download GST Tax Invoice (PDF)"
+                      >
+                        <FileText className="w-3 h-3 text-ssk-gold-dark" />
+                        <span>Invoice</span>
+                      </motion.button>
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleResendInvoice(order.order_id)}
+                        className="p-1 border border-ssk-border hover:bg-ssk-surface rounded-lg text-ssk-navy text-[11px] font-semibold transition-colors inline-flex items-center"
+                        title="Resend WhatsApp & Email Notifications"
+                      >
+                        <Send className="w-3 h-3 text-emerald-600" />
+                      </motion.button>
                       <motion.button
                         whileTap={{ scale: 0.95 }}
                         onClick={() => openSlip(order.order_id)}
-                        className="px-2.5 py-1 border border-ssk-border hover:bg-ssk-blue-light rounded-lg text-ssk-navy text-[11px] font-semibold transition-colors"
-                        title="Print Invoice / Packing Slip"
+                        className="px-2 py-1 border border-ssk-border hover:bg-ssk-blue-light rounded-lg text-ssk-navy text-[11px] font-semibold transition-colors"
+                        title="Print Packing Slip"
                       >
                         Slip
                       </motion.button>
@@ -201,7 +237,7 @@ export const AdminOrdersPage: React.FC = () => {
                           setNextStatus(order.order_status === 'ORDER_PLACED' ? 'PACKED' : order.order_status === 'PACKED' ? 'SHIPPED' : 'DELIVERED');
                           setTrackingNumber(order.tracking_number || `DEL-${Date.now().toString().slice(-8)}`);
                         }}
-                        className="px-3 py-1 bg-ssk-navy hover:bg-ssk-navy-dark text-white rounded-lg text-[11px] font-bold shadow-sm transition-colors"
+                        className="px-2.5 py-1 bg-ssk-navy hover:bg-ssk-navy-dark text-white rounded-lg text-[11px] font-bold shadow-sm transition-colors"
                       >
                         Update
                       </motion.button>

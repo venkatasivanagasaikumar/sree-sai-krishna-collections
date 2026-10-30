@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Package, Clock, CheckCircle2, Truck, AlertTriangle, Printer,
-  RotateCcw, XCircle, ArrowLeft, ShieldCheck, MapPin, Loader2
+  RotateCcw, XCircle, ArrowLeft, ShieldCheck, MapPin, Loader2, FileText
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { Order } from '../../types';
@@ -28,8 +28,21 @@ export const OrderTrackingPage: React.FC = () => {
 
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [packingSlipData, setPackingSlipData] = useState<any>(null);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   const [guestVerificationInput, setGuestVerificationInput] = useState('');
+
+  const handleDownloadTaxInvoice = async () => {
+    if (!orderId) return;
+    setDownloadingPdf(true);
+    try {
+      await api.downloadInvoice(orderId, `SSK-INVOICE-${orderId}.pdf`);
+    } catch (err: any) {
+      alert(err.message || 'Failed to download Tax Invoice PDF');
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
 
   const loadOrder = async (verificationCode?: string) => {
     if (!orderId) return;
@@ -170,11 +183,20 @@ export const OrderTrackingPage: React.FC = () => {
         <div className="flex items-center gap-2">
           <motion.button
             whileTap={{ scale: 0.95 }}
+            onClick={handleDownloadTaxInvoice}
+            disabled={downloadingPdf}
+            className="px-4 py-2 bg-ssk-navy hover:bg-ssk-navy-dark text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors disabled:opacity-50"
+          >
+            {downloadingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5 text-ssk-gold" />}
+            <span>Tax Invoice (PDF)</span>
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
             onClick={handleOpenInvoice}
             className="px-4 py-2 border border-ssk-border hover:bg-ssk-blue-light text-ssk-navy text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
           >
             <Printer className="w-3.5 h-3.5" />
-            <span>Invoice / Slip</span>
+            <span>Packing Slip</span>
           </motion.button>
           {canCancel && (
             <motion.button

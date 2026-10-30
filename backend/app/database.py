@@ -10,8 +10,10 @@ from app.core.logging import logger
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 BACKUP_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "backups")
+INVOICES_DIR = os.path.join(DATA_DIR, "invoices")
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(BACKUP_DIR, exist_ok=True)
+os.makedirs(INVOICES_DIR, exist_ok=True)
 DUMP_FILE = os.path.join(DATA_DIR, "db_dump.json")
 
 class MongoJSONEncoder(json.JSONEncoder):
@@ -111,6 +113,34 @@ class Database:
             # Audit Logs
             self.db.audit_logs.create_index("created_at")
             self.db.audit_logs.create_index("action")
+            
+            # Invoices & Credit Notes
+            self.db.invoices.create_index("invoice_number", unique=True)
+            self.db.invoices.create_index("order_id")
+            self.db.invoices.create_index("customer_email")
+            self.db.invoices.create_index("user_id")
+            self.db.invoices.create_index("invoice_date")
+            self.db.invoices.create_index("invoice_type")
+            self.db.invoice_sequences.create_index("year_prefix", unique=True)
+            
+            # Notification Events & Logs
+            self.db.notification_events.create_index("event_id", unique=True)
+            self.db.notification_events.create_index("order_id")
+            self.db.notification_events.create_index("event_type")
+            self.db.notification_logs.create_index("notification_id", unique=True)
+            self.db.notification_logs.create_index("order_id")
+            self.db.notification_logs.create_index("channel")
+            self.db.notification_logs.create_index("status")
+            self.db.notification_logs.create_index("created_at")
+            self.db.notification_outbox.create_index("outbox_id", unique=True)
+            self.db.notification_outbox.create_index("status")
+            self.db.notification_outbox.create_index("next_retry_at")
+            
+            # Communication Preferences & Consents
+            self.db.communication_preferences.create_index("user_id", unique=True)
+            self.db.communication_preferences.create_index("customer_email")
+            self.db.communication_consents.create_index("consent_id", unique=True)
+            self.db.communication_consents.create_index("user_id")
             
             logger.debug("Production database indexes successfully verified and applied.")
         except Exception as e:
