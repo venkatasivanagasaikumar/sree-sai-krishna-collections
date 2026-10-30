@@ -19,6 +19,7 @@ def test_new_customer_full_journey():
     test_email = "ananya.newcustomer@example.com"
     db.users.delete_one({"email": test_email})
     db.carts.delete_one({"user_id": test_email})
+    db.products.update_one({"sku": "SSK-JWL-101"}, {"$set": {"stock": 50}})
 
     # Step 1: Register Account
     reg_dto = UserCreate(

@@ -11,13 +11,14 @@ UPLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..",
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 @router.post("", dependencies=[Depends(require_roles([Role.ADMIN, Role.INVENTORY_MANAGER]))])
 async def upload_file(file: UploadFile = File(...)):
     """
     Upload an image file from the computer and return its static URL.
-    Validates file extension and strictly limits file size to 10MB.
+    Validates file extension, MIME type, and strictly limits file size to 10MB.
     """
     filename = file.filename or "image.jpg"
     _, ext = os.path.splitext(filename)
@@ -27,6 +28,12 @@ async def upload_file(file: UploadFile = File(...)):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Unsupported file format '{ext}'. Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
+        )
+
+    if file.content_type and file.content_type.lower() not in ALLOWED_CONTENT_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid MIME content type '{file.content_type}'. Allowed image types: jpeg, png, webp, gif"
         )
     
     unique_name = f"{uuid.uuid4().hex}{ext}"

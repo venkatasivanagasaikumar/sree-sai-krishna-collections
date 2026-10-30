@@ -31,7 +31,14 @@ from app.api.v1.webhooks import router as webhooks_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info(f"Starting {settings.PROJECT_NAME}...")
+    logger.info(f"Starting {settings.PROJECT_NAME} (Environment: {settings.ENVIRONMENT})...")
+    
+    # Production security & readiness check
+    blockers = settings.validate_production_readiness()
+    if blockers:
+        for b in blockers:
+            logger.warning(f"[PRODUCTION CONFIG ALERT] {b}")
+
     db = get_db()
     try:
         if db.users.count_documents({}) == 0 or db.categories.count_documents({}) == 0:
@@ -40,7 +47,10 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"Seed initialization check note: {e}")
     yield
+    # Graceful shutdown
     db_manager.persist_to_disk()
+    db_manager.close()
+    logger.info(f"Graceful shutdown of {settings.PROJECT_NAME} complete.")
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -49,10 +59,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS Middleware
+# CORS Middleware with dynamic origins support
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS,
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -85,19 +95,39 @@ app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
 @app.get("/health")
 def health_check():
-    db = get_db()
+    """Liveness probe: verifies process is alive and responsive."""
     return {
         "status": "healthy",
         "brand": settings.BRAND_NAME,
-        "database": "mock_file_backed" if db_manager.is_mock else "mongodb_live",
-        "products_count": db.products.count_documents({}),
-        "orders_count": db.orders.count_documents({})
+        "environment": settings.ENVIRONMENT,
+        "database": "mock_file_backed" if db_manager.is_mock else "mongodb_live"
     }
+
+@app.get("/ready")
+def readiness_check():
+    """Readiness probe: validates database connectivity and readiness for customer traffic."""
+    try:
+        ping_res = db_manager.ping()
+        db = get_db()
+        return {
+            "status": "ready",
+            "environment": settings.ENVIRONMENT,
+            "database": ping_res,
+            "products_count": db.products.count_documents({}),
+            "orders_count": db.orders.count_documents({})
+        }
+    except Exception as e:
+        logger.error(f"Readiness check failed: {e}")
+        return JSONResponse(
+            status_code=503,
+            content={"status": "not_ready", "error": "Database unavailable", "detail": str(e)}
+        )
 
 @app.get("/")
 def root():
     return {
         "message": f"Welcome to {settings.BRAND_NAME} (SSK) API",
         "docs": "/docs",
-        "health": "/health"
+        "health": "/health",
+        "ready": "/ready"
     }

@@ -30,18 +30,32 @@ class Database:
     is_mock: bool = False
 
     def connect(self):
+        if settings.ENVIRONMENT == "production" and settings.FORCE_MOCK_DB:
+            logger.critical("CRITICAL: FORCE_MOCK_DB is True in production environment.")
+            raise RuntimeError("CRITICAL MISCONFIGURATION: FORCE_MOCK_DB cannot be True in production.")
+
         if not settings.FORCE_MOCK_DB:
             try:
-                real_client = pymongo.MongoClient(
-                    settings.MONGODB_URI,
-                    serverSelectionTimeoutMS=2000,
-                    connectTimeoutMS=2000
-                )
-                real_client.server_info()
+                client_kwargs = {
+                    "maxPoolSize": settings.DB_MAX_POOL_SIZE,
+                    "minPoolSize": settings.DB_MIN_POOL_SIZE,
+                    "maxIdleTimeMS": settings.DB_MAX_IDLE_TIME_MS,
+                    "serverSelectionTimeoutMS": settings.DB_SERVER_SELECTION_TIMEOUT_MS,
+                    "connectTimeoutMS": settings.DB_CONNECT_TIMEOUT_MS,
+                    "socketTimeoutMS": settings.DB_SOCKET_TIMEOUT_MS,
+                    "retryWrites": True,
+                    "w": "majority"
+                }
+                # Enable TLS if explicitly requested or when using Atlas mongodb+srv
+                if settings.DB_TLS or settings.MONGODB_URI.startswith("mongodb+srv://"):
+                    client_kwargs["tls"] = True
+
+                real_client = pymongo.MongoClient(settings.MONGODB_URI, **client_kwargs)
+                real_client.admin.command("ping")
                 self.client = real_client
                 self.db = real_client[settings.DATABASE_NAME]
                 self.is_mock = False
-                logger.info(f"Connected to live MongoDB cluster at {settings.MONGODB_URI}/{settings.DATABASE_NAME}")
+                logger.info(f"Connected to live MongoDB cluster at {settings.MONGODB_URI}/{settings.DATABASE_NAME} (Pool: {settings.DB_MIN_POOL_SIZE}-{settings.DB_MAX_POOL_SIZE})")
                 
                 # Check for seamless live migration from dump file if live database is unpopulated
                 try:
@@ -54,6 +68,9 @@ class Database:
                 self._create_indexes()
                 return self.db
             except Exception as e:
+                if settings.ENVIRONMENT == "production":
+                    logger.critical(f"FATAL: Production database connection failed to '{settings.DATABASE_NAME}': {e}")
+                    raise RuntimeError(f"FATAL: Could not connect to production MongoDB cluster: {e}")
                 logger.warning(f"Live MongoDB connection failed ({e}). Falling back to MongoMock.")
 
         # Fallback to MongoMock for local offline operation
@@ -64,6 +81,24 @@ class Database:
         self._load_from_disk()
         self._create_indexes()
         return self.db
+
+    def close(self):
+        """Closes the MongoDB connection pool cleanly."""
+        if self.client and not self.is_mock:
+            try:
+                self.client.close()
+                logger.info("Closed MongoDB connection pool.")
+            except Exception as e:
+                logger.warning(f"Error closing MongoDB client: {e}")
+
+    def ping(self) -> dict:
+        """Pings the database and returns connectivity health."""
+        if self.db is None:
+            self.connect()
+        if not self.is_mock and self.client:
+            self.client.admin.command('ping')
+            return {"status": "connected", "type": "mongodb_live", "database": settings.DATABASE_NAME}
+        return {"status": "connected", "type": "mongomock", "database": settings.DATABASE_NAME}
 
     def _create_indexes(self):
         """Creates unique constraints and optimized query compound indexes across collections."""

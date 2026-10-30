@@ -55,6 +55,7 @@ def test_sim_01_customer_purchase_cod_journey():
     # Cleanup any prior test customer
     db.users.delete_one({"email": test_email})
     db.carts.delete_many({"user_id": test_email})
+    db.products.update_one({"sku": "SSK-JWL-101"}, {"$set": {"stock": 50}})
 
     # 1. Registration
     reg_payload = UserCreate(
@@ -556,7 +557,11 @@ def test_sim_07_final_production_checks():
 
     # 3. Security Check: Settings & CORS
     assert settings.API_V1_STR == "/api/v1"
-    assert len(settings.BACKEND_CORS_ORIGINS) > 0
+    assert len(settings.cors_origins) > 0
+    assert not settings.RAZORPAY_KEY_ID.startswith("rzp_live_"), "Automated tests must never execute against live Razorpay keys!"
+    assert isinstance(settings.validate_production_readiness(), list)
 
-    # 4. Invoices Directory Exists
+    # 4. Database Ping & Directory Check
+    ping = db_manager.ping()
+    assert ping["status"] == "connected"
     assert os.path.exists(INVOICES_DIR)

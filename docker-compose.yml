@@ -4,7 +4,7 @@ services:
   mongodb:
     image: mongo:7.0
     container_name: ssk-mongodb
-    restart: always
+    restart: unless-stopped
     environment:
       MONGO_INITDB_DATABASE: ssk_collections_db
     ports:
@@ -17,16 +17,18 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: ssk-backend
-    restart: always
+    restart: unless-stopped
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017
-      - DATABASE_NAME=ssk_collections_db
-      - FORCE_MOCK_DB=false
-      - SECRET_KEY=ssk-royal-navy-gold-super-secure-jwt-secret-key-2026-prod
-      - RAZORPAY_KEY_ID=rzp_test_SSKJewelleryDemo2026
-      - RAZORPAY_KEY_SECRET=SSKTestSecretMockSignatureKey
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017}
+      - DATABASE_NAME=${DATABASE_NAME:-ssk_collections_db}
+      - FORCE_MOCK_DB=${FORCE_MOCK_DB:-false}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend/data:/app/data
+      - ./backend/uploads:/app/uploads
+      - ./backend/backups:/app/backups
     depends_on:
       - mongodb
 
@@ -35,8 +37,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: ssk-frontend
-    restart: always
+    restart: unless-stopped
     ports:
+      - "80:80"
       - "5173:80"
     depends_on:
       - backend

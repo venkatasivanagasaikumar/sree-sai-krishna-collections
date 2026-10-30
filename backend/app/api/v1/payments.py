@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Header
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone
+import json
 import hmac
 import hashlib
 import uuid
@@ -344,8 +345,28 @@ def initiate_refund(
     }
 
 @router.post("/webhook")
-def razorpay_webhook(payload: Dict[str, Any], db = Depends(get_db)):
+def razorpay_webhook(
+    payload: Dict[str, Any],
+    x_razorpay_signature: Optional[str] = Header(None, alias="X-Razorpay-Signature"),
+    db = Depends(get_db)
+):
     """Idempotent webhook listener for Razorpay payment lifecycle events with signature authentication."""
+    # Authenticate signature if header provided or required in production
+    if isinstance(x_razorpay_signature, str) and x_razorpay_signature.strip():
+        webhook_secret = settings.RAZORPAY_WEBHOOK_SECRET
+        if webhook_secret:
+            raw_data = json.dumps(payload, separators=(',', ':')).encode('utf-8')
+            expected_sig = hmac.new(webhook_secret.encode('utf-8'), raw_data, hashlib.sha256).hexdigest()
+            if not hmac.compare_digest(expected_sig, x_razorpay_signature):
+                # Try formatted json
+                fallback_data = json.dumps(payload).encode('utf-8')
+                fallback_sig = hmac.new(webhook_secret.encode('utf-8'), fallback_data, hashlib.sha256).hexdigest()
+                if not hmac.compare_digest(fallback_sig, x_razorpay_signature):
+                    logger.warning("Invalid Razorpay webhook signature received.")
+                    raise HTTPException(status_code=400, detail="Invalid webhook signature")
+    elif settings.ENVIRONMENT == "production" and settings.RAZORPAY_KEY_ID.startswith("rzp_live_"):
+        raise HTTPException(status_code=400, detail="Missing X-Razorpay-Signature header")
+
     event_id = payload.get("id")
     event_type = payload.get("event")
 
