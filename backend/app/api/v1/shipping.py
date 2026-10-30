@@ -120,6 +120,10 @@ def shipping_carrier_webhook(payload: Dict[str, Any], db = Depends(get_db)):
                 {"_id": order["_id"]},
                 {"$set": {"payment_status": "PAID", "cod_collected_at": now}}
             )
+    elif milestone == "OUT_FOR_DELIVERY":
+        new_status = "OUT_FOR_DELIVERY"
+    elif milestone in ["IN_TRANSIT", "SHIPPED"]:
+        new_status = "SHIPPED"
 
     tracking = order.get("tracking") or {}
     tracking["status"] = milestone

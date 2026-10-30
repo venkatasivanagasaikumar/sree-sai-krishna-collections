@@ -69,7 +69,7 @@ class NotificationService:
                 invoice_pdf_path = inv.get("pdf_path")
             except Exception as inv_err:
                 logger.warning(f"Invoice generation notice for #{order_id}: {inv_err}")
-        elif event_name in ["REFUND_INITIATED", "ORDER_CANCELLED"] and order.get("payment_status") == "PAID":
+        elif event_name in ["REFUND_INITIATED", "ORDER_CANCELLED"] and order.get("payment_status") in ["PAID", "REFUNDED"]:
             try:
                 cn = InvoiceService.generate_or_get_invoice(order_id, is_credit_note=True)
                 invoice_number = cn.get("invoice_number")

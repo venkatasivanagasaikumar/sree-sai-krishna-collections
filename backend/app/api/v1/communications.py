@@ -1,5 +1,6 @@
 import os
 import math
+import uuid
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, EmailStr
@@ -260,6 +261,7 @@ def update_customer_preferences(
 
     # Record consent log for compliance
     db.communication_consents.insert_one({
+        "consent_id": f"cns_{uuid.uuid4().hex[:12]}",
         "user_id": user_id,
         "channel": "whatsapp",
         "consented": payload.whatsapp_enabled,

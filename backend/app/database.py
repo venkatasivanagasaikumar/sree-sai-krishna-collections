@@ -139,7 +139,7 @@ class Database:
             # Communication Preferences & Consents
             self.db.communication_preferences.create_index("user_id", unique=True)
             self.db.communication_preferences.create_index("customer_email")
-            self.db.communication_consents.create_index("consent_id", unique=True)
+            self.db.communication_consents.create_index("consent_id", unique=True, sparse=True)
             self.db.communication_consents.create_index("user_id")
             
             logger.debug("Production database indexes successfully verified and applied.")
