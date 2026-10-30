@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Package, Search, Printer, Truck, CheckCircle2, Clock,
-  AlertCircle, ChevronRight, X, ExternalLink, ArrowRight
+  AlertCircle, ChevronRight, X, ExternalLink, ArrowRight, Loader2
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { Order } from '../../types';
+import { PageTransition } from '../../components/animations/PageTransition';
+import { modalOverlay, modalContent } from '../../animations';
 
 export const AdminOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -84,7 +87,7 @@ export const AdminOrdersPage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <PageTransition className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -98,8 +101,9 @@ export const AdminOrdersPage: React.FC = () => {
       {/* Tabs Bar */}
       <div className="flex gap-2 border-b border-ssk-border overflow-x-auto pb-1 text-xs">
         {tabs.map((tab) => (
-          <button
+          <motion.button
             key={tab.key}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setStatusTab(tab.key)}
             className={`px-4 py-2.5 font-bold rounded-xl whitespace-nowrap transition-all ${
               statusTab === tab.key
@@ -108,7 +112,7 @@ export const AdminOrdersPage: React.FC = () => {
             }`}
           >
             {tab.label}
-          </button>
+          </motion.button>
         ))}
       </div>
 
@@ -182,23 +186,25 @@ export const AdminOrdersPage: React.FC = () => {
                       )}
                     </td>
                     <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
-                      <button
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => openSlip(order.order_id)}
-                        className="px-2.5 py-1 border border-ssk-border hover:bg-ssk-blue-light rounded-lg text-ssk-navy text-[11px] font-semibold"
+                        className="px-2.5 py-1 border border-ssk-border hover:bg-ssk-blue-light rounded-lg text-ssk-navy text-[11px] font-semibold transition-colors"
                         title="Print Invoice / Packing Slip"
                       >
                         Slip
-                      </button>
-                      <button
+                      </motion.button>
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => {
                           setSelectedOrder(order);
                           setNextStatus(order.order_status === 'ORDER_PLACED' ? 'PACKED' : order.order_status === 'PACKED' ? 'SHIPPED' : 'DELIVERED');
                           setTrackingNumber(order.tracking_number || `DEL-${Date.now().toString().slice(-8)}`);
                         }}
-                        className="px-3 py-1 bg-ssk-navy hover:bg-ssk-navy-dark text-white rounded-lg text-[11px] font-bold shadow-sm"
+                        className="px-3 py-1 bg-ssk-navy hover:bg-ssk-navy-dark text-white rounded-lg text-[11px] font-bold shadow-sm transition-colors"
                       >
                         Update
-                      </button>
+                      </motion.button>
                     </td>
                   </tr>
                 ))
@@ -212,155 +218,194 @@ export const AdminOrdersPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Order Status Update Modal */}
-      {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-ssk-border space-y-4">
-            <div className="flex items-center justify-between border-b border-ssk-border pb-3">
-              <h3 className="text-sm font-serif font-bold text-ssk-navy">
-                Update Order #{selectedOrder.order_id}
-              </h3>
-              <button onClick={() => setSelectedOrder(null)}><X className="w-5 h-5 text-ssk-text-secondary" /></button>
-            </div>
-
-            <form onSubmit={handleUpdateStatus} className="space-y-4 text-xs">
-              <div>
-                <label className="block font-bold text-ssk-text mb-1">Select Next Status *</label>
-                <select
-                  value={nextStatus}
-                  onChange={(e) => setNextStatus(e.target.value)}
-                  className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl font-bold text-ssk-navy"
-                >
-                  <option value="PROCESSING">PROCESSING (Verification Confirmed)</option>
-                  <option value="PACKED">PACKED (Quality Inspected & Sealed)</option>
-                  <option value="SHIPPED">SHIPPED (Handed Over to Courier)</option>
-                  <option value="DELIVERED">DELIVERED (Customer Delivery Complete)</option>
-                  <option value="CANCELLED">CANCELLED (Restock items)</option>
-                </select>
+      {/* Order Status Update Modal with AnimatePresence */}
+      <AnimatePresence>
+        {selectedOrder && (
+          <motion.div
+            variants={modalOverlay}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          >
+            <motion.div
+              variants={modalContent}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-ssk-border space-y-4"
+            >
+              <div className="flex items-center justify-between border-b border-ssk-border pb-3">
+                <h3 className="text-sm font-serif font-bold text-ssk-navy">
+                  Update Order #{selectedOrder.order_id}
+                </h3>
+                <button onClick={() => setSelectedOrder(null)} aria-label="Close modal">
+                  <X className="w-5 h-5 text-ssk-text-secondary" />
+                </button>
               </div>
 
-              {nextStatus === 'SHIPPED' && (
-                <div className="space-y-3 p-3 bg-ssk-blue-light/50 rounded-xl border border-ssk-border">
-                  <div>
-                    <label className="block font-bold text-ssk-text mb-1">Courier Carrier</label>
-                    <select
-                      value={carrierName}
-                      onChange={(e) => setCarrierName(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-ssk-border rounded-xl"
-                    >
-                      <option value="Delhivery Express">Delhivery Express</option>
-                      <option value="BlueDart Air">BlueDart Air</option>
-                      <option value="DTDC Surface">DTDC Surface</option>
-                      <option value="Xpressbees Logistics">Xpressbees Logistics</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block font-bold text-ssk-text mb-1">AWB / Airway Bill Tracking # *</label>
-                    <input
-                      type="text"
-                      required
-                      value={trackingNumber}
-                      onChange={(e) => setTrackingNumber(e.target.value)}
-                      placeholder="e.g. DEL-99281726"
-                      className="w-full px-3 py-2 bg-white border border-ssk-border rounded-xl font-mono"
-                    />
-                  </div>
+              <form onSubmit={handleUpdateStatus} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-bold text-ssk-text mb-1">Select Next Status *</label>
+                  <select
+                    value={nextStatus}
+                    onChange={(e) => setNextStatus(e.target.value)}
+                    className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl font-bold text-ssk-navy"
+                  >
+                    <option value="PROCESSING">PROCESSING (Verification Confirmed)</option>
+                    <option value="PACKED">PACKED (Quality Inspected & Sealed)</option>
+                    <option value="SHIPPED">SHIPPED (Handed Over to Courier)</option>
+                    <option value="DELIVERED">DELIVERED (Customer Delivery Complete)</option>
+                    <option value="CANCELLED">CANCELLED (Restock items)</option>
+                  </select>
                 </div>
-              )}
+
+                {nextStatus === 'SHIPPED' && (
+                  <div className="space-y-3 p-3 bg-ssk-blue-light/50 rounded-xl border border-ssk-border">
+                    <div>
+                      <label className="block font-bold text-ssk-text mb-1">Courier Carrier</label>
+                      <select
+                        value={carrierName}
+                        onChange={(e) => setCarrierName(e.target.value)}
+                        className="w-full px-3 py-2 bg-white border border-ssk-border rounded-xl"
+                      >
+                        <option value="Delhivery Express">Delhivery Express</option>
+                        <option value="BlueDart Air">BlueDart Air</option>
+                        <option value="DTDC Surface">DTDC Surface</option>
+                        <option value="Xpressbees Logistics">Xpressbees Logistics</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block font-bold text-ssk-text mb-1">AWB / Airway Bill Tracking # *</label>
+                      <input
+                        type="text"
+                        required
+                        value={trackingNumber}
+                        onChange={(e) => setTrackingNumber(e.target.value)}
+                        placeholder="e.g. DEL-99281726"
+                        className="w-full px-3 py-2 bg-white border border-ssk-border rounded-xl font-mono"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block font-bold text-ssk-text mb-1">Internal Note (Recorded in Audit Timeline)</label>
+                  <input
+                    type="text"
+                    value={internalNotes}
+                    onChange={(e) => setInternalNotes(e.target.value)}
+                    placeholder="e.g. Inspected anti-tarnish coating before packaging"
+                    className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2 border-t border-ssk-border">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedOrder(null)}
+                    className="px-4 py-2 border border-ssk-border rounded-xl font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    type="submit"
+                    disabled={isUpdating}
+                    className="px-5 py-2 bg-ssk-navy text-white rounded-xl font-bold shadow-md hover:bg-ssk-navy-dark transition-colors flex items-center gap-1.5"
+                  >
+                    {isUpdating ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <span>Confirm Update</span>
+                    )}
+                  </motion.button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Slip Modal with AnimatePresence */}
+      <AnimatePresence>
+        {showSlipModal && slipData && (
+          <motion.div
+            variants={modalOverlay}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          >
+            <motion.div
+              variants={modalContent}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="bg-white rounded-3xl max-w-2xl w-full p-8 shadow-2xl border border-ssk-border space-y-6 max-h-[90vh] overflow-y-auto text-xs"
+            >
+              <div className="flex justify-between border-b pb-4">
+                <div>
+                  <h3 className="text-base font-bold text-ssk-navy">{slipData.brand_name}</h3>
+                  <p className="text-ssk-text-secondary">{slipData.business_address}</p>
+                  <p className="text-ssk-text-secondary">Phone: {slipData.support_phone}</p>
+                </div>
+                <div className="text-right">
+                  <span className="font-bold text-ssk-gold uppercase block">Seller Packing Slip</span>
+                  <span className="font-mono font-bold">#{slipData.order.order_id}</span>
+                </div>
+              </div>
 
               <div>
-                <label className="block font-bold text-ssk-text mb-1">Internal Note (Recorded in Audit Timeline)</label>
-                <input
-                  type="text"
-                  value={internalNotes}
-                  onChange={(e) => setInternalNotes(e.target.value)}
-                  placeholder="e.g. Inspected anti-tarnish coating before packaging"
-                  className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl"
-                />
+                <p className="font-bold">Ship To: {slipData.order.shipping_address.name}</p>
+                <p className="text-ssk-text-secondary">{slipData.order.shipping_address.address_line1}, {slipData.order.shipping_address.city} - {slipData.order.shipping_address.pincode}</p>
+                <p className="text-ssk-text-secondary">Contact: {slipData.order.shipping_address.phone}</p>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-ssk-border">
-                <button
-                  type="button"
-                  onClick={() => setSelectedOrder(null)}
-                  className="px-4 py-2 border border-ssk-border rounded-xl font-semibold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isUpdating}
-                  className="px-5 py-2 bg-ssk-navy text-white rounded-xl font-bold shadow-md hover:bg-ssk-navy-dark"
-                >
-                  {isUpdating ? 'Saving...' : 'Confirm Update'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Slip Modal */}
-      {showSlipModal && slipData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-8 shadow-2xl border border-ssk-border space-y-6 max-h-[90vh] overflow-y-auto text-xs">
-            <div className="flex justify-between border-b pb-4">
-              <div>
-                <h3 className="text-base font-bold text-ssk-navy">{slipData.brand_name}</h3>
-                <p className="text-ssk-text-secondary">{slipData.business_address}</p>
-                <p className="text-ssk-text-secondary">Phone: {slipData.support_phone}</p>
-              </div>
-              <div className="text-right">
-                <span className="font-bold text-ssk-gold uppercase block">Seller Packing Slip</span>
-                <span className="font-mono font-bold">#{slipData.order.order_id}</span>
-              </div>
-            </div>
-
-            <div>
-              <p className="font-bold">Ship To: {slipData.order.shipping_address.name}</p>
-              <p className="text-ssk-text-secondary">{slipData.order.shipping_address.address_line1}, {slipData.order.shipping_address.city} - {slipData.order.shipping_address.pincode}</p>
-              <p className="text-ssk-text-secondary">Contact: {slipData.order.shipping_address.phone}</p>
-            </div>
-
-            <table className="w-full border-collapse border border-ssk-border">
-              <thead>
-                <tr className="bg-ssk-surface border-b">
-                  <th className="p-2 text-left">SKU</th>
-                  <th className="p-2 text-left">Item Name</th>
-                  <th className="p-2 text-center">Qty</th>
-                  <th className="p-2 text-right">Price</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {slipData.order.items.map((it: any, i: number) => (
-                  <tr key={i}>
-                    <td className="p-2 font-mono">{it.sku}</td>
-                    <td className="p-2 font-semibold">{it.name}</td>
-                    <td className="p-2 text-center font-bold">{it.quantity}</td>
-                    <td className="p-2 text-right">₹{it.total_price}</td>
+              <table className="w-full border-collapse border border-ssk-border">
+                <thead>
+                  <tr className="bg-ssk-surface border-b">
+                    <th className="p-2 text-left">SKU</th>
+                    <th className="p-2 text-left">Item Name</th>
+                    <th className="p-2 text-center">Qty</th>
+                    <th className="p-2 text-right">Price</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y">
+                  {slipData.order.items.map((it: any, i: number) => (
+                    <tr key={i}>
+                      <td className="p-2 font-mono">{it.sku}</td>
+                      <td className="p-2 font-semibold">{it.name}</td>
+                      <td className="p-2 text-center font-bold">{it.quantity}</td>
+                      <td className="p-2 text-right">₹{it.total_price}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                onClick={() => window.print()}
-                className="px-4 py-2 bg-ssk-navy text-white rounded-xl font-bold flex items-center gap-1.5"
-              >
-                <Printer className="w-4 h-4" />
-                <span>Print Packing Slip</span>
-              </button>
-              <button
-                onClick={() => setShowSlipModal(false)}
-                className="px-4 py-2 border rounded-xl"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => window.print()}
+                  className="px-4 py-2 bg-ssk-navy text-white rounded-xl font-bold flex items-center gap-1.5"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>Print Packing Slip</span>
+                </motion.button>
+                <button
+                  onClick={() => setShowSlipModal(false)}
+                  className="px-4 py-2 border rounded-xl hover:bg-gray-100 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </PageTransition>
   );
 };

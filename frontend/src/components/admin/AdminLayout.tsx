@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, ShoppingBag, Package, Layers, RotateCcw,
   Users, Tag, BarChart3, Settings, LogOut, ChevronRight,
@@ -7,6 +8,7 @@ import {
 } from 'lucide-react';
 import { BrandLogo } from '../common/BrandLogo';
 import { useAuth } from '../../context/AuthContext';
+import { modalOverlay, slideInLeft } from '../../animations';
 
 export const AdminLayout: React.FC = () => {
   const location = useLocation();
@@ -35,13 +37,19 @@ export const AdminLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-ssk-surface flex">
-      {/* Mobile Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div
-          onClick={() => setIsSidebarOpen(false)}
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-        />
-      )}
+      {/* Mobile Sidebar Overlay with AnimatePresence */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            variants={modalOverlay}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
 
       {/* Persistent Navy Sidebar (Meesho inspired layout) */}
       <aside
@@ -63,6 +71,7 @@ export const AdminLayout: React.FC = () => {
             <button
               onClick={() => setIsSidebarOpen(false)}
               className="lg:hidden p-1 text-gray-300 hover:text-white"
+              aria-label="Close sidebar"
             >
               <X className="w-5 h-5" />
             </button>
@@ -136,6 +145,7 @@ export const AdminLayout: React.FC = () => {
               onClick={logout}
               className="p-2 text-gray-400 hover:text-red-400 transition-colors"
               title="Sign Out"
+              aria-label="Sign Out"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -151,6 +161,7 @@ export const AdminLayout: React.FC = () => {
             <button
               onClick={() => setIsSidebarOpen(true)}
               className="lg:hidden p-2 rounded-xl text-ssk-text hover:bg-ssk-blue-light"
+              aria-label="Open sidebar"
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -170,6 +181,7 @@ export const AdminLayout: React.FC = () => {
               onClick={() => navigate('/admin/orders')}
               className="relative p-2 text-ssk-text hover:bg-ssk-blue-light rounded-xl transition-colors"
               title="Notifications"
+              aria-label="Notifications"
             >
               <Bell className="w-5 h-5 text-ssk-navy" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-ssk-gold" />

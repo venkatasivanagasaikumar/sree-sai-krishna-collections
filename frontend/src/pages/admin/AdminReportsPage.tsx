@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { BarChart3, ShieldCheck, Download, History } from 'lucide-react';
 import { api } from '../../services/api';
+import { PageTransition } from '../../components/animations/PageTransition';
 
 export const AdminReportsPage: React.FC = () => {
   const [logs, setLogs] = useState<any[]>([]);
@@ -27,7 +29,7 @@ export const AdminReportsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <PageTransition className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-serif font-bold text-ssk-navy">Audit Logs & Security Trail</h1>
@@ -36,13 +38,14 @@ export const AdminReportsPage: React.FC = () => {
           </p>
         </div>
 
-        <button
+        <motion.button
+          whileTap={{ scale: 0.95 }}
           onClick={handleDownloadLogs}
-          className="px-4 py-2 border border-ssk-border hover:bg-ssk-blue-light text-ssk-navy text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm"
+          className="px-4 py-2 border border-ssk-border hover:bg-ssk-blue-light text-ssk-navy text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors"
         >
           <Download className="w-4 h-4" />
           <span>Export Audit Log</span>
-        </button>
+        </motion.button>
       </div>
 
       <div className="bg-white rounded-3xl border border-ssk-border shadow-sm overflow-hidden">
@@ -60,7 +63,7 @@ export const AdminReportsPage: React.FC = () => {
           <tbody className="divide-y divide-ssk-border font-medium">
             {logs.length > 0 ? (
               logs.map((log, i) => (
-                <tr key={i} className="hover:bg-ssk-blue-light/30">
+                <tr key={i} className="hover:bg-ssk-blue-light/30 transition-colors">
                   <td className="py-3 px-6 text-[11px] text-ssk-text-secondary">
                     {new Date(log.created_at).toLocaleString()}
                   </td>
@@ -87,6 +90,6 @@ export const AdminReportsPage: React.FC = () => {
           </tbody>
         </table>
       </div>
-    </div>
+    </PageTransition>
   );
 };

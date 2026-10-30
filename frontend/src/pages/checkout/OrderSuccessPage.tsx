@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { CheckCircle2, Package, ArrowRight, Printer, Clock, Truck, ShieldCheck } from 'lucide-react';
 import { api } from '../../services/api';
 import { Order } from '../../types';
+import { PageTransition } from '../../components/animations/PageTransition';
+import { FadeIn } from '../../components/animations/FadeIn';
 
 export const OrderSuccessPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -19,11 +22,16 @@ export const OrderSuccessPage: React.FC = () => {
   }, [orderId]);
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-16 text-center space-y-8">
-      {/* Success Badge */}
-      <div className="w-20 h-20 bg-green-50 text-ssk-success rounded-full flex items-center justify-center mx-auto border-4 border-green-100 shadow-md">
+    <PageTransition className="max-w-3xl mx-auto px-4 py-16 text-center space-y-8">
+      {/* Success Badge with Spring Entrance */}
+      <motion.div
+        initial={{ scale: 0.3, opacity: 0 }}
+        animate={{ scale: [0.3, 1.15, 1], opacity: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="w-20 h-20 bg-green-50 text-ssk-success rounded-full flex items-center justify-center mx-auto border-4 border-green-100 shadow-md"
+      >
         <CheckCircle2 className="w-10 h-10" />
-      </div>
+      </motion.div>
 
       <div className="space-y-2">
         <span className="text-xs font-bold text-ssk-gold uppercase tracking-widest px-3 py-1 bg-ssk-gold/10 rounded-full">
@@ -38,7 +46,7 @@ export const OrderSuccessPage: React.FC = () => {
       </div>
 
       {order && (
-        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-ssk-border text-left shadow-sm space-y-6">
+        <FadeIn direction="up" delay={0.2} className="bg-white p-6 sm:p-8 rounded-3xl border border-ssk-border text-left shadow-sm space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-ssk-border">
             <div>
               <span className="text-xs text-ssk-text-secondary">Order ID</span>
@@ -95,25 +103,29 @@ export const OrderSuccessPage: React.FC = () => {
               ))}
             </div>
           </div>
-        </div>
+        </FadeIn>
       )}
 
       {/* Action Buttons */}
       <div className="flex flex-wrap items-center justify-center gap-4">
-        <Link
-          to={`/account/orders/${orderId}`}
-          className="px-6 py-3 bg-ssk-navy hover:bg-ssk-navy-dark text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-2 transition-all"
-        >
-          <Package className="w-4 h-4" />
-          <span>Track Order Timeline</span>
-        </Link>
-        <Link
-          to="/shop"
-          className="px-6 py-3 border border-ssk-border text-ssk-text hover:bg-ssk-blue-light text-xs font-semibold rounded-xl transition-all"
-        >
-          Continue Shopping
-        </Link>
+        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+          <Link
+            to={`/account/orders/${orderId}`}
+            className="px-6 py-3 bg-ssk-navy hover:bg-ssk-navy-dark text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-2 transition-colors"
+          >
+            <Package className="w-4 h-4" />
+            <span>Track Order Timeline</span>
+          </Link>
+        </motion.div>
+        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+          <Link
+            to="/shop"
+            className="px-6 py-3 border border-ssk-border text-ssk-text hover:bg-ssk-blue-light text-xs font-semibold rounded-xl transition-colors inline-block"
+          >
+            Continue Shopping
+          </Link>
+        </motion.div>
       </div>
-    </div>
+    </PageTransition>
   );
 };

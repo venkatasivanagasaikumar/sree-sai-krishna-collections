@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Users, Search, ShoppingBag, Mail, Phone, Calendar } from 'lucide-react';
 import { api } from '../../services/api';
 import { CustomerSummary } from '../../types';
+import { PageTransition } from '../../components/animations/PageTransition';
 
 export const AdminCustomersPage: React.FC = () => {
   const [customers, setCustomers] = useState<CustomerSummary[]>([]);
@@ -25,7 +27,7 @@ export const AdminCustomersPage: React.FC = () => {
   }, [searchTerm]);
 
   return (
-    <div className="space-y-6">
+    <PageTransition className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-serif font-bold text-ssk-navy">Customer Directory</h1>
@@ -62,7 +64,7 @@ export const AdminCustomersPage: React.FC = () => {
           </thead>
           <tbody className="divide-y divide-ssk-border font-medium">
             {customers.map((c) => (
-              <tr key={c.id} className="hover:bg-ssk-blue-light/30">
+              <tr key={c.id} className="hover:bg-ssk-blue-light/30 transition-colors">
                 <td className="py-4 px-6">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-ssk-navy text-white flex items-center justify-center font-bold text-xs">
@@ -86,6 +88,6 @@ export const AdminCustomersPage: React.FC = () => {
           </tbody>
         </table>
       </div>
-    </div>
+    </PageTransition>
   );
 };

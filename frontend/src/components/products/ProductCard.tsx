@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Heart, ShoppingBag, Eye, Star } from 'lucide-react';
 import { Product } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { fadeUp } from '../../animations';
 
 interface ProductCardProps {
   product: Product;
@@ -47,10 +49,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
   const isOutOfStock = product.stock <= 0;
 
   return (
-    <div
+    <motion.div
+      variants={fadeUp}
+      whileHover={{ y: -5, boxShadow: '0 16px 32px rgba(18,63,122,0.12)' }}
+      transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group bg-white rounded-2xl border border-ssk-border hover:border-ssk-gold/50 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden relative"
+      className="group bg-white rounded-2xl border border-ssk-border hover:border-ssk-gold/50 shadow-sm flex flex-col overflow-hidden relative"
     >
       {/* Product Image Container */}
       <div className="relative aspect-square w-full overflow-hidden bg-ssk-surface">
@@ -58,7 +63,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           <img
             src={isHovered ? secondaryImage : primaryImage}
             alt={product.name}
-            className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-108"
             loading="lazy"
           />
         </Link>
@@ -82,28 +87,38 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           )}
         </div>
 
-        {/* Wishlist Button */}
-        <button
+        {/* Wishlist Button with Heart Micro-interaction */}
+        <motion.button
+          whileHover={{ scale: 1.15 }}
+          whileTap={{ scale: 0.85 }}
           onClick={handleWishlist}
-          className={`absolute top-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 z-10 shadow-sm ${
+          className={`absolute top-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200 z-10 shadow-sm ${
             isLiked
               ? 'bg-red-50 text-red-500 hover:bg-red-100'
               : 'bg-white/80 backdrop-blur-sm text-ssk-text hover:bg-white hover:text-red-500'
           }`}
           title={isLiked ? 'Remove from wishlist' : 'Add to wishlist'}
+          aria-label={isLiked ? 'Remove from wishlist' : 'Add to wishlist'}
         >
-          <Heart className={`w-4 h-4 ${isLiked ? 'fill-red-500' : ''}`} />
-        </button>
+          <motion.div
+            animate={{ scale: isLiked ? [1, 1.25, 1] : 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Heart className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+          </motion.div>
+        </motion.button>
 
         {/* Quick View Button on Hover */}
         {onQuickView && (
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleQuickViewClick}
             className="hidden md:flex absolute bottom-3 left-1/2 -translate-x-1/2 items-center gap-1.5 px-3 py-1.5 bg-white/95 backdrop-blur-sm text-ssk-navy text-xs font-semibold rounded-full shadow-md hover:bg-ssk-navy hover:text-white transition-all opacity-0 group-hover:opacity-100 duration-200 z-10"
           >
             <Eye className="w-3.5 h-3.5" />
-            Quick View
-          </button>
+            <span>Quick View</span>
+          </motion.button>
         )}
       </div>
 
@@ -154,21 +169,22 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
             )}
           </div>
 
-          {/* Add to Bag Button */}
-          <button
+          {/* Add to Bag Button with Micro-interaction */}
+          <motion.button
+            whileTap={{ scale: 0.97 }}
             onClick={handleAddToCart}
             disabled={isOutOfStock || isAdding}
-            className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-all duration-200 ${
+            className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2 transition-colors duration-200 ${
               isOutOfStock
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-ssk-navy text-white hover:bg-ssk-navy-dark active:scale-[0.98] shadow-sm hover:shadow'
+                : 'bg-ssk-navy text-white hover:bg-ssk-navy-dark shadow-sm hover:shadow'
             }`}
           >
             <ShoppingBag className="w-3.5 h-3.5" />
             {isAdding ? 'Adding...' : isOutOfStock ? 'Out of Stock' : 'Add to Bag'}
-          </button>
+          </motion.button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

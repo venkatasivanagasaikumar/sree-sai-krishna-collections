@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileSpreadsheet, RefreshCw, Send, CheckCircle2, AlertCircle,
   Copy, ExternalLink, Download, ArrowUpRight, ShieldCheck, Database,
-  Lock, KeyRound, UserCheck
+  Lock, KeyRound, UserCheck, Loader2
 } from 'lucide-react';
 import { api } from '../../services/api';
+import { PageTransition } from '../../components/animations/PageTransition';
+import { fadeDown } from '../../animations';
 
 export const AdminSheetsSyncPage: React.FC = () => {
   const [config, setConfig] = useState({
@@ -130,7 +133,7 @@ export const AdminSheetsSyncPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <PageTransition className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -147,14 +150,17 @@ export const AdminSheetsSyncPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.95 }}
             onClick={handleDownloadJsonBackup}
             className="px-4 py-2.5 border border-ssk-border hover:bg-ssk-blue-light text-ssk-navy text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all shadow-sm"
           >
             <Download className="w-4 h-4" />
             <span>Download All Data (JSON)</span>
-          </button>
-          <button
+          </motion.button>
+          <motion.button
+            whileHover={pushing || !config.webhook_url ? {} : { scale: 1.02 }}
+            whileTap={pushing || !config.webhook_url ? {} : { scale: 0.98 }}
             onClick={handlePushAllData}
             disabled={pushing || !config.webhook_url}
             className={`px-5 py-2.5 text-xs font-bold rounded-xl flex items-center gap-2 shadow-md transition-all ${
@@ -165,7 +171,7 @@ export const AdminSheetsSyncPage: React.FC = () => {
           >
             <RefreshCw className={`w-4 h-4 ${pushing ? 'animate-spin' : ''}`} />
             <span>{pushing ? 'Syncing...' : 'Push All Data to Sheet Now'}</span>
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -190,22 +196,28 @@ export const AdminSheetsSyncPage: React.FC = () => {
         </div>
       </div>
 
-      {statusMessage && (
-        <div
-          className={`p-4 rounded-2xl border text-xs flex items-center gap-3 ${
-            statusMessage.type === 'success'
-              ? 'bg-green-50 border-green-200 text-green-800'
-              : 'bg-red-50 border-red-200 text-red-800'
-          }`}
-        >
-          {statusMessage.type === 'success' ? (
-            <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-green-600" />
-          ) : (
-            <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600" />
-          )}
-          <span className="font-medium">{statusMessage.text}</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {statusMessage && (
+          <motion.div
+            variants={fadeDown}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className={`p-4 rounded-2xl border text-xs flex items-center gap-3 ${
+              statusMessage.type === 'success'
+                ? 'bg-green-50 border-green-200 text-green-800'
+                : 'bg-red-50 border-red-200 text-red-800'
+            }`}
+          >
+            {statusMessage.type === 'success' ? (
+              <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-green-600" />
+            ) : (
+              <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600" />
+            )}
+            <span className="font-medium">{statusMessage.text}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main Grid: Settings & Apps Script Instructions */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -326,23 +338,32 @@ export const AdminSheetsSyncPage: React.FC = () => {
               )}
 
               <div className="flex items-center justify-between pt-4 border-t border-ssk-border">
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
                   type="button"
                   onClick={handleTestConnection}
                   disabled={testing || !config.webhook_url}
                   className="px-4 py-2 border border-ssk-border hover:bg-ssk-blue-light text-ssk-navy text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all"
                 >
-                  <Send className={`w-3.5 h-3.5 ${testing ? 'animate-pulse' : ''}`} />
+                  {testing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                   <span>{testing ? 'Testing...' : 'Test Connection'}</span>
-                </button>
+                </motion.button>
 
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2 bg-ssk-navy hover:bg-ssk-navy-dark text-white text-xs font-bold rounded-xl transition-all shadow-sm"
+                  className="px-5 py-2 bg-ssk-navy hover:bg-ssk-navy-dark text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-1.5"
                 >
-                  {saving ? 'Saving...' : 'Save Configuration'}
-                </button>
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <span>Save Configuration</span>
+                  )}
+                </motion.button>
               </div>
             </form>
           </div>
@@ -384,13 +405,14 @@ export const AdminSheetsSyncPage: React.FC = () => {
                 <h3 className="text-sm font-bold text-ssk-navy">Owner-Secured Google Apps Script</h3>
                 <p className="text-[11px] text-ssk-text-secondary">Pre-configured with your private security token</p>
               </div>
-              <button
+              <motion.button
+                whileTap={{ scale: 0.95 }}
                 onClick={copyAppScript}
                 className="px-3.5 py-1.5 bg-ssk-navy text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm hover:bg-ssk-navy-dark transition-all"
               >
                 {copiedScript ? <CheckCircle2 className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copiedScript ? 'Copied to Clipboard!' : 'Copy Code'}</span>
-              </button>
+              </motion.button>
             </div>
 
             {/* Quick 3-step Instructions */}
@@ -417,6 +439,6 @@ export const AdminSheetsSyncPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Star, ShoppingBag, Heart, ShieldCheck, Truck, RefreshCw,
   ChevronRight, Share2, Check, MapPin, AlertCircle
@@ -9,6 +10,11 @@ import { Product, Review } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { ProductCard } from '../../components/products/ProductCard';
+import { PageTransition } from '../../components/animations/PageTransition';
+import { ScrollReveal } from '../../components/animations/ScrollReveal';
+import { StaggerContainer } from '../../components/animations/StaggerContainer';
+import { FadeIn } from '../../components/animations/FadeIn';
+import { modalOverlay, modalContent, fadeUp } from '../../animations';
 
 export const ProductDetailPage: React.FC = () => {
   const { idOrSku } = useParams<{ idOrSku: string }>();
@@ -56,14 +62,14 @@ export const ProductDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-16 animate-pulse space-y-6">
-        <div className="h-6 bg-gray-200 rounded w-1/4" />
+      <div className="max-w-7xl mx-auto px-4 py-16 space-y-6">
+        <div className="h-6 bg-gray-200 rounded w-1/4 animate-pulse" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div className="aspect-square bg-gray-200 rounded-3xl" />
+          <div className="aspect-square bg-gray-200 rounded-3xl animate-pulse" />
           <div className="space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-3/4" />
-            <div className="h-6 bg-gray-200 rounded w-1/3" />
-            <div className="h-32 bg-gray-200 rounded" />
+            <div className="h-8 bg-gray-200 rounded w-3/4 animate-pulse" />
+            <div className="h-6 bg-gray-200 rounded w-1/3 animate-pulse" />
+            <div className="h-32 bg-gray-200 rounded animate-pulse" />
           </div>
         </div>
       </div>
@@ -135,14 +141,14 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <PageTransition className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-xs text-ssk-text-secondary mb-8">
-        <Link to="/" className="hover:text-ssk-navy">Home</Link>
+        <Link to="/" className="hover:text-ssk-navy transition-colors">Home</Link>
         <ChevronRight className="w-3.5 h-3.5" />
-        <Link to="/shop" className="hover:text-ssk-navy">Shop</Link>
+        <Link to="/shop" className="hover:text-ssk-navy transition-colors">Shop</Link>
         <ChevronRight className="w-3.5 h-3.5" />
-        <Link to={`/shop?category=${encodeURIComponent(product.category)}`} className="hover:text-ssk-navy">{product.category}</Link>
+        <Link to={`/shop?category=${encodeURIComponent(product.category)}`} className="hover:text-ssk-navy transition-colors">{product.category}</Link>
         <ChevronRight className="w-3.5 h-3.5" />
         <span className="font-semibold text-ssk-navy truncate max-w-xs">{product.name}</span>
       </nav>
@@ -153,39 +159,51 @@ export const ProductDetailPage: React.FC = () => {
         {/* Left: Gallery & Zoom */}
         <div className="lg:col-span-6 space-y-4">
           <div className="relative aspect-square w-full rounded-3xl overflow-hidden bg-ssk-surface border border-ssk-border group shadow-sm">
-            <img
-              src={currentImg}
-              alt={product.name}
-              className="w-full h-full object-cover transition-transform duration-700 hover:scale-125 cursor-zoom-in"
-            />
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={currentImg}
+                initial={{ opacity: 0, scale: 1.02 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                src={currentImg}
+                alt={product.name}
+                className="w-full h-full object-cover transition-transform duration-700 hover:scale-125 cursor-zoom-in"
+              />
+            </AnimatePresence>
             {product.discount_percent && product.discount_percent > 0 && (
-              <span className="absolute top-4 left-4 bg-ssk-gold text-white font-bold text-xs tracking-wider px-3 py-1 rounded-full shadow-md">
+              <span className="absolute top-4 left-4 bg-ssk-gold text-white font-bold text-xs tracking-wider px-3 py-1 rounded-full shadow-md z-10">
                 {product.discount_percent}% OFF
               </span>
             )}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.85 }}
               onClick={() => toggleWishlist(product)}
-              className={`absolute top-4 right-4 p-3 rounded-full shadow-md backdrop-blur-md transition-all ${
+              className={`absolute top-4 right-4 p-3 rounded-full shadow-md backdrop-blur-md transition-colors z-10 ${
                 isLiked ? 'bg-red-50 text-red-500' : 'bg-white/80 hover:bg-white text-ssk-text'
               }`}
+              aria-label="Toggle wishlist"
             >
-              <Heart className={`w-5 h-5 ${isLiked ? 'fill-red-500' : ''}`} />
-            </button>
+              <Heart className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+            </motion.button>
           </div>
 
           {/* Thumbnails */}
           {product.images.length > 1 && (
             <div className="flex items-center gap-3 overflow-x-auto pb-2">
               {product.images.map((img, idx) => (
-                <button
+                <motion.button
                   key={idx}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedImage(img)}
                   className={`w-20 h-20 rounded-2xl overflow-hidden border-2 flex-shrink-0 transition-all ${
                     currentImg === img ? 'border-ssk-gold ring-2 ring-ssk-gold/30' : 'border-ssk-border opacity-70 hover:opacity-100'
                   }`}
                 >
                   <img src={img} alt={`view ${idx + 1}`} className="w-full h-full object-cover" />
-                </button>
+                </motion.button>
               ))}
             </div>
           )}
@@ -201,9 +219,14 @@ export const ProductDetailPage: React.FC = () => {
               </span>
               <div className="flex items-center gap-3">
                 <span className="text-xs text-ssk-text-secondary font-mono">SKU: {product.sku}</span>
-                <button onClick={handleShare} className="text-ssk-text-secondary hover:text-ssk-navy" title="Share Product">
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleShare}
+                  className="text-ssk-text-secondary hover:text-ssk-navy transition-colors"
+                  title="Share Product"
+                >
                   {copiedLink ? <Check className="w-4 h-4 text-ssk-success" /> : <Share2 className="w-4 h-4" />}
-                </button>
+                </motion.button>
               </div>
             </div>
 
@@ -257,17 +280,19 @@ export const ProductDetailPage: React.FC = () => {
                 </label>
                 <div className="flex flex-wrap gap-2.5">
                   {product.variants.map((v) => (
-                    <button
+                    <motion.button
                       key={v.variant_id}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
                       onClick={() => setSelectedVariant(v.variant_id)}
-                      className={`px-4 py-2 rounded-xl text-xs font-medium border transition-all ${
+                      className={`px-4 py-2 rounded-xl text-xs font-medium border transition-colors ${
                         selectedVariant === v.variant_id
                           ? 'border-ssk-navy bg-ssk-navy text-white shadow-sm'
                           : 'border-ssk-border bg-white text-ssk-text hover:border-ssk-navy'
                       }`}
                     >
                       {v.name} &bull; ₹{v.price}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </div>
@@ -278,21 +303,23 @@ export const ProductDetailPage: React.FC = () => {
               <div className="space-y-1">
                 <label className="text-xs font-bold text-ssk-text uppercase tracking-wider block">Quantity:</label>
                 <div className="flex items-center border border-ssk-border rounded-xl bg-white overflow-hidden shadow-sm">
-                  <button
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="px-3.5 py-2 hover:bg-gray-100 text-sm font-bold text-ssk-navy"
                   >
                     -
-                  </button>
+                  </motion.button>
                   <span className="px-4 py-2 text-xs font-bold text-ssk-text min-w-[36px] text-center">
                     {quantity}
                   </span>
-                  <button
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => setQuantity(quantity + 1)}
                     className="px-3.5 py-2 hover:bg-gray-100 text-sm font-bold text-ssk-navy"
                   >
                     +
-                  </button>
+                  </motion.button>
                 </div>
               </div>
 
@@ -313,25 +340,27 @@ export const ProductDetailPage: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-              <button
+              <motion.button
+                whileTap={{ scale: 0.97 }}
                 onClick={() => handleAddToCart(false)}
                 disabled={isAdding || product.stock <= 0}
                 className="py-3.5 px-6 bg-ssk-navy hover:bg-ssk-navy-dark text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all"
               >
                 <ShoppingBag className="w-4 h-4" />
                 {isAdding ? 'Adding to Bag...' : 'Add to Bag'}
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.97 }}
                 onClick={() => handleAddToCart(true)}
                 disabled={isAdding || product.stock <= 0}
                 className="py-3.5 px-6 bg-gradient-to-r from-ssk-gold to-ssk-gold-dark hover:from-ssk-gold-light hover:to-ssk-gold text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg transition-all"
               >
                 Buy Now
-              </button>
+              </motion.button>
             </div>
 
             {/* Pincode Delivery Estimate */}
-            <div className="p-4 bg-white rounded-2xl border border-ssk-border mb-6 space-y-2">
+            <div className="p-4 bg-white rounded-2xl border border-ssk-border mb-6 space-y-2 shadow-sm">
               <label className="text-xs font-bold text-ssk-text flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-ssk-gold" />
                 <span>Estimate Delivery Time:</span>
@@ -345,12 +374,13 @@ export const ProductDetailPage: React.FC = () => {
                   onChange={(e) => setPincode(e.target.value)}
                   className="flex-1 px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold"
                 />
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
                   type="submit"
-                  className="px-4 py-2 bg-ssk-navy text-white text-xs font-semibold rounded-xl hover:bg-ssk-navy-dark"
+                  className="px-4 py-2 bg-ssk-navy text-white text-xs font-semibold rounded-xl hover:bg-ssk-navy-dark transition-colors"
                 >
                   Check
-                </button>
+                </motion.button>
               </form>
               {pincodeStatus && (
                 <p className="text-xs font-medium text-ssk-navy mt-1">{pincodeStatus}</p>
@@ -363,11 +393,11 @@ export const ProductDetailPage: React.FC = () => {
               <p className="text-xs text-ssk-text-secondary leading-relaxed">{product.description}</p>
 
               <div className="grid grid-cols-2 gap-3 text-xs pt-2">
-                <div className="p-3 bg-ssk-surface rounded-xl">
+                <div className="p-3 bg-ssk-surface rounded-xl border border-ssk-border">
                   <span className="text-ssk-text-secondary block text-[10px] uppercase font-bold">Materials & Finish</span>
                   <span className="font-semibold text-ssk-text">{product.materials_and_finish}</span>
                 </div>
-                <div className="p-3 bg-ssk-surface rounded-xl">
+                <div className="p-3 bg-ssk-surface rounded-xl border border-ssk-border">
                   <span className="text-ssk-text-secondary block text-[10px] uppercase font-bold">Care Instructions</span>
                   <span className="font-semibold text-ssk-text">{product.care_instructions}</span>
                 </div>
@@ -379,23 +409,32 @@ export const ProductDetailPage: React.FC = () => {
 
       {/* Reviews & Ratings Section */}
       <section className="pt-12 border-t border-ssk-border mb-16">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <h2 className="text-2xl font-serif font-bold text-ssk-navy">Customer Reviews</h2>
-            <p className="text-xs text-ssk-text-secondary mt-1">Verified purchases from authentic customers</p>
+        <ScrollReveal>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+              <h2 className="text-2xl font-serif font-bold text-ssk-navy">Customer Reviews</h2>
+              <p className="text-xs text-ssk-text-secondary mt-1">Verified purchases from authentic customers</p>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setShowReviewModal(true)}
+              className="px-5 py-2.5 border border-ssk-navy text-ssk-navy hover:bg-ssk-navy hover:text-white text-xs font-bold rounded-xl transition-all shadow-sm"
+            >
+              Write a Review
+            </motion.button>
           </div>
-          <button
-            onClick={() => setShowReviewModal(true)}
-            className="px-5 py-2.5 border border-ssk-navy text-ssk-navy hover:bg-ssk-navy hover:text-white text-xs font-bold rounded-xl transition-all shadow-sm"
-          >
-            Write a Review
-          </button>
-        </div>
+        </ScrollReveal>
 
         {product.reviews && product.reviews.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {product.reviews.map((rev, i) => (
-              <div key={i} className="bg-white p-6 rounded-2xl border border-ssk-border shadow-sm space-y-3">
+              <motion.div
+                key={i}
+                variants={fadeUp}
+                whileHover={{ y: -3 }}
+                className="bg-white p-6 rounded-2xl border border-ssk-border shadow-sm space-y-3 transition-shadow hover:shadow-md"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex text-amber-400">
                     {[...Array(rev.rating)].map((_, idx) => (
@@ -416,9 +455,9 @@ export const ProductDetailPage: React.FC = () => {
                     </span>
                   )}
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </StaggerContainer>
         ) : (
           <div className="text-center py-10 bg-ssk-surface rounded-2xl border border-ssk-border p-6">
             <p className="text-xs text-ssk-text-secondary">Be the first to review this product!</p>
@@ -429,97 +468,119 @@ export const ProductDetailPage: React.FC = () => {
       {/* Related Products */}
       {product.related_products && product.related_products.length > 0 && (
         <section className="pt-12 border-t border-ssk-border">
-          <h2 className="text-2xl font-serif font-bold text-ssk-navy mb-8">You May Also Like</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <ScrollReveal>
+            <h2 className="text-2xl font-serif font-bold text-ssk-navy mb-8">You May Also Like</h2>
+          </ScrollReveal>
+          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {product.related_products.map((rel) => (
               <ProductCard key={rel.id} product={rel} />
             ))}
-          </div>
+          </StaggerContainer>
         </section>
       )}
 
-      {/* Write Review Modal */}
-      {showReviewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-ssk-border relative">
-            <h3 className="text-lg font-serif font-bold text-ssk-navy mb-4">Write a Product Review</h3>
-            <form onSubmit={handleReviewSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-ssk-text mb-1">Your Name</label>
-                <input
-                  type="text"
-                  required
-                  value={reviewerName}
-                  onChange={(e) => setReviewerName(e.target.value)}
-                  placeholder="e.g. Priya S."
-                  className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-ssk-text mb-1">Rating</label>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((val) => (
-                    <button
-                      type="button"
-                      key={val}
-                      onClick={() => setReviewRating(val)}
-                      className="p-1 hover:scale-110 transition-transform"
-                    >
-                      <Star
-                        className={`w-6 h-6 ${
-                          val <= reviewRating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'
-                        }`}
-                      />
-                    </button>
-                  ))}
+      {/* Write Review Modal with AnimatePresence */}
+      <AnimatePresence>
+        {showReviewModal && (
+          <motion.div
+            variants={modalOverlay}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={() => setShowReviewModal(false)}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          >
+            <motion.div
+              variants={modalContent}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-ssk-border relative"
+            >
+              <h3 className="text-lg font-serif font-bold text-ssk-navy mb-4">Write a Product Review</h3>
+              <form onSubmit={handleReviewSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-ssk-text mb-1">Your Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={reviewerName}
+                    onChange={(e) => setReviewerName(e.target.value)}
+                    placeholder="e.g. Priya S."
+                    className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold"
+                  />
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-ssk-text mb-1">Review Headline</label>
-                <input
-                  type="text"
-                  required
-                  value={reviewTitle}
-                  onChange={(e) => setReviewTitle(e.target.value)}
-                  placeholder="e.g. Magnificent royal look and finish"
-                  className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl text-xs"
-                />
-              </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ssk-text mb-1">Rating</label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((val) => (
+                      <motion.button
+                        whileHover={{ scale: 1.2 }}
+                        whileTap={{ scale: 0.9 }}
+                        type="button"
+                        key={val}
+                        onClick={() => setReviewRating(val)}
+                        className="p-1"
+                      >
+                        <Star
+                          className={`w-6 h-6 ${
+                            val <= reviewRating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'
+                          }`}
+                        />
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-ssk-text mb-1">Detailed Review</label>
-                <textarea
-                  required
-                  rows={4}
-                  value={reviewComment}
-                  onChange={(e) => setReviewComment(e.target.value)}
-                  placeholder="Tell us about the craftsmanship, fit, and compliments received..."
-                  className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl text-xs"
-                />
-              </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ssk-text mb-1">Review Headline</label>
+                  <input
+                    type="text"
+                    required
+                    value={reviewTitle}
+                    onChange={(e) => setReviewTitle(e.target.value)}
+                    placeholder="e.g. Magnificent royal look and finish"
+                    className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold"
+                  />
+                </div>
 
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowReviewModal(false)}
-                  className="flex-1 py-2.5 border border-ssk-border rounded-xl text-xs font-semibold text-ssk-text hover:bg-gray-100"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submittingReview}
-                  className="flex-1 py-2.5 bg-ssk-navy text-white text-xs font-semibold rounded-xl hover:bg-ssk-navy-dark shadow-sm"
-                >
-                  {submittingReview ? 'Submitting...' : 'Submit Review'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ssk-text mb-1">Detailed Review</label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                    placeholder="Tell us about the craftsmanship, fit, and compliments received..."
+                    className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    type="button"
+                    onClick={() => setShowReviewModal(false)}
+                    className="flex-1 py-2.5 border border-ssk-border rounded-xl text-xs font-semibold text-ssk-text hover:bg-gray-100 transition-colors"
+                  >
+                    Cancel
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    type="submit"
+                    disabled={submittingReview}
+                    className="flex-1 py-2.5 bg-ssk-navy text-white text-xs font-semibold rounded-xl hover:bg-ssk-navy-dark shadow-sm transition-colors"
+                  >
+                    {submittingReview ? 'Submitting...' : 'Submit Review'}
+                  </motion.button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </PageTransition>
   );
 };

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { RotateCcw, Search, CheckCircle2, XCircle, DollarSign, AlertCircle, Clock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { RotateCcw, Search, CheckCircle2, XCircle, DollarSign, AlertCircle, Clock, Loader2 } from 'lucide-react';
 import { api } from '../../services/api';
+import { PageTransition } from '../../components/animations/PageTransition';
+import { modalOverlay, modalContent } from '../../animations';
 
 export const AdminReturnsPage: React.FC = () => {
   const [returns, setReturns] = useState<any[]>([]);
@@ -49,7 +52,7 @@ export const AdminReturnsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <PageTransition className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-serif font-bold text-ssk-navy">Returns & Customer Refunds</h1>
@@ -74,7 +77,7 @@ export const AdminReturnsPage: React.FC = () => {
           <tbody className="divide-y divide-ssk-border font-medium">
             {returns.length > 0 ? (
               returns.map((ret, i) => (
-                <tr key={i} className="hover:bg-ssk-blue-light/30">
+                <tr key={i} className="hover:bg-ssk-blue-light/30 transition-colors">
                   <td className="py-4 px-6">
                     <span className="font-mono font-bold text-ssk-navy block">{ret.order_id}</span>
                     <span className="text-[10px] text-ssk-text-secondary">{new Date(ret.created_at).toLocaleDateString()}</span>
@@ -91,16 +94,17 @@ export const AdminReturnsPage: React.FC = () => {
                     </span>
                   </td>
                   <td className="py-4 px-6 text-right space-x-2">
-                    <button
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => {
                         setSelectedReturn(ret);
                         setActionType('APPROVED');
                         setAdminNotes('Inspection verified, reverse pickup scheduled');
                       }}
-                      className="px-3 py-1 bg-ssk-navy text-white text-[11px] font-bold rounded-lg shadow-sm"
+                      className="px-3 py-1 bg-ssk-navy text-white text-[11px] font-bold rounded-lg shadow-sm hover:bg-ssk-navy-dark transition-colors"
                     >
                       Process
-                    </button>
+                    </motion.button>
                   </td>
                 </tr>
               ))
@@ -115,79 +119,101 @@ export const AdminReturnsPage: React.FC = () => {
         </table>
       </div>
 
-      {/* Return Action Modal */}
-      {selectedReturn && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm text-xs">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-ssk-border space-y-4">
-            <h3 className="text-base font-serif font-bold text-ssk-navy">
-              Process Return for Order #{selectedReturn.order_id}
-            </h3>
+      {/* Return Action Modal with AnimatePresence */}
+      <AnimatePresence>
+        {selectedReturn && (
+          <motion.div
+            variants={modalOverlay}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm text-xs"
+          >
+            <motion.div
+              variants={modalContent}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-ssk-border space-y-4"
+            >
+              <h3 className="text-base font-serif font-bold text-ssk-navy">
+                Process Return for Order #{selectedReturn.order_id}
+              </h3>
 
-            <div className="p-3 bg-ssk-surface rounded-xl border border-ssk-border">
-              <p><strong>Customer:</strong> {selectedReturn.customer_name}</p>
-              <p><strong>Reason:</strong> {selectedReturn.reason}</p>
-              {selectedReturn.comments && <p><strong>Comments:</strong> {selectedReturn.comments}</p>}
-            </div>
-
-            <form onSubmit={handleUpdate} className="space-y-4">
-              <div>
-                <label className="block font-bold text-ssk-text mb-1">Select Action *</label>
-                <select
-                  value={actionType}
-                  onChange={(e: any) => setActionType(e.target.value)}
-                  className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl font-bold"
-                >
-                  <option value="APPROVED">APPROVE RETURN (Trigger Courier Pickup)</option>
-                  <option value="REJECTED">REJECT RETURN (Eligibility Not Met)</option>
-                  <option value="REFUNDED">ISSUE GATEWAY REFUND (Item Received & Verified)</option>
-                </select>
+              <div className="p-3 bg-ssk-surface rounded-xl border border-ssk-border">
+                <p><strong>Customer:</strong> {selectedReturn.customer_name}</p>
+                <p><strong>Reason:</strong> {selectedReturn.reason}</p>
+                {selectedReturn.comments && <p><strong>Comments:</strong> {selectedReturn.comments}</p>}
               </div>
 
-              {actionType === 'REFUNDED' && (
+              <form onSubmit={handleUpdate} className="space-y-4">
                 <div>
-                  <label className="block font-bold text-ssk-text mb-1">Refund Amount (₹) *</label>
-                  <input
-                    type="number"
-                    required
-                    min={1}
-                    value={refundAmount}
-                    onChange={(e) => setRefundAmount(Number(e.target.value))}
+                  <label className="block font-bold text-ssk-text mb-1">Select Action *</label>
+                  <select
+                    value={actionType}
+                    onChange={(e: any) => setActionType(e.target.value)}
                     className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl font-bold"
+                  >
+                    <option value="APPROVED">APPROVE RETURN (Trigger Courier Pickup)</option>
+                    <option value="REJECTED">REJECT RETURN (Eligibility Not Met)</option>
+                    <option value="REFUNDED">ISSUE GATEWAY REFUND (Item Received & Verified)</option>
+                  </select>
+                </div>
+
+                {actionType === 'REFUNDED' && (
+                  <div>
+                    <label className="block font-bold text-ssk-text mb-1">Refund Amount (₹) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={1}
+                      value={refundAmount}
+                      onChange={(e) => setRefundAmount(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl font-bold"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block font-bold text-ssk-text mb-1">Notes / Reason *</label>
+                  <textarea
+                    rows={3}
+                    required
+                    value={adminNotes}
+                    onChange={(e) => setAdminNotes(e.target.value)}
+                    className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl"
                   />
                 </div>
-              )}
 
-              <div>
-                <label className="block font-bold text-ssk-text mb-1">Notes / Reason *</label>
-                <textarea
-                  rows={3}
-                  required
-                  value={adminNotes}
-                  onChange={(e) => setAdminNotes(e.target.value)}
-                  className="w-full px-3 py-2 bg-ssk-surface border border-ssk-border rounded-xl"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2 border-t">
-                <button
-                  type="button"
-                  onClick={() => setSelectedReturn(null)}
-                  className="px-4 py-2 border rounded-xl"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isUpdating}
-                  className="px-5 py-2 bg-ssk-navy text-white rounded-xl font-bold"
-                >
-                  {isUpdating ? 'Saving...' : 'Confirm Action'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+                <div className="flex justify-end gap-2 pt-2 border-t">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedReturn(null)}
+                    className="px-4 py-2 border rounded-xl hover:bg-gray-100 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    type="submit"
+                    disabled={isUpdating}
+                    className="px-5 py-2 bg-ssk-navy text-white rounded-xl font-bold shadow-sm hover:bg-ssk-navy-dark transition-colors flex items-center gap-1.5"
+                  >
+                    {isUpdating ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <span>Confirm Action</span>
+                    )}
+                  </motion.button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </PageTransition>
   );
 };

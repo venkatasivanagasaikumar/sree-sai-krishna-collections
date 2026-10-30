@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Truck, CreditCard, Banknote, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ShieldCheck, Truck, CreditCard, Banknote, ArrowRight, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { api } from '../../services/api';
 import { Address } from '../../types';
+import { PageTransition } from '../../components/animations/PageTransition';
+import { modalOverlay, modalContent, fadeDown } from '../../animations';
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
@@ -132,17 +135,25 @@ export const CheckoutPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <PageTransition className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-2xl sm:text-3xl font-serif font-bold text-ssk-navy mb-8">
         Secure Checkout
       </h1>
 
-      {errorMessage && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-2xl flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
-          <span>{errorMessage}</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {errorMessage && (
+          <motion.div
+            variants={fadeDown}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-2xl flex items-center gap-3"
+          >
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <span>{errorMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
@@ -165,7 +176,7 @@ export const CheckoutPage: React.FC = () => {
                   value={guestEmail}
                   onChange={(e) => setGuestEmail(e.target.value)}
                   placeholder="For order tracking & invoice"
-                  className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold"
+                  className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold transition-colors"
                 />
               </div>
               <div>
@@ -176,7 +187,7 @@ export const CheckoutPage: React.FC = () => {
                   value={address.phone}
                   onChange={(e) => setAddress({ ...address, phone: e.target.value })}
                   placeholder="+91 98480 22338"
-                  className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold"
+                  className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold transition-colors"
                 />
               </div>
             </div>
@@ -198,7 +209,7 @@ export const CheckoutPage: React.FC = () => {
                   value={address.name}
                   onChange={(e) => setAddress({ ...address, name: e.target.value })}
                   placeholder="e.g. Priya Sharma"
-                  className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold"
+                  className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold transition-colors"
                 />
               </div>
 
@@ -210,7 +221,7 @@ export const CheckoutPage: React.FC = () => {
                   value={address.address_line1}
                   onChange={(e) => setAddress({ ...address, address_line1: e.target.value })}
                   placeholder="Flat 402, Sai Balaji Residency"
-                  className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold"
+                  className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold transition-colors"
                 />
               </div>
 
@@ -222,7 +233,7 @@ export const CheckoutPage: React.FC = () => {
                     value={address.address_line2 || ''}
                     onChange={(e) => setAddress({ ...address, address_line2: e.target.value })}
                     placeholder="Road No. 3, Banjara Hills"
-                    className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold"
+                    className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold transition-colors"
                   />
                 </div>
                 <div>
@@ -232,7 +243,7 @@ export const CheckoutPage: React.FC = () => {
                     value={address.landmark || ''}
                     onChange={(e) => setAddress({ ...address, landmark: e.target.value })}
                     placeholder="Near Clock Tower / Temple"
-                    className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold"
+                    className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold transition-colors"
                   />
                 </div>
               </div>
@@ -247,7 +258,7 @@ export const CheckoutPage: React.FC = () => {
                     value={address.pincode}
                     onChange={(e) => setAddress({ ...address, pincode: e.target.value })}
                     placeholder="500034"
-                    className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs font-mono focus:outline-none focus:border-ssk-gold"
+                    className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs font-mono focus:outline-none focus:border-ssk-gold transition-colors"
                   />
                 </div>
                 <div>
@@ -258,7 +269,7 @@ export const CheckoutPage: React.FC = () => {
                     value={address.city}
                     onChange={(e) => setAddress({ ...address, city: e.target.value })}
                     placeholder="Hyderabad"
-                    className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold"
+                    className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold transition-colors"
                   />
                 </div>
                 <div>
@@ -269,7 +280,7 @@ export const CheckoutPage: React.FC = () => {
                     value={address.state}
                     onChange={(e) => setAddress({ ...address, state: e.target.value })}
                     placeholder="Telangana"
-                    className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold"
+                    className="w-full px-3.5 py-2.5 bg-ssk-surface border border-ssk-border rounded-xl text-xs focus:outline-none focus:border-ssk-gold transition-colors"
                   />
                 </div>
               </div>
@@ -387,14 +398,25 @@ export const CheckoutPage: React.FC = () => {
               </div>
             </div>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isSubmitting}
               className="w-full py-4 bg-gradient-to-r from-ssk-gold to-ssk-gold-dark hover:from-ssk-gold-light hover:to-ssk-gold text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
             >
-              <span>{isSubmitting ? 'Validating Order...' : paymentMethod === 'COD' ? 'Confirm COD Order' : 'Proceed to Razorpay'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Validating Order...</span>
+                </>
+              ) : (
+                <>
+                  <span>{paymentMethod === 'COD' ? 'Confirm COD Order' : 'Proceed to Razorpay'}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </motion.button>
 
             <div className="text-[10px] text-center text-ssk-text-secondary">
               By placing your order, you agree to SSK Collections' Terms of Service and Privacy Policy.
@@ -403,55 +425,78 @@ export const CheckoutPage: React.FC = () => {
         </div>
       </form>
 
-      {/* Razorpay Payment Simulator Modal */}
-      {showRazorpayModal && razorpayOrderData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-ssk-border relative space-y-4">
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 bg-ssk-navy text-white rounded-2xl flex items-center justify-center mx-auto shadow-md">
-                <CreditCard className="w-6 h-6" />
+      {/* Razorpay Payment Simulator Modal with AnimatePresence */}
+      <AnimatePresence>
+        {showRazorpayModal && razorpayOrderData && (
+          <motion.div
+            variants={modalOverlay}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          >
+            <motion.div
+              variants={modalContent}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-ssk-border relative space-y-4"
+            >
+              <div className="text-center space-y-2">
+                <div className="w-12 h-12 bg-ssk-navy text-white rounded-2xl flex items-center justify-center mx-auto shadow-md">
+                  <CreditCard className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-serif font-bold text-ssk-navy">Razorpay Payment Gateway</h3>
+                <p className="text-xs text-ssk-text-secondary">Order Reference: {razorpayOrderData.order_id}</p>
               </div>
-              <h3 className="text-lg font-serif font-bold text-ssk-navy">Razorpay Payment Gateway</h3>
-              <p className="text-xs text-ssk-text-secondary">Order Reference: {razorpayOrderData.order_id}</p>
-            </div>
 
-            <div className="p-4 bg-ssk-surface rounded-2xl border border-ssk-border text-center space-y-1">
-              <span className="text-xs text-ssk-text-secondary block">Amount to Pay</span>
-              <span className="text-3xl font-serif font-bold text-ssk-navy">
-                ₹{(razorpayOrderData.amount_in_paise / 100).toLocaleString('en-IN')}
-              </span>
-              <span className="text-[11px] text-ssk-success font-semibold block">256-bit Bank Grade Encryption</span>
-            </div>
-
-            <div className="space-y-2 text-xs">
-              <div className="p-3 bg-white border border-ssk-border rounded-xl flex items-center justify-between">
-                <span className="font-semibold text-ssk-text">UPI (GPay, PhonePe, Paytm)</span>
-                <CheckCircle2 className="w-4 h-4 text-ssk-success" />
+              <div className="p-4 bg-ssk-surface rounded-2xl border border-ssk-border text-center space-y-1">
+                <span className="text-xs text-ssk-text-secondary block">Amount to Pay</span>
+                <span className="text-3xl font-serif font-bold text-ssk-navy">
+                  ₹{(razorpayOrderData.amount_in_paise / 100).toLocaleString('en-IN')}
+                </span>
+                <span className="text-[11px] text-ssk-success font-semibold block">256-bit Bank Grade Encryption</span>
               </div>
-              <div className="p-3 bg-white border border-ssk-border rounded-xl flex items-center justify-between opacity-70">
-                <span className="font-semibold text-ssk-text">Debit / Credit Card (Visa, RuPay)</span>
-                <span className="text-[10px] text-ssk-text-secondary">Supported</span>
-              </div>
-            </div>
 
-            <div className="pt-2 space-y-2">
-              <button
-                onClick={handleCompleteRazorpayPayment}
-                disabled={isProcessingPayment}
-                className="w-full py-3.5 bg-ssk-navy hover:bg-ssk-navy-dark text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
-              >
-                {isProcessingPayment ? 'Verifying Gateway Signature...' : 'Simulate Successful Payment'}
-              </button>
-              <button
-                onClick={() => setShowRazorpayModal(false)}
-                className="w-full py-2.5 text-xs text-ssk-text-secondary hover:text-black font-semibold"
-              >
-                Cancel Transaction
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+              <div className="space-y-2 text-xs">
+                <div className="p-3 bg-white border border-ssk-border rounded-xl flex items-center justify-between">
+                  <span className="font-semibold text-ssk-text">UPI (GPay, PhonePe, Paytm)</span>
+                  <CheckCircle2 className="w-4 h-4 text-ssk-success" />
+                </div>
+                <div className="p-3 bg-white border border-ssk-border rounded-xl flex items-center justify-between opacity-70">
+                  <span className="font-semibold text-ssk-text">Debit / Credit Card (Visa, RuPay)</span>
+                  <span className="text-[10px] text-ssk-text-secondary">Supported</span>
+                </div>
+              </div>
+
+              <div className="pt-2 space-y-2">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleCompleteRazorpayPayment}
+                  disabled={isProcessingPayment}
+                  className="w-full py-3.5 bg-ssk-navy hover:bg-ssk-navy-dark text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
+                >
+                  {isProcessingPayment ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Verifying Gateway Signature...</span>
+                    </>
+                  ) : (
+                    <span>Simulate Successful Payment</span>
+                  )}
+                </motion.button>
+                <button
+                  onClick={() => setShowRazorpayModal(false)}
+                  className="w-full py-2.5 text-xs text-ssk-text-secondary hover:text-black font-semibold transition-colors"
+                >
+                  Cancel Transaction
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </PageTransition>
   );
 };
