@@ -3,14 +3,38 @@ from app.database import get_db, db_manager
 from app.core.security import get_password_hash
 from app.core.permissions import Role
 from app.core.logging import logger
+from app.core.config import settings
 
 def run_seed():
     db = get_db()
-    logger.info("Initializing database seeds...")
+    logger.info(f"Initializing database seeds (Environment: {settings.ENVIRONMENT})...")
 
     # 1. Seed Users (Super Admin, Staff, Customer)
-    users_to_seed = [
-        {
+    users_to_seed = []
+
+    # Super Admin Configuration
+    admin_email = settings.INITIAL_ADMIN_EMAIL or "admin@sskcollections.com"
+    admin_password = settings.INITIAL_ADMIN_PASSWORD
+
+    if settings.ENVIRONMENT == "production":
+        # In production: Never seed default demo passwords
+        if admin_password and admin_password not in ["Admin@SSK2026!", "Staff@SSK2026!", "AdminPassword123!"]:
+            users_to_seed.append({
+                "email": admin_email.lower(),
+                "full_name": "Sree Sai Krishna Administrator",
+                "phone": settings.SUPPORT_PHONE,
+                "role": Role.SUPER_ADMIN,
+                "hashed_password": get_password_hash(admin_password),
+                "addresses": [],
+                "is_active": True,
+                "created_at": datetime.now(timezone.utc)
+            })
+            logger.info(f"[SECURITY] Production administrator seeded: {admin_email}")
+        else:
+            logger.warning("[SECURITY] Skipping administrator seed in production: INITIAL_ADMIN_PASSWORD unconfigured or demo default.")
+    else:
+        # Non-production (Staging / Development): Seed standard development accounts
+        users_to_seed.append({
             "email": "admin@sskcollections.com",
             "full_name": "Sree Sai Krishna Admin",
             "phone": "+91 98480 22338",
@@ -33,52 +57,53 @@ def run_seed():
             ],
             "is_active": True,
             "created_at": datetime.now(timezone.utc)
-        },
-        {
-            "email": "orders@sskcollections.com",
-            "full_name": "Ravi Teja (Order Manager)",
-            "phone": "+91 98480 22339",
-            "role": Role.ORDER_MANAGER,
-            "hashed_password": get_password_hash("Staff@SSK2026!"),
-            "addresses": [],
-            "is_active": True,
-            "created_at": datetime.now(timezone.utc)
-        },
-        {
-            "email": "inventory@sskcollections.com",
-            "full_name": "Sunita Rao (Inventory Manager)",
-            "phone": "+91 98480 22340",
-            "role": Role.INVENTORY_MANAGER,
-            "hashed_password": get_password_hash("Staff@SSK2026!"),
-            "addresses": [],
-            "is_active": True,
-            "created_at": datetime.now(timezone.utc)
-        },
-        {
-            "email": "priya.sharma@example.com",
-            "full_name": "Priya Sharma",
-            "phone": "+91 98765 43210",
-            "role": Role.CUSTOMER,
-            "hashed_password": get_password_hash("Customer@123"),
-            "addresses": [
-                {
-                    "id": "addr-priya-home",
-                    "name": "Priya Sharma",
-                    "phone": "+91 98765 43210",
-                    "address_line1": "Flat 402, Sai Balaji Residency",
-                    "address_line2": "Road No. 3, Banjara Hills",
-                    "landmark": "Opposite KBR Park",
-                    "city": "Hyderabad",
-                    "state": "Telangana",
-                    "pincode": "500034",
-                    "is_default": True,
-                    "type": "Home"
-                }
-            ],
-            "is_active": True,
-            "created_at": datetime.now(timezone.utc) - timedelta(days=20)
-        }
-    ]
+        })
+        users_to_seed.extend([
+            {
+                "email": "orders@sskcollections.com",
+                "full_name": "Ravi Teja (Order Manager)",
+                "phone": "+91 98480 22339",
+                "role": Role.ORDER_MANAGER,
+                "hashed_password": get_password_hash("Staff@SSK2026!"),
+                "addresses": [],
+                "is_active": True,
+                "created_at": datetime.now(timezone.utc)
+            },
+            {
+                "email": "inventory@sskcollections.com",
+                "full_name": "Sunita Rao (Inventory Manager)",
+                "phone": "+91 98480 22340",
+                "role": Role.INVENTORY_MANAGER,
+                "hashed_password": get_password_hash("Staff@SSK2026!"),
+                "addresses": [],
+                "is_active": True,
+                "created_at": datetime.now(timezone.utc)
+            },
+            {
+                "email": "priya.sharma@example.com",
+                "full_name": "Priya Sharma",
+                "phone": "+91 98765 43210",
+                "role": Role.CUSTOMER,
+                "hashed_password": get_password_hash("Customer@123"),
+                "addresses": [
+                    {
+                        "id": "addr-priya-home",
+                        "name": "Priya Sharma",
+                        "phone": "+91 98765 43210",
+                        "address_line1": "Flat 402, Sai Balaji Residency",
+                        "address_line2": "Road No. 3, Banjara Hills",
+                        "landmark": "Opposite KBR Park",
+                        "city": "Hyderabad",
+                        "state": "Telangana",
+                        "pincode": "500034",
+                        "is_default": True,
+                        "type": "Home"
+                    }
+                ],
+                "is_active": True,
+                "created_at": datetime.now(timezone.utc) - timedelta(days=20)
+            }
+        ])
 
     for u in users_to_seed:
         db.users.update_one(

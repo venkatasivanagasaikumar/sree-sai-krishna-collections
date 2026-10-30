@@ -99,6 +99,10 @@ class Settings(BaseModel):
     WHATSAPP_WEBHOOK_VERIFY_TOKEN: str = os.getenv("WHATSAPP_WEBHOOK_VERIFY_TOKEN", "ssk_wa_verify_token_2026")
     WHATSAPP_APP_SECRET: str = os.getenv("WHATSAPP_APP_SECRET", "")
 
+    # Initial Admin Initialization & Security
+    INITIAL_ADMIN_EMAIL: str = os.getenv("INITIAL_ADMIN_EMAIL", "admin@sskcollections.com")
+    INITIAL_ADMIN_PASSWORD: str = os.getenv("INITIAL_ADMIN_PASSWORD", "")
+
     def validate_production_readiness(self) -> List[str]:
         """
         Validates critical configuration against production security benchmarks.
@@ -121,6 +125,8 @@ class Settings(BaseModel):
                 blockers.append("WHATSAPP_ENABLED is True but WHATSAPP_ACCESS_TOKEN is missing.")
             if self.SMTP_HOST and not self.SMTP_USER:
                 blockers.append("SMTP_HOST configured but SMTP_USER is missing.")
+            if not self.INITIAL_ADMIN_PASSWORD or self.INITIAL_ADMIN_PASSWORD in ["Admin@SSK2026!", "Staff@SSK2026!", "AdminPassword123!"]:
+                blockers.append("INITIAL_ADMIN_PASSWORD must be configured with a secure non-default password in production.")
         return blockers
     
 settings = Settings()

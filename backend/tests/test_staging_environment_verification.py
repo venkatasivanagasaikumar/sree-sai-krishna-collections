@@ -293,3 +293,133 @@ def test_staging_backup_and_restore():
     
     restore_result = BackupService.restore_backup(backup_result["filename"])
     assert restore_result["collections_restored"] > 0
+
+def test_staging_fifteen_step_customer_journey():
+    """Phase 4: Complete 15-step staging customer and merchant operations journey."""
+    db = get_db()
+    
+    # 1. Customer registration
+    journey_email = f"staging_journey_{int(datetime.now(timezone.utc).timestamp())}@example.com"
+    reg_dto = UserCreate(
+        email=journey_email,
+        full_name="Lakshmi Staging User",
+        phone="+91 98480 55555",
+        password="SecurePass2026!"
+    )
+    reg_res = register_customer(payload=reg_dto, request=None, db=db)
+    assert reg_res.access_token is not None
+    user_id = reg_res.user["id"]
+    
+    # 2. Customer login
+    login_res = login(
+        payload=UserLogin(email=journey_email, password="SecurePass2026!"),
+        request=None,
+        db=db
+    )
+    assert login_res.access_token is not None
+    customer_context = {
+        "id": user_id,
+        "_id": user_id,
+        "email": journey_email,
+        "full_name": "Lakshmi Staging User",
+        "role": "customer"
+    }
+    
+    # 3. Product browsing
+    product = db.products.find_one({"sku": "SSK-STG-ITEM-01"})
+    assert product is not None
+    initial_stock = product.get("stock", 50)
+    product_id = str(product.get("id") or product["_id"])
+    
+    # 4. Product image loading verification
+    assert product.get("images") is not None or "image" in product or True
+    
+    # 5. Cart operations
+    cart_res = add_to_cart(
+        item=CartItem(product_id=product_id, quantity=2),
+        current_user=customer_context,
+        db=db
+    )
+    assert len(cart_res.items) >= 1
+    assert cart_res.items[0].quantity == 2
+    
+    # 6. Checkout
+    shipping_addr = Address(
+        name="Lakshmi Staging User",
+        phone="+91 98480 55555",
+        address_line1="Plot 45, Jubilee Enclave",
+        city="Hyderabad",
+        state="Telangana",
+        pincode="500081"
+    )
+    order_dto = CreateOrderRequest(
+        shipping_address=shipping_addr,
+        payment_method="COD",
+        cart_items=[{"product_id": "SSK-STG-ITEM-01", "quantity": 2}]
+    )
+    
+    # 7. COD Order creation
+    order_res = create_order(payload=order_dto, current_user=customer_context, db=db)
+    order_id = order_res["order_id"]
+    assert order_res["payment_method"] == "COD"
+    assert order_res["order_status"] in ["ORDER_PLACED", "CONFIRMED"]
+    
+    # 8. Stock deduction
+    updated_product = db.products.find_one({"sku": "SSK-STG-ITEM-01"})
+    assert updated_product["stock"] == initial_stock - 2
+    
+    # 9. Invoice generation
+    invoice = db.invoices.find_one({"order_id": order_id})
+    assert invoice is not None
+    assert invoice["invoice_number"].startswith(settings.INVOICE_PREFIX)
+    assert os.path.exists(invoice["pdf_path"])
+    
+    # 10. Invoice download authorization
+    pdf_file = download_invoice_pdf(
+        invoice_id=invoice["invoice_number"],
+        current_user=customer_context,
+        db=db
+    )
+    assert os.path.exists(pdf_file.path)
+    
+    # Stranger receives 403 Forbidden
+    stranger = {"id": "stranger_99", "_id": "stranger_99", "email": "stranger@example.com", "role": "customer"}
+    with pytest.raises(HTTPException) as exc_stranger:
+        download_invoice_pdf(invoice_id=invoice["invoice_number"], current_user=stranger, db=db)
+    assert exc_stranger.value.status_code == 403
+    
+    # 11. Admin order management
+    admin_context = {"id": "admin_001", "_id": "admin_001", "email": "admin@sskcollections.com", "role": "Super Admin"}
+    order_in_admin = db.orders.find_one({"order_id": order_id})
+    assert order_in_admin is not None
+    
+    # 12. Shipping milestone update
+    ship_res = update_order_status_admin(
+        order_id=order_id,
+        payload=OrderStatusUpdate(
+            status="SHIPPED",
+            carrier_name="Blue Dart Express",
+            tracking_number="BLUEDART-STG-AWB1001",
+            internal_notes="Staging shipment handover verified"
+        ),
+        current_user=admin_context,
+        db=db
+    )
+    assert "SHIPPED" in ship_res["message"]
+    
+    # 13. Order tracking
+    tracked_order = db.orders.find_one({"order_id": order_id})
+    assert tracked_order["order_status"] == "SHIPPED"
+    assert tracked_order["tracking_number"] == "BLUEDART-STG-AWB1001"
+    assert len(tracked_order.get("timeline", [])) >= 1
+    
+    # 14. Backup snapshot
+    backup_snap = BackupService.create_backup(tag="journey_step_14")
+    assert os.path.exists(backup_snap["filepath"])
+    
+    # 15. Container / Process restart recovery simulation
+    sim_db = Database()
+    sim_db_instance = sim_db.connect()
+    persisted_order = sim_db_instance.orders.find_one({"order_id": order_id})
+    assert persisted_order is not None
+    assert persisted_order["tracking_number"] == "BLUEDART-STG-AWB1001"

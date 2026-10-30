@@ -6,6 +6,7 @@ from bson import ObjectId
 from app.database import get_db, db_manager
 from app.core.security import get_password_hash, verify_password, create_access_token, create_refresh_token, decode_token
 from app.core.permissions import Role, is_admin_role
+from app.core.config import settings
 from app.core.logging import AuditLogger
 from app.services.email_service import EmailService
 from app.schemas.auth import (
@@ -106,6 +107,23 @@ def login(payload: UserLogin, request: Request, db = Depends(get_db)):
 
     user_id = str(user["_id"])
     role = user.get("role", Role.CUSTOMER)
+
+    # Phase 3 Security: Block default demo credentials in production environment
+    if settings.ENVIRONMENT == "production":
+        is_staff = is_admin_role(role) or user.get("email") in ["admin@sskcollections.com", "orders@sskcollections.com", "inventory@sskcollections.com"]
+        if is_staff and payload.password in ["Admin@SSK2026!", "Staff@SSK2026!", "AdminPassword123!", "Customer@123"]:
+            AuditLogger.log_event(
+                db,
+                action="LOGIN_BLOCKED_DEMO_CREDENTIALS",
+                resource_type="USER",
+                user_email=payload.email,
+                ip_address=request.client.host if (request and getattr(request, "client", None)) else None,
+                status="FAILURE"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Default demo administrator credentials cannot be used in production. Please initialize a secure administrator password."
+            )
 
     # Record login
     db.users.update_one(
