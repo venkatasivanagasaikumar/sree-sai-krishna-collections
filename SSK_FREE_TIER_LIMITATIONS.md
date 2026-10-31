@@ -53,8 +53,8 @@ This document provides a comprehensive, vendor-by-vendor assessment of all evalu
   - A standard 31-day month has 744 hours. If running a single web service that sleeps when idle, 750 hours is sufficient.
 - **Inactivity Spin-Down (Sleep Behavior):**
   - **15-Minute Rule:** If no incoming HTTP traffic is received for 15 consecutive minutes, the service is spun down into an idle sleep state.
-  - **Cold Start Delay:** The first request hitting a sleeping service incurs a **30 to 60-second delay** while the Uvicorn container boots up.
-  - *Mitigation for SSK:* A free keep-warm ping (via Cron-job.org or Better Uptime) calls `/health` every 10 minutes between 09:00 IST and 23:00 IST (14 hours daily). This consumes **434 instance hours/month** (well below the 750 cap), ensuring instant response times during Indian shopping hours while letting the instance rest overnight.
+  - **Cold Start Delay:** The first request hitting a sleeping service incurs a **30 to 50-second delay** while the Uvicorn container boots up.
+  - *Compliance & Handling for SSK:* Render's Fair Use Guidelines prohibit artificial keep-alive bots. SSK complies by removing all ping crons. The frontend is hosted on Cloudflare Pages (instant 0 ms load with edge caching). Storefront skeleton loaders and loading notices prevent user confusion during occasional cold starts.
 - **Filesystem & Ephemeral Storage:**
   - **Ephemeral Disk:** All local files written to disk (e.g., local uploads or invoices) are **wiped clean** on restart, redeploy, or spin-down.
   - *Mitigation for SSK:* Product images are served via Cloudinary. Invoices are generated dynamically from MongoDB data via ReportLab on demand, ensuring zero dependence on persistent local storage.
@@ -138,7 +138,7 @@ This document provides a comprehensive, vendor-by-vendor assessment of all evalu
 | :--- | :--- | :---: | :--- | :--- | :---: | :--- | :---: |
 | **Vercel** *(Frontend)* | 100 GB Bandwidth | **NO (Violates ToS)** | 0 ms (Edge) | None (Static) | N/A | Immediate | ₹1,680 / user / mo |
 | **Cloudflare Pages** *(Frontend)* | Unlimited Bandwidth | **YES** | **0 ms (Edge CDN)** | None (Static) | Git History | > 500 builds/mo | ₹1,680 / mo (Optional) |
-| **Render.com** *(Backend)* | 512 MB RAM, 750 hrs/mo | **YES** | **30–50s sleep delay** *(Mitigated by ping)* | **HIGH (Filesystem wiped on restart)** | None | > 25 orders/mo | ₹588 / month |
+| **Render.com** *(Backend)* | 512 MB RAM, 750 hrs/mo | **YES** | **30–50s sleep delay** *(Accepted per ToS)* | **HIGH (Filesystem wiped on restart)** | None | > 25 orders/mo | ₹588 / month |
 | **MongoDB Atlas M0** *(Database)* | 512 MB, 500 connections | **YES** | < 5 ms in region | None (Data persists) | **None natively** *(Mitigated by GitHub Actions)* | > 350 MB data | ₹15–₹50 / mo (Flex) |
 | **Cloudinary** *(Images)* | 25 Credits (~25 GB) | **YES** | 0 ms (CDN) | Low (Soft cap suspension) | Managed | > 20 Credits used | Move to R2 (₹10/mo) |
 | **Brevo** *(Email)* | 300 emails / day | **YES** | Immediate SMTP | None | Logs retained | > 200 emails/day | Switch to SES (₹8/1k) |

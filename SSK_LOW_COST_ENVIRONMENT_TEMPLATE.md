@@ -30,7 +30,8 @@ Configure these variables in **Cloudflare Pages** &rarr; **Settings** &rarr; **E
 # ==============================================================================
 
 # Public API Gateway URL (Points to your custom backend domain or Render service)
-VITE_API_BASE_URL=https://api.sreesaikrishnacollections.com/api/v1
+# CRITICAL: frontend/src/services/api.ts specifically inspects VITE_API_URL
+VITE_API_URL=https://api.sreesaikrishnacollections.com/api/v1
 
 # Storefront Branding & Metadata
 VITE_STORE_NAME="Sree Sai Krishna Collections"
@@ -79,8 +80,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES=1440
 # ------------------------------------------------------------------------------
 # 2. CORS DOMAIN ALLOWLIST
 # ------------------------------------------------------------------------------
-# Comma-separated list of allowed origins (No trailing slashes; NO wildcard *)
-CORS_ORIGINS=["https://sreesaikrishnacollections.com","https://www.sreesaikrishnacollections.com"]
+# JSON list or comma-separated list of allowed origins (backend/app/core/config.py reads BACKEND_CORS_ORIGINS)
+BACKEND_CORS_ORIGINS=["https://sreesaikrishnacollections.com","https://www.sreesaikrishnacollections.com"]
 
 # ------------------------------------------------------------------------------
 # 3. PRODUCTION DATABASE (MongoDB Atlas M0 Cluster)
@@ -117,9 +118,9 @@ SMTP_HOST=smtp-relay.brevo.com
 SMTP_PORT=587
 SMTP_USER=REPLACE_WITH_YOUR_BREVO_LOGIN_EMAIL@example.com
 SMTP_PASSWORD=REPLACE_WITH_BREVO_SMTP_KEY_xsmtpsib-...
-SMTP_FROM=orders@sreesaikrishnacollections.com
+SMTP_FROM_EMAIL=orders@sreesaikrishnacollections.com
 SMTP_FROM_NAME="Sree Sai Krishna Collections"
-SMTP_USE_TLS=true
+SMTP_TLS=true
 
 # ------------------------------------------------------------------------------
 # 6. WHATSAPP NOTIFICATIONS (Manual Boutique Concierge Mode)

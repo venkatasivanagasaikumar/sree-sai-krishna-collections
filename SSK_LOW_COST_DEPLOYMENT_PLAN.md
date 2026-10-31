@@ -47,10 +47,8 @@ flowchart TD
     end
 
     subgraph Backend_Cloud["2. Asynchronous API (Render.com Free Tier)"]
-        KeepWarm["Free Uptime Monitor\n(Cron-job.org / Better Uptime)\n- Pings /health every 10 min\n- Keeps API warm 09:00 - 23:00 IST"]
-        Render_API["Render.com Free Web Service\n- Python 3.11 + Uvicorn ASGI\n- FastAPI Application\n- 512 MB RAM / Shared CPU\n- 750 Free Instance Hours/Month"]
+        Render_API["Render.com Free Web Service\n- Python 3.11 + Uvicorn ASGI\n- FastAPI Application\n- 512 MB RAM / Shared CPU\n- 750 Free Instance Hours/Month\n- Sleeps after 15m idle (Fair Use Compliant)"]
         CF_Pages -->|API Calls: api.sreesaikrishnacollections.com| Render_API
-        KeepWarm -.->|GET /health| Render_API
     end
 
     subgraph Database_Storage["3. Managed Cloud Database & Media"]
@@ -88,7 +86,7 @@ All costs are calculated based on current official provider pricing at an exchan
 | **SSL / TLS Encryption** | Cloudflare Universal Edge SSL | Automated Let's Encrypt / Cloudflare Edge TLS 1.3 | **₹0.00** |
 | **Transactional Email** | Brevo (Sendinblue) Free Tier | 300 emails/day (~9,000 emails/month) via SMTP | **₹0.00** |
 | **Customer Messaging** | WhatsApp Business App (Manual) | Smartphone app, click-to-chat links | **₹0.00** |
-| **Uptime & Keep-Warm** | Cron-job.org / Better Uptime Free | 1 monitor, 5–10 min intervals, email alerts | **₹0.00** |
+| **Container Sleep Policy** | Render Fair Use Compliance | 15-min idle sleep accepted; zero keep-alive bots; 0ms edge UI | **₹0.00** |
 | **Database Backups** | GitHub Actions Cron + Private Repo | Weekly scheduled mongodump snapshot (AES-256 encrypted) | **₹0.00** |
 | **Custom Domain Name** | Cloudflare Registrar / Namecheap | `sreesaikrishnacollections.com` (.com renewal ~₹840/year) | **₹70.00** *(amortized)* |
 | **TOTAL FIXED INFRASTRUCTURE COST** | | | **₹70.00 / month** |
@@ -125,14 +123,14 @@ At 1–2 orders per month (assuming Average Order Value = **₹1,500 INR**):
 - Rather than uploading binaries to the local backend `/uploads/` folder, the merchant uploads jewellery product images to **Cloudinary Media Library** (or uses Cloudinary image URLs).
 - The existing SSK product schema in `db.products` stores images as an array of URLs (`images: ["https://res.cloudinary.com/.../necklace.jpg"]`). The storefront renders these directly via Cloudinary's global CDN, with automatic responsive sizing and WebP format delivery.
 
-### 3. Render Inactivity Spin-Down & Keep-Warm Strategy
+### 3. Render Inactivity Spin-Down & Cold-Start Acceptance
 - **Behavior:** Render Free Web Services automatically spin down (sleep) after **15 minutes of inactivity**. The next visitor experiences a **30–50 second cold-start delay** while Uvicorn boots up.
-- **Mitigation (Free Keep-Warm Cron):**
-  - Set up a free HTTP ping on **Cron-job.org** or **Better Uptime Free**.
-  - Configure it to send a lightweight `GET https://api.sreesaikrishnacollections.com/health` every **10 minutes** between **09:00 IST and 23:00 IST** (14 active hours daily).
-  - *Math:* 14 hours/day × 31 days = **434 instance hours/month**.
-  - Render provides **750 free instance hours/month**.
-  - *Result:* The backend remains **100% warm and instantaneous during Indian shopping hours**, sleeps overnight (saving quota), and never exceeds the 750-hour free allowance.
+- **Fair Use Policy Compliance:** Previous suggestions of keep-alive ping bots (e.g. Cron-job.org / Better Uptime) have been **strictly removed** to comply with Section 4 of Render's Terms of Service and Fair Use Guidelines.
+- **Micro-Volume Impact & Storefront Handling:** At 1–2 orders per month, an occasional cold start is entirely acceptable:
+  - The React storefront on Cloudflare Pages edge CDN loads immediately (sub-second, 0 ms cold start).
+  - Catalogue skeleton loaders prevent layout shift.
+  - If initial API fetch takes > 2.5 seconds, the UI displays a reassuring status: *"Connecting to jewellery vault... Just a moment."*
+  - Subsequent requests respond in 15–45 milliseconds. Fast and seamless.
 
 ---
 

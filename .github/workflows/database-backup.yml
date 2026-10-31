@@ -1,0 +1,65 @@
+name: Automated MongoDB Atlas Backup
+
+on:
+  schedule:
+    # Run every Sunday at 02:00 UTC (07:30 IST)
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    # Allows manual trigger on demand from GitHub Actions UI
+
+jobs:
+  backup:
+    name: Encrypted Database Snapshot
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install MongoDB Database Tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq mongodb-database-tools gnupg
+
+      - name: Run Database Dump
+        env:
+          MONGODB_URI: ${{ secrets.PROD_MONGODB_URI }}
+        run: |
+          mkdir -p backup_dumps
+          TIMESTAMP=$(date -u +"%Y%m%d_%H%M%SZ")
+          ARCHIVE_PATH="backup_dumps/ssk_backup_${TIMESTAMP}.archive"
+          echo "TIMESTAMP=${TIMESTAMP}" >> $GITHUB_ENV
+          echo "ARCHIVE_PATH=${ARCHIVE_PATH}" >> $GITHUB_ENV
+
+          # Perform mongodump using gzip compression into a single archive file
+          mongodump --uri="${MONGODB_URI}" --archive="${ARCHIVE_PATH}" --gzip
+          
+          # Verify archive was generated and is non-empty
+          if [ ! -s "${ARCHIVE_PATH}" ]; then
+            echo "ERROR: mongodump generated empty or missing archive!" >&2
+            exit 1
+          fi
+          echo "Database dump created successfully: $(du -h "${ARCHIVE_PATH}")"
+
+      - name: Encrypt Backup Archive with AES-256 GPG
+        env:
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+        run: |
+          ENCRYPTED_PATH="${ARCHIVE_PATH}.gpg"
+          echo "ENCRYPTED_PATH=${ENCRYPTED_PATH}" >> $GITHUB_ENV
+
+          gpg --batch --yes --symmetric --cipher-algo AES256 \
+              --passphrase "${BACKUP_ENCRYPTION_KEY}" \
+              --output "${ENCRYPTED_PATH}" "${ARCHIVE_PATH}"
+
+          # Remove unencrypted plain dump
+          rm -f "${ARCHIVE_PATH}"
+          echo "Archive encrypted successfully: $(du -h "${ENCRYPTED_PATH}")"
+
+      - name: Upload Encrypted Backup Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssk-encrypted-db-backup-${{ env.TIMESTAMP }}
+          path: ${{ env.ENCRYPTED_PATH }}
+          retention-days: 90
