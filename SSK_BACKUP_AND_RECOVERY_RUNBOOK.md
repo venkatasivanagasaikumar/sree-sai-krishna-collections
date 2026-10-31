@@ -1,26 +1,33 @@
 # SREE SAI KRISHNA COLLECTIONS (SSK)
 # DATABASE BACKUP, DISASTER RECOVERY & RESTORATION RUNBOOK
 
-**Document Version:** 1.0.0  
+**Document Version:** 2.0.0  
 **Effective Date:** October 31, 2026  
 **Auditor Roles:** Senior Database Administrator, Cloud Architect, and Security Release Manager  
-**Baseline Verified Commit:** [`038345c`](https://github.com/venkatasivanagasaikumar/sree-sai-krishna-collections/commit/038345c)  
+**Baseline Verified Commit:** [`33c2271`](https://github.com/venkatasivanagasaikumar/sree-sai-krishna-collections/commit/33c2271)  
 **Database Architecture:** MongoDB Atlas M0 (AWS Mumbai `ap-south-1`)  
-**Target Monthly Budget:** ₹0.00 (Zero Recurring Cost)
+**Target Monthly Budget:** ₹0.00 (Zero Recurring Cost)  
+**Live Atlas Restore Status:** **PENDING / NOT TESTED (Local Staging Restore: PASS)**
 
 ---
 
 ## 1. EXECUTIVE SUMMARY & BACKUP STRATEGY
 
-MongoDB Atlas M0 Free Tier does not include automated snapshots or Point-In-Time Recovery (PITR). Furthermore, Atlas M0 automatically pauses clusters that experience zero connection activity for 60 consecutive days.
+MongoDB Atlas M0 Free Tier does not include automated snapshots, continuous backup, or Point-In-Time Recovery (PITR). Furthermore, MongoDB Atlas automatically pauses M0 clusters that experience no active connections or operational activity for 60 consecutive days.
 
 To ensure enterprise-grade data protection without incurring paid database fees (such as Atlas M10 at ₹4,800/month), SSK implements an **Automated Encrypted Backup Pipeline** using **GitHub Actions Scheduled Workflows**.
 
-### Key Architecture Features
+### Key Architecture & Security Features
 1. **Zero Recurring Infrastructure Cost:** Executes on GitHub Actions free runner minutes (consumes ~4 minutes/month out of 2,000 free minutes).
 2. **End-to-End Cryptographic Security:** Database archives are encrypted immediately using **AES-256 GPG symmetric cipher** before exiting runner memory.
-3. **Atlas M0 Activity Keeper:** Connecting to MongoDB Atlas every Sunday resets the 60-day inactivity counter, guaranteeing the cluster **never pauses unexpectedly**.
+3. **Automatic Secret Masking & Independent Key Storage:** All database connection strings and encryption keys are stored exclusively in GitHub Actions Encrypted Secrets, completely independent of the application hosting environment (Render/Cloudflare) and Git source code.
 4. **90-Day Retention Policy:** Stored securely as encrypted GitHub Actions artifacts.
+
+> [!WARNING]
+> **ATLAS M0 INACTIVITY PAUSE POLICY CLARIFICATION:**
+> Official MongoDB Atlas documentation states that M0 free clusters are automatically paused if they experience **zero operational activity for 60 consecutive days**.
+> While the weekly GitHub Actions backup workflow connects to the cluster every Sunday, **the merchant must NOT assume that automated backup connections permanently guarantee immunity from inactivity pauses**. MongoDB's automated inactivity detection algorithms may evaluate user-driven application queries or console sessions.
+> **Mandatory Merchant Operational Rule:** The store owner must log into the MongoDB Atlas web dashboard ([cloud.mongodb.com](https://cloud.mongodb.com/)) at least once every **30 to 45 days** to inspect cluster health and verify that the cluster remains active.
 
 ```mermaid
 flowchart TD
@@ -31,17 +38,19 @@ flowchart TD
     subgraph GitHub_Runner["2. Ephemeral Ubuntu Runner (Zero Cost)"]
         Tools["Install mongodb-database-tools & gnupg"]
         Dump["mongodump --uri=$PROD_MONGODB_URI\n--archive --gzip"]
+        VerifyDump["Verify archive is non-empty\n[ ! -s archive ]"]
         Encrypt["gpg --symmetric --cipher-algo AES256\n--passphrase $BACKUP_ENCRYPTION_KEY"]
-        Clean["Wipe unencrypted archive from memory"]
+        Clean["Wipe unencrypted archive from runner memory (rm -f)"]
         
         Cron --> Tools
         Tools --> Dump
-        Dump --> Encrypt
+        Dump --> VerifyDump
+        VerifyDump --> Encrypt
         Encrypt --> Clean
     end
 
     subgraph Atlas_Cloud["3. Cloud Database"]
-        Atlas[("MongoDB Atlas M0\nAWS Mumbai (ap-south-1)\n- Orders, Users, Products, Invoices\n- Resets 60-day Inactivity Timer")]
+        Atlas[("MongoDB Atlas M0\nAWS Mumbai (ap-south-1)\n- Orders, Users, Products, Invoices")]
         Dump <-->|Encrypted TLS 1.3 Connection| Atlas
     end
 
@@ -113,7 +122,7 @@ jobs:
               --passphrase "${BACKUP_ENCRYPTION_KEY}" \
               --output "${ENCRYPTED_PATH}" "${ARCHIVE_PATH}"
 
-          # Remove unencrypted plain dump
+          # Remove unencrypted plain dump immediately
           rm -f "${ARCHIVE_PATH}"
           echo "Archive encrypted successfully: $(du -h "${ENCRYPTED_PATH}")"
 
@@ -125,151 +134,130 @@ jobs:
           retention-days: 90
 ```
 
-### Required Repository Secrets Setup
-Navigate to **GitHub Repository** &rarr; **Settings** &rarr; **Secrets and variables** &rarr; **Actions** &rarr; **New repository secret**:
-1. **`PROD_MONGODB_URI`**: Production MongoDB Atlas M0 connection string (e.g., `mongodb+srv://ssk_app_user:StrongPassword@ssk-cluster.xxxx.mongodb.net/ssk_production_db?retryWrites=true&w=majority`).
-2. **`BACKUP_ENCRYPTION_KEY`**: 64-character cryptographic hexadecimal string used for AES-256 symmetric encryption. Generate via:
-   ```bash
-   python -c "import secrets; print(secrets.token_hex(32))"
-   ```
+### Security & Secret Governance Rules for Backup
+1. **Independent Secret Storage:** The `BACKUP_ENCRYPTION_KEY` and `PROD_MONGODB_URI` secrets are stored exclusively in **GitHub Repository &rarr; Settings &rarr; Secrets and variables &rarr; Actions**. They are not accessible from Render, Cloudflare, or the client application.
+2. **Automatic Secret Masking:** The GitHub Actions runner detects and automatically masks all instances of `${{ secrets.PROD_MONGODB_URI }}` and `${{ secrets.BACKUP_ENCRYPTION_KEY }}` with `***` in execution logs.
+3. **Immediate Memory/Disk Purge:** Step 4 explicitly executes `rm -f "${ARCHIVE_PATH}"` immediately after encryption. At no point does an unencrypted archive persist outside of runner volatile memory.
+4. **Error Handling & Failure Notification:** The workflow checks `[ ! -s "${ARCHIVE_PATH}" ]` and terminates with exit code 1 if the dump is empty or if `mongodump` fails. GitHub automatically dispatches an email alert to the repository administrator upon any workflow failure.
 
 ---
 
 ## 3. MANUAL ON-DEMAND BACKUP PROCEDURES
 
-When preparing for database schema changes, major product catalogue updates, or application releases, perform an immediate on-demand backup using any of the following three methods:
+When preparing for major catalogue changes, schema updates, or administrative maintenance, execute an immediate on-demand backup:
 
 ### Method A: One-Click Trigger via GitHub Actions UI (Recommended)
-1. Navigate to your GitHub repository in a browser.
+1. Go to your GitHub repository in a web browser.
 2. Click the **Actions** tab.
 3. Select **"Automated MongoDB Atlas Backup"** from the left sidebar.
-4. Click **Run workflow** &rarr; Select branch `main` &rarr; Click the green **Run workflow** button.
-5. The job completes in ~45 seconds, generating a downloadable encrypted artifact.
+4. Click **Run workflow** &rarr; Select branch `main` &rarr; Click green **Run workflow** button.
+5. The run finishes in ~45 seconds, generating an encrypted downloadable artifact.
 
-### Method B: Local CLI Execution (Workstation Terminal)
-If offline or executing from an administrator workstation with `mongodb-database-tools` installed:
+### Method B: Workstation Terminal Command
+From an administrator workstation with `mongodb-database-tools` and `gpg` installed:
 ```powershell
-# Set temporary session variables (do not persist in shell history)
 $env:MONGODB_URI = "mongodb+srv://ssk_app_user:PASSWORD@cluster.mongodb.net/ssk_production_db"
 $TIMESTAMP = (Get-Date).ToUniversalTime().ToString("yyyyMMdd_HHmmssZ")
 $ARCHIVE = "ssk_manual_backup_$TIMESTAMP.archive"
 
-# 1. Create compressed MongoDB dump
+# 1. Dump database
 mongodump --uri="$env:MONGODB_URI" --archive="$ARCHIVE" --gzip
 
-# 2. Encrypt using GPG
+# 2. Encrypt
 gpg --batch --yes --symmetric --cipher-algo AES256 --output "$ARCHIVE.gpg" "$ARCHIVE"
 
-# 3. Clean up plain dump file
+# 3. Purge plaintext dump
 Remove-Item "$ARCHIVE"
 Write-Host "Encrypted backup saved as $ARCHIVE.gpg"
 ```
 
-### Method C: SSK Admin Portal Backup Endpoint
-Store administrators with `Super Admin` privileges can trigger a JSON backup snapshot via the API:
+---
+
+## 4. RESTORATION & DISASTER RECOVERY RUNBOOK
+
+### Verification Status of Restoration Procedures
+- **Local Staging Container Restore Test:** **PASS** (Empirically verified on commit `cb8609b` against local staging MongoDB on port 27018 with checksum validation).
+- **Live Atlas Production Restore Test:** **PENDING / NOT TESTED** (Cannot be safely executed against live production database `ssk_production_db`; must be tested against an isolated verification database `ssk_restore_verification_db` once the Atlas cluster is provisioned).
+
+---
+
+### Non-Destructive Restore Verification Procedure (To Isolated Target Database)
+
+To test or verify backup integrity without overwriting live production data:
+
+#### Step 1: Download & Decrypt Backup Artifact
 ```bash
-curl -X POST https://api.sreesaikrishnacollections.com/api/v1/settings/backup \
-     -H "Authorization: Bearer <SUPER_ADMIN_JWT_TOKEN>"
+# Decrypt archive using locally stored BACKUP_ENCRYPTION_KEY
+gpg --decrypt --passphrase "$BACKUP_ENCRYPTION_KEY" \
+    --output ssk_restore.archive \
+    ssk_backup_YYYYMMDD_HHMMSSZ.archive.gpg
+```
+
+#### Step 2: Restore to an ISOLATED Verification Database (Non-Destructive)
+Use the `--nsInclude` and `--nsRename` flags to restore the snapshot into a temporary database `ssk_restore_verification_db` instead of `ssk_production_db`:
+
+```bash
+mongorestore --uri="$PROD_MONGODB_URI" \
+             --archive=ssk_restore.archive \
+             --gzip \
+             --nsInclude="ssk_production_db.*" \
+             --nsRename="ssk_production_db.*=ssk_restore_verification_db.*" \
+             --drop
+```
+
+#### Step 3: Verify Integrity of Restored Collections
+Run an integrity check against `ssk_restore_verification_db`:
+```python
+import pymongo
+
+uri = "YOUR_PROD_MONGODB_URI"
+client = pymongo.MongoClient(uri)
+db = client["ssk_restore_verification_db"]
+
+print("--- NON-DESTRUCTIVE RESTORE AUDIT ---")
+print(f"Users Count: {db.users.count_documents({})}")
+print(f"Products Count: {db.products.count_documents({})}")
+print(f"Orders Count: {db.orders.count_documents({})}")
+print(f"Invoices Count: {db.invoices.count_documents({})}")
+
+# Verify indexes
+assert "email_1" in [idx["name"] for idx in db.users.list_indexes()]
+print("Restored database verification: SUCCESS")
+```
+
+#### Step 4: Drop Temporary Verification Database & Purge Artifacts
+```python
+client.drop_database("ssk_restore_verification_db")
+print("Temporary verification database dropped cleanly.")
+```
+```bash
+rm -f ssk_restore.archive
 ```
 
 ---
 
-## 4. DISASTER RECOVERY & DATABASE RESTORATION RUNBOOK
+### Full Disaster Recovery Procedure (Targeting Production Database)
 
-Follow this step-by-step restoration runbook in the event of database corruption, accidental deletion, or disaster recovery.
-
-### Step 1: Download the Encrypted Backup Artifact
-1. Go to **GitHub Repository &rarr; Actions &rarr; Automated MongoDB Atlas Backup**.
-2. Click on the latest successful workflow run.
-3. Under **Artifacts**, download `ssk-encrypted-db-backup-YYYYMMDD_HHMMSSZ`.
-4. Extract the `.zip` file to locate `ssk_backup_YYYYMMDD_HHMMSSZ.archive.gpg`.
-
-### Step 2: Decrypt the GPG Archive
-In your terminal, decrypt the archive using your secret passphrase:
-
-```bash
-# Linux / macOS
-gpg --decrypt --passphrase "$BACKUP_ENCRYPTION_KEY" \
-    --output ssk_restore.archive \
-    ssk_backup_YYYYMMDD_HHMMSSZ.archive.gpg
-
-# Windows PowerShell
-gpg --decrypt --passphrase $env:BACKUP_ENCRYPTION_KEY `
-    --output ssk_restore.archive `
-    ssk_backup_YYYYMMDD_HHMMSSZ.archive.gpg
-```
-
-Verify that the decrypted `ssk_restore.archive` is created and non-empty.
-
-### Step 3: Execute mongorestore Against MongoDB Atlas
-
-> [!WARNING]
+> [!CAUTION]
 > **DESTRUCTIVE RESTORATION ACTION:**
-> The `--drop` flag drops existing collections before restoring from the archive. Ensure you are targeting the correct database.
+> This procedure drops all live collections in `ssk_production_db` and restores from the backup. Use ONLY in a genuine disaster recovery scenario.
 
 ```bash
-# Execute mongorestore using gzip archive
 mongorestore --uri="$PROD_MONGODB_URI" \
              --archive=ssk_restore.archive \
              --gzip \
              --drop
 ```
 
-### Expected Command Output
-```text
-2026-10-31T12:00:00.000+0530  preparing collections to restore from
-2026-10-31T12:00:00.050+0530  dropping collection ssk_production_db.users before restoring
-2026-10-31T12:00:00.120+0530  restoring ssk_production_db.users from archive
-2026-10-31T12:00:00.180+0530  restoring indexes for ssk_production_db.users
-2026-10-31T12:00:00.220+0530  dropping collection ssk_production_db.products before restoring
-2026-10-31T12:00:00.310+0530  restoring ssk_production_db.products from archive
-2026-10-31T12:00:00.420+0530  dropping collection ssk_production_db.orders before restoring
-2026-10-31T12:00:00.510+0530  restoring ssk_production_db.orders from archive
-2026-10-31T12:00:00.580+0530  restoring indexes for ssk_production_db.orders
-2026-10-31T12:00:00.650+0530  restoring ssk_production_db.invoices from archive
-2026-10-31T12:00:00.720+0530  restoring ssk_production_db.counters from archive
-2026-10-31T12:00:00.800+0530  0 document(s) failed to restore. 5 collection(s) restored successfully.
-```
-
-### Step 4: Post-Restoration Data Integrity Verification
-Run this Python verification script to confirm document counts, critical indexes, and sequence counter integrity:
-
-```python
-import pymongo
-
-uri = "YOUR_PROD_MONGODB_URI"
-client = pymongo.MongoClient(uri)
-db = client.get_default_database()
-
-print("--- POST-RESTORE INTEGRITY AUDIT ---")
-print(f"Database Name: {db.name}")
-print(f"Users Count: {db.users.count_documents({})}")
-print(f"Products Count: {db.products.count_documents({})}")
-print(f"Orders Count: {db.orders.count_documents({})}")
-print(f"Invoices Count: {db.invoices.count_documents({})}")
-
-# Verify critical indexes exist
-user_indexes = [idx["name"] for idx in db.users.list_indexes()]
-order_indexes = [idx["name"] for idx in db.orders.list_indexes()]
-assert "email_1" in user_indexes or any("email" in k for k in user_indexes), "CRITICAL: users email index missing!"
-assert "order_id_1" in order_indexes or any("order_id" in k for k in order_indexes), "CRITICAL: orders order_id index missing!"
-
-print("--- ALL POST-RESTORE CHECKS PASSED SUCCESSFULLY ---")
-```
-
-### Step 5: Clean Up Local Decrypted Artifacts
-```bash
-# Immediately delete decrypted unencrypted archive from disk
-rm -f ssk_restore.archive
-```
-
 ---
 
 ## 5. RECOVERY METRICS & OPERATIONAL SLA (FREE TIER)
 
-| Metric | Target Value | Feasibility & Context at 1–2 Orders/Month |
+| Metric | Target Value | Technical Assessment for SSK (1–2 Orders/Month) |
 | :--- | :---: | :--- |
-| **RPO (Recovery Point Objective)** | **7 Days** *(Weekly Snapshot)* | At 1–2 orders per month, an order is placed once every 15 to 30 days. A weekly snapshot guarantees that at most **0 to 1 order** could ever be impacted in a catastrophic total loss scenario. (Manual backups prior to updates provide RPO = 0). |
-| **RTO (Recovery Time Objective)** | **< 15 Minutes** | Time required to download the ~2 MB encrypted artifact, execute GPG decrypt, and run `mongorestore` over broadband connection. |
-| **Backup Storage Overhead** | **~250 KB per snapshot** | The entire SSK compressed database consumes ~250 KB gzip. 52 weekly backups consume **~13 MB total**, safely within GitHub's free artifact storage tier. |
-| **Cost to Maintain** | **₹0.00 / Month** | 100% free forever using GitHub Actions scheduled workflows and standard open-source tools. |
+| **RPO (Recovery Point Objective)** | **7 Days** *(Weekly Snapshot)* | At 1–2 orders per month, orders occur once every 15–30 days. A weekly snapshot guarantees that at most 0 to 1 order could ever be affected in a total loss event. Manual backups before catalogue updates provide RPO = 0. |
+| **RTO (Recovery Time Objective)** | **< 15 Minutes** | Time to download ~250 KB encrypted artifact, decrypt with GPG, and execute `mongorestore` over standard broadband. |
+| **Local Staging Restore Test** | **VERIFIED (PASS)** | Validated on staging container with 100% collection and index recovery. |
+| **Live Atlas Restore Test** | **PENDING / NOT TESTED** | Awaiting merchant cluster provisioning to execute non-destructive restore check against `ssk_restore_verification_db`. |
+| **Monthly Storage Overhead** | **~250 KB / snapshot** | 52 weekly backups consume ~13 MB total, well within GitHub's free artifact tier. |
+| **Monthly Cost** | **₹0.00 / Month** | 100% free using GitHub Actions and open-source tools. |
