@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from datetime import datetime, timezone
 from bson import ObjectId
 import pymongo
@@ -7,6 +8,12 @@ from pymongo.errors import ServerSelectionTimeoutError, ConnectionFailure
 import mongomock
 from app.core.config import settings
 from app.core.logging import logger
+
+def mask_mongo_uri(uri: str) -> str:
+    """Masks credentials in a MongoDB URI to prevent logging sensitive authentication secrets."""
+    if not uri:
+        return ""
+    return re.sub(r'(mongodb(?:\+srv)?://[^:]+:)([^@]+)(@.+)', r'\1***\3', uri)
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 BACKUP_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "backups")
@@ -46,16 +53,17 @@ class Database:
                     "retryWrites": True,
                     "w": "majority"
                 }
+                active_uri = settings.active_mongo_uri
                 # Enable TLS if explicitly requested or when using Atlas mongodb+srv
-                if settings.DB_TLS or settings.MONGODB_URI.startswith("mongodb+srv://"):
+                if settings.DB_TLS or active_uri.startswith("mongodb+srv://"):
                     client_kwargs["tls"] = True
 
-                real_client = pymongo.MongoClient(settings.MONGODB_URI, **client_kwargs)
+                real_client = pymongo.MongoClient(active_uri, **client_kwargs)
                 real_client.admin.command("ping")
                 self.client = real_client
                 self.db = real_client[settings.DATABASE_NAME]
                 self.is_mock = False
-                logger.info(f"Connected to live MongoDB cluster at {settings.MONGODB_URI}/{settings.DATABASE_NAME} (Pool: {settings.DB_MIN_POOL_SIZE}-{settings.DB_MAX_POOL_SIZE})")
+                logger.info(f"Connected to live MongoDB cluster at {mask_mongo_uri(active_uri)}/{settings.DATABASE_NAME} (Pool: {settings.DB_MIN_POOL_SIZE}-{settings.DB_MAX_POOL_SIZE})")
                 
                 # Check for seamless live migration from dump file if live database is unpopulated
                 try:
@@ -68,10 +76,11 @@ class Database:
                 self._create_indexes()
                 return self.db
             except Exception as e:
+                safe_err = mask_mongo_uri(str(e))
                 if settings.ENVIRONMENT == "production":
-                    logger.critical(f"FATAL: Production database connection failed to '{settings.DATABASE_NAME}': {e}")
-                    raise RuntimeError(f"FATAL: Could not connect to production MongoDB cluster: {e}")
-                logger.warning(f"Live MongoDB connection failed ({e}). Falling back to MongoMock.")
+                    logger.critical(f"FATAL: Production database connection failed to '{settings.DATABASE_NAME}': {safe_err}")
+                    raise RuntimeError(f"FATAL: Could not connect to production MongoDB cluster: {safe_err}")
+                logger.warning(f"Live MongoDB connection failed ({safe_err}). Falling back to MongoMock.")
 
         # Fallback to MongoMock for local offline operation
         self.client = mongomock.MongoClient()

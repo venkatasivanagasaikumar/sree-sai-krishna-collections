@@ -16,8 +16,10 @@ class Settings(BaseModel):
     ALLOW_MOCK_PAYMENTS: bool = os.getenv("ALLOW_MOCK_PAYMENTS", "true").lower() == "true"
 
     # MongoDB Config (Supports Atlas mongodb+srv:// and standard replica sets)
-    MONGODB_URI: str = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-    DATABASE_NAME: str = os.getenv("DATABASE_NAME", "ssk_collections_db")
+    # Reads from MONGO_URI (recommended production key) or MONGODB_URI (backward compatibility)
+    MONGO_URI: str = os.getenv("MONGO_URI") or os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+    MONGODB_URI: str = os.getenv("MONGO_URI") or os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+    DATABASE_NAME: str = os.getenv("DATABASE_NAME", "ssk_production_db")
     FORCE_MOCK_DB: bool = os.getenv("FORCE_MOCK_DB", "true").lower() == "true"
     DB_MAX_POOL_SIZE: int = int(os.getenv("DB_MAX_POOL_SIZE", "50"))
     DB_MIN_POOL_SIZE: int = int(os.getenv("DB_MIN_POOL_SIZE", "10"))
@@ -26,6 +28,17 @@ class Settings(BaseModel):
     DB_CONNECT_TIMEOUT_MS: int = int(os.getenv("DB_CONNECT_TIMEOUT_MS", "10000"))
     DB_SOCKET_TIMEOUT_MS: int = int(os.getenv("DB_SOCKET_TIMEOUT_MS", "20000"))
     DB_TLS: bool = os.getenv("DB_TLS", "false").lower() == "true"
+
+    @property
+    def active_mongo_uri(self) -> str:
+        """Returns the active MongoDB connection URI, prioritizing MONGO_URI while preserving test overrides."""
+        if self.MONGODB_URI != self.MONGO_URI:
+            if self.MONGODB_URI != "mongodb://localhost:27017" and self.MONGO_URI == "mongodb://localhost:27017":
+                return self.MONGODB_URI
+            if self.MONGO_URI != "mongodb://localhost:27017" and self.MONGODB_URI == "mongodb://localhost:27017":
+                return self.MONGO_URI
+            return self.MONGO_URI
+        return self.MONGO_URI or self.MONGODB_URI
     
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
@@ -114,8 +127,9 @@ class Settings(BaseModel):
                 blockers.append("SECRET_KEY is using insecure default development value.")
             if self.FORCE_MOCK_DB:
                 blockers.append("FORCE_MOCK_DB is True in production environment.")
-            if "localhost" in self.MONGODB_URI or "127.0.0.1" in self.MONGODB_URI:
-                blockers.append("MONGODB_URI points to localhost in production mode.")
+            active_uri = self.active_mongo_uri
+            if "localhost" in active_uri or "127.0.0.1" in active_uri:
+                blockers.append("MONGO_URI / MONGODB_URI points to localhost in production mode.")
             if self.RAZORPAY_KEY_ID.startswith("rzp_live_"):
                 if not self.RAZORPAY_KEY_SECRET or self.RAZORPAY_KEY_SECRET == "YOUR_RAZORPAY_KEY_SECRET":
                     blockers.append("RAZORPAY_KEY_SECRET is unconfigured for live Razorpay key.")

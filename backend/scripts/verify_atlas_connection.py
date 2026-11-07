@@ -22,10 +22,10 @@ def mask_connection_uri(uri: str) -> str:
         return "<EMPTY>"
     return re.sub(r'(mongodb(?:\+srv)?://[^:]+:)([^@]+)(@.+)', r'\1****\3', uri)
 
-def verify_connection(uri: str, database_name: str = "ssk_staging_db") -> bool:
+def verify_connection(uri: str, database_name: str = "ssk_production_db") -> bool:
     masked_uri = mask_connection_uri(uri)
     print("=" * 70)
-    print(" SSK MONGODB ATLAS STAGING CONNECTION VERIFICATION")
+    print(" SSK MONGODB ATLAS PRODUCTION / STAGING CONNECTION VERIFICATION")
     print("=" * 70)
     print(f"Target Database : {database_name}")
     print(f"Cluster Endpoint: {masked_uri}")
@@ -33,7 +33,7 @@ def verify_connection(uri: str, database_name: str = "ssk_staging_db") -> bool:
     print("-" * 70)
 
     if not uri:
-        print("[FAIL] MONGODB_URI is not set. Please supply the staging Atlas connection URI.")
+        print("[FAIL] Neither MONGO_URI nor MONGODB_URI is set. Please supply the Atlas connection URI.")
         return False
 
     if "mock" in uri.lower():
@@ -116,10 +116,10 @@ def verify_connection(uri: str, database_name: str = "ssk_staging_db") -> bool:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="SSK Safe MongoDB Atlas Connection Verifier")
-    parser.add_argument("--uri", help="Staging MongoDB Atlas URI (if omitted, reads from MONGODB_URI env)", default=None)
-    parser.add_argument("--db", help="Database name", default="ssk_staging_db")
+    parser.add_argument("--uri", help="MongoDB Atlas URI (if omitted, reads from MONGO_URI or MONGODB_URI env)", default=None)
+    parser.add_argument("--db", help="Database name (default: ssk_production_db)", default=os.getenv("DATABASE_NAME", "ssk_production_db"))
     args = parser.parse_args()
 
-    uri_to_test = args.uri or os.getenv("MONGODB_URI")
+    uri_to_test = args.uri or os.getenv("MONGO_URI") or os.getenv("MONGODB_URI")
     success = verify_connection(uri_to_test, database_name=args.db)
     sys.exit(0 if success else 1)
