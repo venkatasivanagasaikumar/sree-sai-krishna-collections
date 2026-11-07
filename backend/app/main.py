@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
-from app.core.config import settings
+from app.core.config import settings, is_secret_key_secure, verify_production_secret_key
 from app.core.logging import logger
 from app.database import db_manager, get_db
 from app.seeds.seed_data import run_seed
@@ -33,7 +33,9 @@ from app.api.v1.webhooks import router as webhooks_router
 async def lifespan(app: FastAPI):
     logger.info(f"Starting {settings.PROJECT_NAME} (Environment: {settings.ENVIRONMENT})...")
     
-    # Production security & readiness check
+    # Production security & readiness check: abort immediately on startup if SECRET_KEY is insecure
+    verify_production_secret_key(settings.SECRET_KEY, settings.ENVIRONMENT)
+
     blockers = settings.validate_production_readiness()
     if blockers:
         for b in blockers:

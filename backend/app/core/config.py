@@ -20,6 +20,51 @@ def _clean_str(val: str) -> str:
         s = s[1:-1].strip()
     return s
 
+INSECURE_SECRET_PATTERNS = [
+    "ssk-royal-navy-gold",
+    "generate_with_openssl_rand_hex_32",
+    "replace_with",
+    "secret",
+    "changeme",
+    "password",
+    "12345",
+    "your_secret",
+]
+
+def is_secret_key_secure(secret: str) -> tuple[bool, str]:
+    """
+    Validates that a SECRET_KEY meets production security requirements:
+    - Non-empty and not whitespace-only
+    - Minimum length of 32 characters
+    - Does not contain known development/default/placeholder patterns
+    - Has adequate character diversity (entropy)
+    Returns (is_secure, reason). Never includes the secret value in logs or reasons.
+    """
+    if not secret or not str(secret).strip():
+        return False, "SECRET_KEY is empty or missing."
+    s = str(secret).strip()
+    if len(s) < 32:
+        return False, f"SECRET_KEY length ({len(s)}) is below the required 32-character minimum."
+    s_lower = s.lower()
+    for pattern in INSECURE_SECRET_PATTERNS:
+        if pattern in s_lower:
+            return False, f"SECRET_KEY contains known insecure or default pattern '{pattern}'."
+    if len(set(s)) < 8:
+        return False, "SECRET_KEY has insufficient character entropy/diversity."
+    return True, ""
+
+
+def verify_production_secret_key(secret: str, environment: str = "production"):
+    """
+    Enforces that the SECRET_KEY is valid and secure when running in production.
+    Raises RuntimeError if insecure in production. Passes silently in non-production.
+    Never exposes the secret in the exception message.
+    """
+    if environment == "production":
+        is_secure, sec_err = is_secret_key_secure(secret)
+        if not is_secure:
+            raise RuntimeError(f"CRITICAL MISCONFIGURATION: Insecure SECRET_KEY in production. {sec_err}")
+
 class Settings(BaseModel):
     PROJECT_NAME: str = "Sree Sai Krishna Collections API"
     BRAND_NAME: str = "Sree Sai Krishna Collections"
@@ -176,8 +221,9 @@ class Settings(BaseModel):
         """
         blockers = []
         if self.ENVIRONMENT == "production":
-            if "ssk-royal-navy-gold" in self.SECRET_KEY or self.SECRET_KEY == "generate_with_openssl_rand_hex_32":
-                blockers.append("SECRET_KEY is using insecure default development value.")
+            is_valid_sec, sec_reason = is_secret_key_secure(self.SECRET_KEY)
+            if not is_valid_sec:
+                blockers.append(f"SECRET_KEY is insecure for production: {sec_reason}")
             if self.FORCE_MOCK_DB:
                 blockers.append("FORCE_MOCK_DB is True in production environment.")
             active_uri = self.active_mongo_uri
@@ -199,6 +245,8 @@ class Settings(BaseModel):
                     blockers.append("Cloudinary configuration is incomplete: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET must all be provided.")
                 elif set(self.clean_cloudinary_api_secret) == {"*"}:
                     blockers.append("CLOUDINARY_API_SECRET is set to masked asterisks (e.g. '**********') instead of the actual secret.")
+            elif not self.is_cloudinary_configured:
+                blockers.append("Cloudinary product image storage is required in production (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET must be configured).")
         return blockers
     
 settings = Settings()

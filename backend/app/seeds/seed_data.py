@@ -108,7 +108,7 @@ def run_seed():
     for u in users_to_seed:
         db.users.update_one(
             {"email": u["email"]},
-            {"$set": u},
+            {"$setOnInsert": u},
             upsert=True
         )
 

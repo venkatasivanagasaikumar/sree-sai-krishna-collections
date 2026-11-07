@@ -155,6 +155,12 @@ def upload_file(
                 detail=f"Failed to process image upload: {clean_err}"
             )
     else:
+        if settings.ENVIRONMENT == "production":
+            logger.error("Product image upload rejected: Cloudinary is not configured and local upload fallback is disabled in production.")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Cloudinary product image storage is unconfigured. Local storage fallback is disabled in production."
+            )
         unique_name = f"{uuid.uuid4().hex}{ext}"
         destination = os.path.join(UPLOAD_DIR, unique_name)
         try:
