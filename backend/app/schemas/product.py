@@ -46,6 +46,7 @@ class ProductBase(BaseModel):
     stock: int
     low_stock_threshold: int = 5
     images: List[str] = []
+    cloudinary_public_ids: List[str] = Field(default_factory=list)
     materials_and_finish: str # e.g. "Brass alloy with micro gold-plating finish (Imitation)"
     jewelry_type: str = "Fashion / Imitation" # "1-Gram Gold Finish", "Imitation Jewellery", "Hair Accessory", etc.
     genuine_gold_disclaimer: str = "This is a premium imitation / gold-finish fashion piece and contains no precious gold bullion or hallmark certification."
@@ -78,6 +79,7 @@ class ProductUpdate(BaseModel):
     stock: Optional[int] = None
     low_stock_threshold: Optional[int] = None
     images: Optional[List[str]] = None
+    cloudinary_public_ids: Optional[List[str]] = None
     materials_and_finish: Optional[str] = None
     jewelry_type: Optional[str] = None
     colors: Optional[List[str]] = None

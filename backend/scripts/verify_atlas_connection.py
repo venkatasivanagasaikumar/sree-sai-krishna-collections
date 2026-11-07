@@ -66,7 +66,7 @@ def verify_connection(uri: str, database_name: str = "ssk_production_db") -> boo
 
     print("[2/5] Sending admin ping command (testing TLS & network reachable)...")
     try:
-        ping_res = client.admin.command("ping")
+        ping_res = client["admin"].command("ping")
         print(f"[PASS] Cluster ping successful. Server response: {ping_res}")
     except Exception as e:
         safe_err = mask_connection_uri(str(e))
@@ -75,17 +75,25 @@ def verify_connection(uri: str, database_name: str = "ssk_production_db") -> boo
         return False
 
     print(f"[3/5] Testing read/write permissions on database '{database_name}'...")
+    inserted_id = None
     try:
         db = client[database_name]
-        probe_doc = {"probe": "staging_verification", "timestamp": datetime.now(timezone.utc)}
-        res = db._connection_probe.insert_one(probe_doc)
-        inserted_id = res.inserted_id
-        # Read back
-        found = db._connection_probe.find_one({"_id": inserted_id})
-        assert found is not None
-        # Clean up
-        db._connection_probe.delete_one({"_id": inserted_id})
-        print(f"[PASS] Read and write privileges confirmed on '{database_name}'.")
+        probe_collection = db["_connection_probe"]
+        probe_doc = {"probe": "connection_verification", "timestamp": datetime.now(timezone.utc)}
+        try:
+            res = probe_collection.insert_one(probe_doc)
+            inserted_id = res.inserted_id
+            # Read back
+            found = probe_collection.find_one({"_id": inserted_id})
+            assert found is not None, "Inserted verification document could not be read back."
+            print(f"[PASS] Read and write privileges confirmed on '{database_name}'.")
+        finally:
+            if inserted_id is not None:
+                try:
+                    probe_collection.delete_one({"_id": inserted_id})
+                except Exception as del_err:
+                    safe_del_err = mask_connection_uri(str(del_err))
+                    print(f"[WARNING] Could not delete probe document: {safe_del_err}")
     except Exception as e:
         safe_err = mask_connection_uri(str(e))
         print(f"[FAIL] Database permission failure: {safe_err}")
@@ -102,14 +110,14 @@ def verify_connection(uri: str, database_name: str = "ssk_production_db") -> boo
     print("[5/5] Checking database latency...")
     try:
         t0 = datetime.now()
-        client.admin.command("ping")
+        client["admin"].command("ping")
         latency_ms = round((datetime.now() - t0).total_seconds() * 1000, 2)
         print(f"[PASS] Round-trip latency to cluster: {latency_ms} ms")
     except Exception:
         pass
 
     print("-" * 70)
-    print("VERDICT: MongoDB Atlas Staging cluster connectivity is FULLY OPERATIONAL.")
+    print("VERDICT: MongoDB Atlas cluster connectivity is FULLY OPERATIONAL.")
     print("=" * 70)
     client.close()
     return True

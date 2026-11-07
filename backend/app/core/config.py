@@ -1,6 +1,24 @@
 import os
 from typing import List
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
+
+# Load local environment variables from backend/.env if present (strictly gitignored)
+_backend_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_env_file = os.path.join(_backend_root, ".env")
+if os.path.exists(_env_file):
+    load_dotenv(_env_file)
+else:
+    load_dotenv()
+
+def _clean_str(val: str) -> str:
+    """Strips leading/trailing whitespace and surrounding quotation marks."""
+    if not val:
+        return ""
+    s = str(val).strip()
+    if (s.startswith('"') and s.endswith('"')) or (s.startswith("'") and s.endswith("'")):
+        s = s[1:-1].strip()
+    return s
 
 class Settings(BaseModel):
     PROJECT_NAME: str = "Sree Sai Krishna Collections API"
@@ -116,6 +134,41 @@ class Settings(BaseModel):
     INITIAL_ADMIN_EMAIL: str = os.getenv("INITIAL_ADMIN_EMAIL", "admin@sskcollections.com")
     INITIAL_ADMIN_PASSWORD: str = os.getenv("INITIAL_ADMIN_PASSWORD", "")
 
+    # Cloudinary Product Image Storage
+    CLOUDINARY_CLOUD_NAME: str = os.getenv("CLOUDINARY_CLOUD_NAME", "")
+    CLOUDINARY_API_KEY: str = os.getenv("CLOUDINARY_API_KEY", "")
+    CLOUDINARY_API_SECRET: str = os.getenv("CLOUDINARY_API_SECRET", "")
+    CLOUDINARY_FOLDER: str = os.getenv("CLOUDINARY_FOLDER", "products")
+
+    @property
+    def clean_cloudinary_cloud_name(self) -> str:
+        return _clean_str(self.CLOUDINARY_CLOUD_NAME)
+
+    @property
+    def clean_cloudinary_api_key(self) -> str:
+        return _clean_str(self.CLOUDINARY_API_KEY)
+
+    @property
+    def clean_cloudinary_api_secret(self) -> str:
+        return _clean_str(self.CLOUDINARY_API_SECRET)
+
+    @property
+    def clean_cloudinary_folder(self) -> str:
+        return _clean_str(self.CLOUDINARY_FOLDER) or "products"
+
+    @property
+    def is_cloudinary_configured(self) -> bool:
+        """Returns True if all three required Cloudinary credentials are provided, non-empty, and not dummy masks."""
+        c = self.clean_cloudinary_cloud_name
+        k = self.clean_cloudinary_api_key
+        s = self.clean_cloudinary_api_secret
+        if not (c and k and s):
+            return False
+        # Guard against dashboard UI mask (e.g. '**********') or placeholder strings
+        if set(s) == {"*"} or "your" in s.lower() or "placeholder" in s.lower():
+            return False
+        return True
+
     def validate_production_readiness(self) -> List[str]:
         """
         Validates critical configuration against production security benchmarks.
@@ -141,6 +194,11 @@ class Settings(BaseModel):
                 blockers.append("SMTP_HOST configured but SMTP_USER is missing.")
             if not self.INITIAL_ADMIN_PASSWORD or self.INITIAL_ADMIN_PASSWORD in ["Admin@SSK2026!", "Staff@SSK2026!", "AdminPassword123!"]:
                 blockers.append("INITIAL_ADMIN_PASSWORD must be configured with a secure non-default password in production.")
+            if any([self.CLOUDINARY_CLOUD_NAME, self.CLOUDINARY_API_KEY, self.CLOUDINARY_API_SECRET]):
+                if not (self.clean_cloudinary_cloud_name and self.clean_cloudinary_api_key and self.clean_cloudinary_api_secret):
+                    blockers.append("Cloudinary configuration is incomplete: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET must all be provided.")
+                elif set(self.clean_cloudinary_api_secret) == {"*"}:
+                    blockers.append("CLOUDINARY_API_SECRET is set to masked asterisks (e.g. '**********') instead of the actual secret.")
         return blockers
     
 settings = Settings()

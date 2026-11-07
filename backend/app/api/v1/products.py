@@ -185,6 +185,12 @@ def create_product(payload: ProductCreate, db = Depends(get_db)):
     doc["created_at"] = datetime.now(timezone.utc)
     doc["updated_at"] = datetime.now(timezone.utc)
     
+    # Store and link Cloudinary public IDs if present in media_assets
+    if not doc.get("cloudinary_public_ids") and doc.get("images"):
+        assets = list(db.media_assets.find({"url": {"$in": doc["images"]}}, {"public_id": 1}))
+        if assets:
+            doc["cloudinary_public_ids"] = [a["public_id"] for a in assets if a.get("public_id")]
+    
     res = db.products.insert_one(doc)
     doc_id = str(res.inserted_id)
     db.products.update_one({"_id": res.inserted_id}, {"$set": {"id": doc_id}})
@@ -214,6 +220,12 @@ def update_product(product_id: str, payload: ProductUpdate, db = Depends(get_db)
     if "sku" in update_data:
         update_data["sku"] = update_data["sku"].upper()
     update_data["updated_at"] = datetime.now(timezone.utc)
+
+    # Link Cloudinary public IDs if images are updated and public IDs not specified
+    if "images" in update_data and not update_data.get("cloudinary_public_ids"):
+        assets = list(db.media_assets.find({"url": {"$in": update_data["images"]}}, {"public_id": 1}))
+        if assets:
+            update_data["cloudinary_public_ids"] = [a["public_id"] for a in assets if a.get("public_id")]
 
     res = db.products.update_one(query, {"$set": update_data})
     if res.matched_count == 0:
